@@ -1,4 +1,4 @@
-# UrlShortener2015
+# Web Engineering 2015-2016 / UrlShortener2015
 [![Build Status](https://travis-ci.org/UNIZAR-30246-WebEngineering/UrlShortener2015.svg)](https://travis-ci.org/UNIZAR-30246-WebEngineering/UrlShortener2015)
 
 This is the shared repository for the project developed in this course. Go to the [wiki](wiki) to start your project.
