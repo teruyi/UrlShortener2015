@@ -1,0 +1,21 @@
+// Demo project specific stuff
+eclipse {
+   project {
+      name = 'UrlShortener2015.demo'
+   }
+}
+
+dependencies {
+    compile project(':common')
+
+    // Provides the production database
+    runtime 'org.hsqldb:hsqldb'
+
+    // Provides java script libraries for static content
+    compile 'org.webjars:bootstrap:3.3.5'
+    compile 'org.webjars:jquery:2.1.4'    
+
+    // Testing framework
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'org.apache.httpcomponents:httpclient:4.5'
+}

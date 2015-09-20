@@ -1,0 +1,33 @@
+// Build script
+buildscript {
+  repositories {
+	mavenCentral()
+	maven { url 'http://repo.spring.io/release' }
+  }
+  dependencies {
+    classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.6.RELEASE'
+  }
+}
+
+
+// Instructions for all projects
+allprojects {
+   apply plugin: 'eclipse'
+   apply plugin: 'eclipse-wtp'
+   apply plugin: 'idea'
+   apply plugin: 'java'
+   apply plugin: 'spring-boot'
+   
+   sourceCompatibility = 1.8
+   targetCompatibility = 1.8
+}
+
+// Instructions for each sub project
+subprojects {
+  repositories {
+	mavenCentral()
+	maven { url 'http://repo.spring.io/release' }
+  }
+}
+
+
