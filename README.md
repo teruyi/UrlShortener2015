@@ -10,13 +10,24 @@ This is the shared repository for the project developed in this course. Go to th
 
 ## Teams
 
-[TO BE COMPLETED]
+* [Alizarin Crimson](alizarin-crimson): Javier, Jorge, Alejandro
+* [Bangladesh Green](bangladesh-green): Luis, Raúl, Ismael, Sergio
+* [Candy Pink](candy-pink): Alberto, Íñigo, Santiago, David
+* [Dim Gray](dim-gray): Ramón, Óscar, Guillermo 
+* [Eerie Black](eerie-black): Jorge, Adrián, Marcos 
+* [Fuzzy Wuzzy](fuzzy-wuzzy): Christian, Alberto, Diego
+* [Golden Brown](golden-brown): Óscar, Daniel, Eduardo
+* [Heat Wave](heat-wave): Íñigo, Marcos, Carlos
+* [Imperial Red](imperial-red): Javier, Jorge, Alejandro
+* [Japanese Violet](japanese-violet): Aron, Agustín, Alejandro
+* [Lavender Gray](lavender-gray): Rubén, Cristian, Daniel
+* [Navajo White](navajo-white): Jorge, Alberto, Adrian
 
 ## Starting procedure
 
 * The team leader forks this repository
 * Each team member forks the fork of the respective team leader
-* Import your own fork into eclipse. You must import the common project, the demo project and your project. For example, if your project is _BangladeshGreen_ you must import `UrlShortener2015.common`, `UrlShortener2015.demo` and `UrlShortener2015.bangladeshGreen`. Other projects are optional.
+* Import your own fork into eclipse. You must import the common project, the demo project and your project. For example, if your project is _BangladeshGreen_ you must import `UrlShortener2015.common`, `UrlShortener2015.demo` and `UrlShortener2015.BangladeshGreen`. Other projects are optional.
 * Create the folder `src\main\java` in your project.
 * Copy the contents of `src\main\java` from `UrlShortener205.demo` into your project.
 * Rename the package `urlshortener2015.demo` to your color. For example if your project is _BangladeshGreen_ you must rename it to `urlshortener2015.bangladeshgreen`.
