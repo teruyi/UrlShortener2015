@@ -1,0 +1,1 @@
+https://travis-ci.org/teruyi/UrlShortener2015
