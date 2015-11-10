@@ -3,3 +3,14 @@
 /.settings/
 /.gradle/
 /build/
+
+
+#Compiled
+*.class
+
+#IntelliJ files
+/.idea
+*.iml
+*.iws
+*.ipl
+*.jar
