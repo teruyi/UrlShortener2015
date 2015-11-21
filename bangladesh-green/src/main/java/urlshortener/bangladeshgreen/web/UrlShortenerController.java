@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
-import urlshortener2015.common.domain.Click;
-import urlshortener2015.common.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.Click;
+import urlshortener.bangladeshgreen.domain.ShortURL;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
