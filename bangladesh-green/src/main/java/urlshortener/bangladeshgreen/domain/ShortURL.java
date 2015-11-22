@@ -1,7 +1,9 @@
 package urlshortener.bangladeshgreen.domain;
 
+import org.springframework.data.annotation.Id;
+
 import java.net.URI;
-import java.sql.Date;
+import java.util.Date;
 
 /**
  * Represents a short URL.
@@ -10,7 +12,9 @@ import java.sql.Date;
 
 public class ShortURL {
 
+    @Id
     private String hash;
+
     private String target;
     private URI uri;
     private Date created;
@@ -27,6 +31,8 @@ public class ShortURL {
         this.ip = ip;
         this.privateToken = privateToken;
     }
+
+    public ShortURL(){};
 
     public String getHash() {
         return hash;
@@ -82,5 +88,18 @@ public class ShortURL {
 
     public void setPrivateToken(String privateToken) {
         this.privateToken = privateToken;
+    }
+
+    public String toString() {
+        return String.format(
+                "ShortURL[hash=%d, target='%s', uri='%s', created='%s', creator='%s', ip='%s', privateToken='%s']\n",
+                hash, target, uri,created,creator, ip,privateToken);
+
+    }
+    public boolean compareTo(ShortURL other){
+        if(this.hash.compareTo(other.hash) == 0){
+            return true;
+        }
+        else {return false;}
     }
 }

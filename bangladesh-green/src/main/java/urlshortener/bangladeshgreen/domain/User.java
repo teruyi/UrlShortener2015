@@ -1,4 +1,5 @@
 package urlshortener.bangladeshgreen.domain;
+import org.springframework.data.annotation.Id;
 
 /**
  * Represents a user.
@@ -6,7 +7,7 @@ package urlshortener.bangladeshgreen.domain;
  */
 
 public class User {
-
+    @Id
     private String username;
     private String email;
     private String password;
@@ -59,5 +60,18 @@ public class User {
 
     public void setRealName(String realName) {
         this.realName = realName;
+    }
+
+    public String toString() {
+        return String.format(
+                "ShortURL[username=%d, email='%s', password='%s', role='%s', realName='%s']\n",
+                username, email, password,role,realName);
+
+    }
+    public boolean compareTo(User other){
+        if(this.username.compareTo(other.username)==0){
+            return true;
+        }
+        else {return false;}
     }
 }
