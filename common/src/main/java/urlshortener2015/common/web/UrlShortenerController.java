@@ -34,6 +34,8 @@ import com.google.common.hash.Hashing;
 public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
+
+
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 

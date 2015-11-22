@@ -8,7 +8,7 @@ public class ShortURL {
 	private String hash;
 	private String target;
 	private URI uri;
-	private String sponsor;
+	private String sponsor; //?
 	private Date created;
 	private String owner;
 	private Integer mode;

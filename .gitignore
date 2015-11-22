@@ -14,3 +14,13 @@
 *.iws
 *.ipl
 *.jar
+
+#Gradle files
+gradle/
+gradle*
+
+#AngularJS build files
+node_modules/
+bower_components/
+dist/
+build/
