@@ -1,26 +1,16 @@
-package urlshortener.bangladeshgreen.domain;
-import org.springframework.data.annotation.Id;
+package urlshortener.bangladeshgreen.domain.messages;
 
 /**
- * Represents a user.
- * Author: BangladeshGreen
+ * Register request sent by user.
  */
+public class UserRequest {
 
-public class User {
-    @Id
     private String username;
     private String email;
     private String password;
     private String role;
     private String realName;
 
-    public User(String username, String email, String role, String password, String realName) {
-        this.username = username;
-        this.email = email;
-        this.role = role;
-        this.password = password;
-        this.realName = realName;
-    }
 
     public String getUsername() {
         return username;
@@ -62,16 +52,24 @@ public class User {
         this.realName = realName;
     }
 
-    public String toString() {
-        return String.format(
-                "User[username=%s, email='%s', password='%s', role='%s', realName='%s']\n",
-                username, email, password,role,realName);
-
-    }
-    public boolean compareTo(User other){
-        if(this.username.compareTo(other.username)==0){
-            return true;
+    /**
+     * Checks this object for empty or null fields.
+     * @return String with the field empty or null, otherwise null.
+     */
+    public String checkRequest(){
+        if(this.email==null || this.email.isEmpty()){
+            return "email";
+        } else if (this.password==null || this.password.isEmpty()){
+            return "password";
+        } else if (this.realName==null || this.realName.isEmpty()){
+            return "realName";
+        } else if (this.role==null || this.role.isEmpty()){
+            return "role";
+        } else if(this.username==null || this.username.isEmpty()){
+            return "username";
+        } else {
+            return null;
         }
-        else {return false;}
     }
+
 }

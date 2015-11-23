@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.*;
 import urlshortener.bangladeshgreen.repository.UserRepository;
+import urlshortener.bangladeshgreen.secure.Hash;
 
 import javax.servlet.ServletException;
 import java.util.*;
@@ -43,7 +44,8 @@ public class LoginController {
             throws ServletException {
 
 
-        if (login.getName() == null || login.getPassword() == null) {
+        if (login.getName()==null || login.getName().isEmpty() || login.getPassword()==null ||
+                login.getPassword().isEmpty()) {
             //No user o no password provided
             ErrorResponse errorResponse = new ErrorResponse("Please, provide both user and password");
             return new ResponseEntity<>(errorResponse,HttpStatus.UNAUTHORIZED);
@@ -51,8 +53,10 @@ public class LoginController {
         else{
 
             User requestedUser = userRepository.findByUsername(login.getName());
-            //TODO: compare passwords by hash
-            if(requestedUser!=null && requestedUser.getPassword().equals(login.getPassword())){
+            // Convert password to hash for comparing
+            String password = Hash.makeHash(login.getPassword());
+            // Compares the requested user and both password hashes
+            if(requestedUser!=null && requestedUser.getPassword().equals(password)){
                 //User exists and password is correct
 
                 //Expiration time of token
