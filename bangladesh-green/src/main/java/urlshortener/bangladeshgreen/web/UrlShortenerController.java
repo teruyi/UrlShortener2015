@@ -41,16 +41,27 @@ public class UrlShortenerController {
 	protected ClickRepository clickRepository;
 
 	/*
-	* This method does the REDIRECT.
+	* This method does the REDIRECT
 	 */
 	@RequestMapping(value = "/{id:(?!link|index).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id,
-			HttpServletRequest request) {
-		logger.info("Requested redirection with hash " + id);
+			HttpServletRequest request,@RequestParam(value="privateToken", required=false) String privateToken) {
+
+		logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
+
 		ShortURL l = shortURLRepository.findByHash(id);
+
 		if (l != null) {
-			createAndSaveClick(id, extractIP(request));
-			return createSuccessfulRedirectToResponse(l);
+			if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
+				//If private and incorrect token, then unauthorized
+				//todo: A fancy HTML?
+				logger.info("Denied redirection with hash " + id + " - privateToken=" + privateToken);
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+			else{
+				createAndSaveClick(id, extractIP(request));
+				return createSuccessfulRedirectToResponse(l);
+			}
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -64,7 +75,6 @@ public class UrlShortenerController {
 
 		logger.info("Requested new short for uri " + shortURL.getTarget());
 
-
 		String user = "anonymous";
 
 		//TODO: Uncomment for enabling authentication
@@ -72,7 +82,7 @@ public class UrlShortenerController {
 		//user = claims.getSubject();
 
 		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), UUID
-				.randomUUID().toString(), extractIP(request),shortURL.getPrivateToken());
+				.randomUUID().toString(), extractIP(request),shortURL.isPrivateURI());
 
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
@@ -111,7 +121,7 @@ public class UrlShortenerController {
 
 
 	protected ShortURL createAndSaveIfValid(String url,
-			 String creator, String ip, String privateToken) {
+			 String creator, String ip, boolean isPrivate) {
 
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
@@ -119,9 +129,18 @@ public class UrlShortenerController {
 			String id = Hashing.murmur3_32()
 					.hashString(url, StandardCharsets.UTF_8).toString();
 
+			//TODO: if repeated, add number.
+
+			//If private, create token
+			String privateToken = null;
+			if(isPrivate){
+				//User wants a private URL, generate random authorization token
+				privateToken = UUID.randomUUID().toString();
+			}
+
 			ShortURL su = new ShortURL(id,url,	linkTo(
 					methodOn(UrlShortenerController.class).redirectTo(
-							id, null)).toUri(),creator, new Date(),ip,privateToken);
+							id, null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
 
 			return shortURLRepository.save(su);
 

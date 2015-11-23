@@ -21,7 +21,7 @@ import javax.servlet.ServletException;
  * it returns an HTTP "CREATED" response. Otherwise, an error response is sent.
  */
 @RestController
-@RequestMapping("/register")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired
@@ -32,27 +32,36 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<? extends JsonResponse> register(@RequestBody final UserRequest reg)
+    public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg)
             throws ServletException {
+        
         // Checks for null fields
-        String check = reg.checkRequest();
+        String check = checkRequest(reg);
+
         if(check == null){
+
             // Converts password into hash
-            String password = Hash.makeHash(reg.getPassword());
-            User newUser = new User(reg.getUsername(),reg.getEmail(),reg.getRole(),password,
-                    reg.getRealName());
-            User repeated = userRepository.findByUsername(newUser.getUsername());
+            String hashedPassword = Hash.makeHash(reg.getPassword());
+            reg.setPassword(hashedPassword);
+
+            reg.setRole("user"); //User role
+
+            User repeated = userRepository.findByUsername(reg.getUsername());
+            //todo: Find user by email
+
             if(repeated != null){
                 // User already registered
                 ErrorResponse errorResponse = new ErrorResponse("User with username " + repeated.getUsername() +
                     ", is already registered.");
                 return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
             } else {
-                userRepository.save(newUser);
+
+                userRepository.save(reg);
+
                 // User registered successfully
-                String username = newUser.getUsername();
-                SuccessResponse<String> successResponse = new SuccessResponse<>("User " + username +
-                        ", has been created " + "successfully. You can now log in.");
+                reg.setPassword(null);
+
+                SuccessResponse<User> successResponse = new SuccessResponse<>(reg);
                 return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.CREATED);
             }
         } else {
@@ -62,6 +71,26 @@ public class UserController {
         }
     }
 
+
+    /**
+     * Checks this object for empty or null fields.
+     * @return String with the field empty or null, otherwise null.
+     */
+    private String checkRequest(User user){
+        if(user.getEmail()==null || user.getEmail().isEmpty()){
+            return "email";
+        } else if (user.getPassword()==null || user.getPassword().isEmpty()){
+            return "password";
+        } else if (user.getRealName()==null || user.getRealName().isEmpty()){
+            return "realName";
+        } else if (user.getRole()==null || user.getRole().isEmpty()){
+            return "role";
+        } else if(user.getUsername()==null || user.getUsername().isEmpty()){
+            return "username";
+        } else {
+            return null;
+        }
+    }
 
 
 }

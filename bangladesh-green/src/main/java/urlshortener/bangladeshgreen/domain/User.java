@@ -14,6 +14,10 @@ public class User {
     private String role;
     private String realName;
 
+
+    public User(){
+
+    }
     public User(String username, String email, String role, String password, String realName) {
         this.username = username;
         this.email = email;

@@ -21,18 +21,28 @@ public class ShortURL {
     private String creator;
     private String ip;
     private String privateToken;
+    private boolean privateURI;
 
-    public ShortURL(String hash, String target, URI uri, String creator, Date created, String ip, String privateToken) {
+    public ShortURL(String hash, String target, URI uri, String creator, Date created, String ip, boolean privateURI, String privateToken) {
         this.hash = hash;
         this.target = target;
         this.uri = uri;
         this.creator = creator;
         this.created = created;
         this.ip = ip;
+        this.privateURI = privateURI;
         this.privateToken = privateToken;
     }
 
     public ShortURL(){};
+
+    public boolean isPrivateURI() {
+        return privateURI;
+    }
+
+    public void setPrivateURI(boolean aPrivate) {
+        privateURI = aPrivate;
+    }
 
     public String getHash() {
         return hash;
