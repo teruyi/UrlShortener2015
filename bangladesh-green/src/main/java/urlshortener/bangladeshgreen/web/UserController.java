@@ -31,6 +31,10 @@ public class UserController {
 
     }
 
+    public UserController(UserRepository u){
+        this.userRepository = u;
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg)
             throws ServletException {
@@ -91,6 +95,4 @@ public class UserController {
             return null;
         }
     }
-
-
 }
