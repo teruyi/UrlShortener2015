@@ -1,10 +1,12 @@
 package urlshortener.bangladeshgreen.repository;
 
-import urlshortener2015.common.domain.Click;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import urlshortener.bangladeshgreen.domain.Click;
 
 import java.util.List;
 
-public interface ClickRepository {
+public interface ClickRepository extends MongoRepository<Click, String> {
 
 	List<Click> findByHash(String hash);
 
@@ -23,4 +25,5 @@ public interface ClickRepository {
 	Long count();
 
 	List<Click> list(Long limit, Long offset);
+
 }

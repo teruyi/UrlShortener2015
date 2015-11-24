@@ -2,7 +2,7 @@ package urlshortener.bangladeshgreen.domain;
 
 import java.net.URI;
 import java.sql.Date;
-
+import org.springframework.data.annotation.Id;
 /**
  * Represents a short URL.
  * Author: BangladeshGreen
@@ -10,7 +10,9 @@ import java.sql.Date;
 
 public class ShortURL {
 
+    @Id
     private String hash;
+
     private String target;
     private URI uri;
     private Date created;

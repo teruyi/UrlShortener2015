@@ -1,5 +1,6 @@
 package urlshortener.bangladeshgreen.repository;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
 import urlshortener.bangladeshgreen.domain.User;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 /**
  * Created by ismaro3 on 18/11/15.
  */
-public interface UserRepository {
+public interface UserRepository extends MongoRepository<User, String> {
 
     User findByUsername(String username);
 

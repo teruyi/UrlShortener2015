@@ -1,4 +1,5 @@
 package urlshortener.bangladeshgreen.domain;
+import org.springframework.data.annotation.Id;
 
 /**
  * Represents a user.
@@ -7,7 +8,9 @@ package urlshortener.bangladeshgreen.domain;
 
 public class User {
 
+    @Id
     private String username;
+
     private String email;
     private String password;
     private String role;

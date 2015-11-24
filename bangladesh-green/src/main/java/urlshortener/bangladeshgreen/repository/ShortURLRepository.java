@@ -1,10 +1,12 @@
 package urlshortener.bangladeshgreen.repository;
 
-import urlshortener2015.common.domain.ShortURL;
+
+import org.springframework.data.mongodb.repository.MongoRepository;
+import urlshortener.bangladeshgreen.domain.ShortURL;
 
 import java.util.List;
 
-public interface ShortURLRepository {
+public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 
 	ShortURL findByHash(String hash);
 
@@ -16,7 +18,7 @@ public interface ShortURLRepository {
 
 	void delete(String id);
 
-	Long count();
+	long count();
 
 	List<ShortURL> list(Long limit, Long offset);
 

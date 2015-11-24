@@ -1,10 +1,10 @@
 buildscript {
   repositories {
-	mavenCentral()
-	maven { url 'http://repo.spring.io/release' }
+    maven { url 'http://repo.spring.io/release' }
+    mavenCentral()
   }
   dependencies {
-    classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.6.RELEASE'
+      classpath("org.springframework.boot:spring-boot-gradle-plugin:1.3.0.RELEASE")
   }
 }
 
@@ -13,24 +13,31 @@ eclipse {
       name = 'UrlShortener2015.demo'
    }
 }
-
-apply plugin: 'eclipse-wtp'
+jar {
+    baseName = 'UrlShortener2015'
+    version =  '0.1.0'
+}
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'spring-boot'
 
-mainClassName = 'urlshortener.bangladeshgreen.Application'
-
+repositories {
+    mavenCentral()
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 dependencies {
     compile project(':common')
 
     // Provides the production database
-    runtime 'org.hsqldb:hsqldb'
 
     // Provides java script libraries for static content
     compile 'org.webjars:bootstrap:3.3.5'
-    compile 'org.webjars:jquery:2.1.4'    
-
+    compile 'org.webjars:jquery:2.1.4'
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
     // Testing framework
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.apache.httpcomponents:httpclient:4.5'
     testCompile 'com.jayway.jsonpath:json-path:0.9.1'
+    testCompile("junit:junit")
 }
