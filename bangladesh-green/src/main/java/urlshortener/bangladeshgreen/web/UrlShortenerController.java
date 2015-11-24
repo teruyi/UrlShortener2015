@@ -17,7 +17,10 @@ import urlshortener.bangladeshgreen.repository.*;
 import urlshortener.bangladeshgreen.domain.*;
 
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -43,26 +46,47 @@ public class UrlShortenerController {
 	/*
 	* This method does the REDIRECT
 	 */
-	@RequestMapping(value = "/{id:(?!link|index).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|privateURL|404).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id,
-			HttpServletRequest request,@RequestParam(value="privateToken", required=false) String privateToken) {
+										@RequestParam(value="privateToken", required=false) String privateToken,
+										HttpServletRequest request,
+										HttpServletResponse response) {
 
 		logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
 
 		ShortURL l = shortURLRepository.findByHash(id);
 
 		if (l != null) {
+
 			if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
 				//If private and incorrect token, then unauthorized
-				//todo: A fancy HTML?
+				//todo: Redirect to JSP "the Spring Boot way"
 				logger.info("Denied redirection with hash " + id + " - privateToken=" + privateToken);
+
+				try{
+					response.setStatus(HttpStatus.UNAUTHORIZED.value());
+					request.getRequestDispatcher("privateURL.jsp").forward(request, response);
+
+				}
+				catch(ServletException | IOException ex) {
+				}
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
 			}
 			else{
 				createAndSaveClick(id, extractIP(request));
 				return createSuccessfulRedirectToResponse(l);
 			}
 		} else {
+			//todo: Redirect to JSP "the Spring Boot way"
+
+			try{
+				response.setStatus(HttpStatus.NOT_FOUND.value());
+				request.getRequestDispatcher("404.jsp").forward(request, response);
+
+			}
+			catch(ServletException | IOException ex) {
+			}
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
@@ -138,9 +162,10 @@ public class UrlShortenerController {
 				privateToken = UUID.randomUUID().toString();
 			}
 
+			
 			ShortURL su = new ShortURL(id,url,	linkTo(
 					methodOn(UrlShortenerController.class).redirectTo(
-							id, null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
+							id, null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
 
 			return shortURLRepository.save(su);
 
