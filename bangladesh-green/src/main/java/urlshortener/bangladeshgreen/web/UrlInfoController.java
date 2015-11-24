@@ -21,6 +21,11 @@ import java.util.List;
 /**
  * Created by teruyi on 23/11/15.
  */
+/**
+ * Controller used for show URL info.
+ * When a user wants to get info about an URL, the user make a get request with the URL followed by '+' and
+ * the controller return a JSON or HTML redirect with the Information.
+ */
 @RestController
 public class UrlInfoController {
     private static final Logger log = LoggerFactory

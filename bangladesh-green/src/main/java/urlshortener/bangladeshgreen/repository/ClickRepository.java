@@ -13,8 +13,6 @@ public interface ClickRepository extends MongoRepository<Click, String> {
 
 	public List<Click> findByHash(String hash);
 
-	public Click findById(Long id);
-
 	@Query("{}")
 	List<Click> list();
 

@@ -5,23 +5,23 @@ package urlshortener.bangladeshgreen.domain;
  */
 public class InfoURL {
 
-    private String longURI;
+    private String target;
     private String creationDate;
     private int usesCount;
 
     public InfoURL(String longURI, String creationDate, int usesCount) {
 
-        this.longURI = longURI;
+        this.target = longURI;
         this.creationDate = creationDate;
         this.usesCount = usesCount;
     }
 
     public String getLongURI() {
-        return longURI;
+        return target;
     }
 
     public void setLongURI(String longURI) {
-        this.longURI = longURI;
+        this.target = longURI;
     }
 
     public String getCreationDate() {
@@ -43,7 +43,7 @@ public class InfoURL {
     @Override
     public String toString() {
         return "InfoURL{" +
-                "longURI=" + longURI +
+                "longURI=" + target +
                 ", creationDate=" + creationDate +
                 ", usesCount=" + usesCount +
                 '}';
@@ -57,14 +57,14 @@ public class InfoURL {
         InfoURL infoURL = (InfoURL) o;
 
         if (usesCount != infoURL.usesCount) return false;
-        if (longURI != null ? !longURI.equals(infoURL.longURI) : infoURL.longURI != null) return false;
+        if (target != null ? !target.equals(infoURL.target) : infoURL.target != null) return false;
         return !(creationDate != null ? !creationDate.equals(infoURL.creationDate) : infoURL.creationDate != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = longURI != null ? longURI.hashCode() : 0;
+        int result = target != null ? target.hashCode() : 0;
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         result = 31 * result + usesCount;
         return result;

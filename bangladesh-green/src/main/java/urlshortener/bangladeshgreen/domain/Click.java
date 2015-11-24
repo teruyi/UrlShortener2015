@@ -1,5 +1,7 @@
 package urlshortener.bangladeshgreen.domain;
 
+import org.springframework.data.annotation.Id;
+
 import java.util.Date;
 
 /**
@@ -8,6 +10,9 @@ import java.util.Date;
  */
 
 public class Click {
+
+    @Id
+    private String id;
 
     private String hash;
     private Date date;
@@ -25,6 +30,14 @@ public class Click {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Date getDate() {
@@ -45,9 +58,16 @@ public class Click {
     @Override
     public String toString() {
         return new String(
-                "Customer[hash='" +hash +
+                "Customer[id='"+ id+"', hash='" +hash +
                         "', date='"+ date+"', ip='"+ip +"']");
 
+    }
+
+    public boolean compareTo(Click other){
+        if(this.id.compareTo(other.id)==0){
+            return true;
+        }
+        else {return false;}
     }
 
 }
