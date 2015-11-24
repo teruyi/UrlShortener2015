@@ -58,9 +58,9 @@ public class Click {
 
     @Override
     public String toString() {
-        return String.format(
-                "Customer[id=%d, hash='%s', date='%s', ip='%s']",
-                id, hash, date, ip);
+        return new String(
+                "Customer[id='"+ id+"', hash='" +hash +
+                        "', date='"+ date+"', ip='"+ip +"']");
 
     }
 

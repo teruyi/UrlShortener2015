@@ -16,6 +16,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     @Query("{}")
     public List<Click> list();
+    @Query("{'email' : ?0}")
+    public User findByEmail(String mail);
 
 
 }
