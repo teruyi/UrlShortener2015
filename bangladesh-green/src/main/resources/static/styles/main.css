@@ -81,3 +81,18 @@ body {
     border-bottom: 0;
   }
 }
+
+.lockImage {
+  display: block;
+  margin-left: auto;
+  margin-right: auto }
+
+.lockText{
+  text-align: center;
+  font-size:50px;
+}
+
+.lockTextSecondary{
+  text-align: center;
+  font-size:20px;
+}
