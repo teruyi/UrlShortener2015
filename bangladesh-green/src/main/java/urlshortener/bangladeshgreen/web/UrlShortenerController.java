@@ -1,7 +1,6 @@
 package urlshortener.bangladeshgreen.web;
 
 import com.google.common.hash.Hashing;
-import io.jsonwebtoken.Claims;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +9,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import urlshortener.bangladeshgreen.domain.Click;
+import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
-import urlshortener.bangladeshgreen.repository.*;
-import urlshortener.bangladeshgreen.domain.*;
-
+import urlshortener.bangladeshgreen.repository.ClickRepository;
+import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -124,12 +124,10 @@ public class UrlShortenerController {
 
 	}
 
-	//TODO: Save clicks, needed autoincrementation of click id.
 	protected void createAndSaveClick(String hash, String ip) {
-
-		/*Click cl = new Click(,hash, new Date(),ip);
+		Click cl = new Click(hash, new Date(),ip);
 		cl=clickRepository.save(cl);
-		log.info(cl!=null?"["+hash+"] saved with id ["+cl.getId()+"]":"["+hash+"] was not saved");*/
+		log.info(cl!=null?"["+hash+"] saved with date ["+cl.getDate()+"]":"["+hash+"] was not saved");
 	}
 
 	protected String extractIP(HttpServletRequest request) {

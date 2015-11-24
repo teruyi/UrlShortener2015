@@ -12,14 +12,13 @@ import java.util.Date;
 public class Click {
 
     @Id
-    private Long id;
+    private String id;
 
     private String hash;
     private Date date;
     private String ip;
 
-    public Click(Long id, String hash, Date date, String ip) {
-        this.id = id;
+    public Click(String hash, Date date, String ip) {
         this.hash = hash;
         this.date = date;
         this.ip = ip;
@@ -33,11 +32,11 @@ public class Click {
         this.hash = hash;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -70,4 +69,5 @@ public class Click {
         }
         else {return false;}
     }
+
 }
