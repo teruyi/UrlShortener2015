@@ -31,6 +31,10 @@ public class UserController {
 
     }
 
+    public UserController(UserRepository u){
+        this.userRepository = u;
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg)
             throws ServletException {
@@ -46,13 +50,18 @@ public class UserController {
 
             reg.setRole("user"); //User role
 
-            User repeated = userRepository.findByUsername(reg.getUsername());
-            //todo: Find user by email
-
-            if(repeated != null){
-                // User already registered
-                ErrorResponse errorResponse = new ErrorResponse("User with username " + repeated.getUsername() +
+            // Checks if user exists, looking for same username or email
+            User repeatedUsername = userRepository.findByUsername(reg.getUsername());
+            User repeatedEmail = userRepository.findByEmail(reg.getEmail());
+            if(repeatedUsername != null){
+                // Username already registered
+                ErrorResponse errorResponse = new ErrorResponse("User with username " + repeatedUsername.getUsername() +
                     ", is already registered.");
+                return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+            } else if(repeatedEmail != null) {
+                // Email already registered
+                ErrorResponse errorResponse = new ErrorResponse("User with E-mail " + repeatedEmail.getEmail() +
+                        ", is already registered.");
                 return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
             } else {
 
@@ -91,6 +100,4 @@ public class UserController {
             return null;
         }
     }
-
-
 }
