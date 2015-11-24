@@ -67,9 +67,9 @@ public class User {
     }
 
     public String toString() {
-        return String.format(
-                "User[username=%s, email='%s', password='%s', role='%s', realName='%s']\n",
-                username, email, password,role,realName);
+        return new String(
+                "User[username='"+username+"', email='"+email+"', password="+password
+                        +"', role="+role+"', realName='\"+realName+\"']\n");
 
     }
     public boolean compareTo(User other){
