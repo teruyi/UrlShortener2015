@@ -101,9 +101,12 @@ public class ShortURL {
     }
 
     public String toString() {
-        return String.format(
-                "ShortURL[hash=%d, target='%s', uri='%s', created='%s', creator='%s', ip='%s', privateToken='%s']\n",
-                hash, target, uri,created,creator, ip,privateToken);
+        return new String(
+                "ShortURL[hash="+ hash+ ", target='"+target
+                        + "', uri='"+ uri+ "', created='"
+                        + created+ "', creator='"+ creator
+                        + "', ip='"+ ip+ "', privateToken='"
+                        +privateToken + "']\n");
 
     }
     public boolean compareTo(ShortURL other){
