@@ -53,13 +53,13 @@ public class UrlInfoController {
         }
     }
 
+    /**
+     * Return number usesCounter
+     */
     protected int extractUsesCount(String hash) {
         int n = 0;
-        logger.info(""+clickRepository.list().size());
         List<Click> c = clickRepository.list();
         for (Click click : c){
-            logger.info(click.getHash() +"  "+ hash);
-            System.out.print(click.getHash() +"  "+ hash);
             if (click.getHash().compareTo(hash) == 0){
                 n++;
             }

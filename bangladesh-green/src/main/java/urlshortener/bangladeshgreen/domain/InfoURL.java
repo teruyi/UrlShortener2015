@@ -9,18 +9,16 @@ public class InfoURL {
     private String creationDate;
     private int usesCount;
 
-    public InfoURL(String longURI, String creationDate, int usesCount) {
+    public InfoURL(String target, String creationDate, int usesCount) {
 
-        this.target = longURI;
+        this.target = target;
         this.creationDate = creationDate;
         this.usesCount = usesCount;
     }
 
-    public String getLongURI() {
-        return target;
-    }
+    public String getTarget() { return target; }
 
-    public void setLongURI(String longURI) {
+    public void setTarget(String longURI) {
         this.target = longURI;
     }
 
