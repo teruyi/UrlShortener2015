@@ -14,7 +14,8 @@
 *.iws
 *.ipl
 *.jar
-
+*.sql
+*.html
 #Gradle files
 gradle/
 gradle*
