@@ -1,8 +1,10 @@
 package urlshortener.bangladeshgreen.domain;
 
-import java.net.URI;
-import java.sql.Date;
 import org.springframework.data.annotation.Id;
+
+import java.net.URI;
+import java.util.Date;
+
 /**
  * Represents a short URL.
  * Author: BangladeshGreen
@@ -19,15 +21,27 @@ public class ShortURL {
     private String creator;
     private String ip;
     private String privateToken;
+    private boolean privateURI;
 
-    public ShortURL(String hash, String target, URI uri, String creator, Date created, String ip, String privateToken) {
+    public ShortURL(String hash, String target, URI uri, String creator, Date created, String ip, boolean privateURI, String privateToken) {
         this.hash = hash;
         this.target = target;
         this.uri = uri;
         this.creator = creator;
         this.created = created;
         this.ip = ip;
+        this.privateURI = privateURI;
         this.privateToken = privateToken;
+    }
+
+    public ShortURL(){};
+
+    public boolean isPrivateURI() {
+        return privateURI;
+    }
+
+    public void setPrivateURI(boolean aPrivate) {
+        privateURI = aPrivate;
     }
 
     public String getHash() {
@@ -84,5 +98,18 @@ public class ShortURL {
 
     public void setPrivateToken(String privateToken) {
         this.privateToken = privateToken;
+    }
+
+    public String toString() {
+        return String.format(
+                "ShortURL[hash=%d, target='%s', uri='%s', created='%s', creator='%s', ip='%s', privateToken='%s']\n",
+                hash, target, uri,created,creator, ip,privateToken);
+
+    }
+    public boolean compareTo(ShortURL other){
+        if(this.hash.compareTo(other.hash) == 0){
+            return true;
+        }
+        else {return false;}
     }
 }

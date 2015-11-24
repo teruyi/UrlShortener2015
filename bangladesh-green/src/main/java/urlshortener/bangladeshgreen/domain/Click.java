@@ -1,6 +1,9 @@
 package urlshortener.bangladeshgreen.domain;
-import java.sql.Date;
+
 import org.springframework.data.annotation.Id;
+
+import java.util.Date;
+
 /**
  * Represents a click.
  * Author: BangladeshGreen
@@ -12,10 +15,10 @@ public class Click {
     private Long id;
 
     private String hash;
-    private String date;
+    private Date date;
     private String ip;
 
-    public Click(Long id, String hash, String date, String ip) {
+    public Click(Long id, String hash, Date date, String ip) {
         this.id = id;
         this.hash = hash;
         this.date = date;
@@ -38,14 +41,13 @@ public class Click {
         this.id = id;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
-
     public String getIp() {
         return ip;
     }
@@ -60,5 +62,12 @@ public class Click {
                 "Customer[id=%d, hash='%s', date='%s', ip='%s']",
                 id, hash, date, ip);
 
+    }
+
+    public boolean compareTo(Click other){
+        if(this.id.compareTo(other.id)==0){
+            return true;
+        }
+        else {return false;}
     }
 }
