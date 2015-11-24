@@ -16,7 +16,7 @@ public interface ClickRepository extends MongoRepository<Click, String> {
 	public Click findById(Long id);
 
 	@Query("{}")
-	 List<Click> list();
+	List<Click> list();
 
 
 }
