@@ -19,7 +19,7 @@ public interface UserRepository extends MongoRepository<User, String> {
     public User findByUsername(String username);
 
     @Query("{}")
-    public List<Click> list();
+    public List<User> list();
     @Query("{'email' : ?0}")
     public User findByEmail(String mail);
 

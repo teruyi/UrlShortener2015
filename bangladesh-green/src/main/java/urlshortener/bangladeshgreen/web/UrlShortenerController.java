@@ -21,7 +21,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
@@ -152,6 +154,8 @@ public class UrlShortenerController {
 					.hashString(url, StandardCharsets.UTF_8).toString();
 
 			//TODO: if repeated, add number.
+			//TODO: check response of URI.
+			//boolean available = checkURI(url);
 
 			//If private, create token
 			String privateToken = null;
@@ -171,5 +175,24 @@ public class UrlShortenerController {
 			return null;
 		}
 
+	}
+
+	protected boolean checkURI(String URI){
+		try {
+			URL url = new URL(URI);
+			HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setConnectTimeout(3000);
+			connection.connect();
+			Integer code = new Integer(connection.getResponseCode());
+			if(code.toString().charAt(0) == '2'){
+				return true;
+			} else {
+				return false;
+			}
+		} catch (IOException e) {
+			System.out.println("Warning: IOException while checking URI for short it.");
+			return false;
+		}
 	}
 }

@@ -35,6 +35,10 @@ public class UserControllerTest{
         controller = new UserController(userRepository);
     }
 
+    /**
+     * Creates a new test user.
+     * @return User for testing.
+     */
     public User createTestUser(){
         User request = new User();
         request.setEmail("test@testing.com");
