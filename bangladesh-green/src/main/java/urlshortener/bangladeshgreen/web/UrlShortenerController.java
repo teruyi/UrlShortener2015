@@ -154,8 +154,8 @@ public class UrlShortenerController {
 					.hashString(url, StandardCharsets.UTF_8).toString();
 
 			//TODO: if repeated, add number.
-			//TODO: check response of URI.
-			//boolean available = checkURI(url);
+			// Check if the URI is available
+			boolean available = checkURI(url);
 
 			//If private, create token
 			String privateToken = null;
@@ -169,23 +169,36 @@ public class UrlShortenerController {
 					methodOn(UrlShortenerController.class).redirectTo(
 							id, null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
 
-			return shortURLRepository.save(su);
-
+			// If it's available, save the shortUrl and return it
+			if (available){
+				return shortURLRepository.save(su);
+			} else {
+				return null;
+			}
 		} else {
 			return null;
 		}
 
 	}
 
+	/**
+	 * Checks if an URI is available (returns 2XX or 3XX code).
+	 * Allows redirections.
+	 * @param URI is the URI to check
+	 * @return boolean True if available, false in other case.
+     */
 	protected boolean checkURI(String URI){
 		try {
 			URL url = new URL(URI);
 			HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 			connection.setRequestMethod("GET");
+			// Sets default timeout to 3 seconds
 			connection.setConnectTimeout(3000);
+			// Connects to the URI to check.
 			connection.connect();
 			Integer code = new Integer(connection.getResponseCode());
-			if(code.toString().charAt(0) == '2'){
+			// If it returns 2XX or 3XX code, the check it's successful
+			if(code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
 				return true;
 			} else {
 				return false;
