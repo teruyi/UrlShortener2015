@@ -2,12 +2,14 @@ package urlshortener.bangladeshgreen.repository;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import urlshortener.bangladeshgreen.config.SpringMongoConfig;
+import urlshortener.bangladeshgreen.config.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.User;
 
 import java.util.List;
@@ -20,13 +22,14 @@ import static org.junit.Assert.*;
  * Ensures that UserRepository is working correctly.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={SpringMongoConfig.class})
+@ContextConfiguration(classes={TestMongoConfig.class})
 public class UserRepositoryTest {
 
     private User test;
 
     @Autowired
     private UserRepository userRepository;
+
 
     @Before
     public void setUp() throws Exception {

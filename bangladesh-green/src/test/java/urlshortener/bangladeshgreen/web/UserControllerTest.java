@@ -13,7 +13,7 @@ import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
 import urlshortener.bangladeshgreen.repository.UserRepository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Class for testing the UserController.
