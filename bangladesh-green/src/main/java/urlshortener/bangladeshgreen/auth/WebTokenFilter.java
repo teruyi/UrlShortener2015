@@ -44,7 +44,7 @@ public class WebTokenFilter extends GenericFilterBean {
 
         else{
             //Authentication in the request
-            final String token = authHeader.substring(7);
+            final String token = extractToken(authHeader);
             try {
                 //Parse claims from JWT
                 final Claims claims = Jwts.parser().setSigningKey("secretkey")
@@ -71,6 +71,10 @@ public class WebTokenFilter extends GenericFilterBean {
 
     }
 
+    public String extractToken(String authHeader){
+        return authHeader.substring(7);
+
+    }
     /**
      * Writes to the response an error message.
      */
