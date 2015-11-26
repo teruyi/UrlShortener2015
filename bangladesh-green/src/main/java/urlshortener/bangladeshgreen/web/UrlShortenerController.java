@@ -107,6 +107,7 @@ public class UrlShortenerController {
 		//final Claims claims = (Claims) request.getAttribute("claims");
 		//user = claims.getSubject();
 
+		//TODO: Enable authentication
 		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), UUID
 				.randomUUID().toString(), extractIP(request),shortURL.isPrivateURI());
 
@@ -149,13 +150,13 @@ public class UrlShortenerController {
 
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
+
+		//Hash is made from URL + username of creator + {true|false} (isPrivate)
 		if (urlValidator.isValid(url)) {
 			String id = Hashing.murmur3_32()
-					.hashString(url, StandardCharsets.UTF_8).toString();
+					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
-			//TODO: if repeated, add number.
-			//TODO: check response of URI.
-			//boolean available = checkURI(url);
+
 
 			//If private, create token
 			String privateToken = null;
