@@ -1,6 +1,7 @@
 package urlshortener.bangladeshgreen.web;
 
 import com.google.common.hash.Hashing;
+import io.jsonwebtoken.Claims;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class UrlShortenerController {
 
 		logger.info("Requested new short for uri " + shortURL.getTarget());
 
-		String user = "anonymous";
+		String userName = "anonymous";
 
 		//TODO: Uncomment for enabling authentication
 		//final Claims claims = (Claims) request.getAttribute("claims");
@@ -149,11 +150,12 @@ public class UrlShortenerController {
 
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
+
+		//Hash is made from URL + username of creator + {true|false} (isPrivate)
 		if (urlValidator.isValid(url)) {
 			String id = Hashing.murmur3_32()
-					.hashString(url, StandardCharsets.UTF_8).toString();
+					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
-			//TODO: if repeated, add number.
 			// Check if the URI is available
 			boolean available = checkURI(url);
 

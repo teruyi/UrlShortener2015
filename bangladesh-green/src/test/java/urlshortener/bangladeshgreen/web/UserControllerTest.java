@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import urlshortener.bangladeshgreen.config.SpringMongoConfig;
+import urlshortener.bangladeshgreen.config.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
 import urlshortener.bangladeshgreen.repository.UserRepository;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertEquals;
  * Ensures that UserController is working correctly.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={SpringMongoConfig.class})
+@ContextConfiguration(classes={TestMongoConfig.class})
 public class UserControllerTest{
 
     private UserController controller;
