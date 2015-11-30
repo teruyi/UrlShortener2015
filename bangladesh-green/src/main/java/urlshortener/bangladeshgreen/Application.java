@@ -7,7 +7,6 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
-import urlshortener.bangladeshgreen.repository.UserRepository;
 
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
@@ -31,6 +30,15 @@ public class Application extends SpringBootServletInitializer {
 		return registrationBean;
 	}
 
-
+/*
+	@Bean
+	public ViewResolver jspViewResolver() {
+		InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+		resolver.setViewClass(JstlView.class);
+		resolver.setPrefix("/WEB-INF/jsp/");
+		resolver.setSuffix(".jsp");
+		return resolver;
+	}
+*/
 
 }

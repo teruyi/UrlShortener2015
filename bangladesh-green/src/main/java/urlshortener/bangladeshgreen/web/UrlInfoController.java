@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,7 +16,10 @@ import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -39,14 +43,58 @@ public class UrlInfoController {
     @Autowired
     protected ClickRepository clickRepository;
 
-    @RequestMapping(value = "/{id:(?!link|index).*}+", method = RequestMethod.GET)
-    public ResponseEntity<?> redirectTo(@PathVariable String id,
-                                        HttpServletRequest request) {
-        logger.info("Link info: " + id);
+
+    @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
+    public String exception2(Model model)
+    {
+        return "redirect:/resources/static/info.jsp";
+        //return "redirect:/resources/info.jsp";
+    }
+
+/*
+    @RequestMapping(value = "/{id:(?!link|index).*}+", method = RequestMethod.GET , produces ="text/html")
+    public ModelAndView exception2(@PathVariable String id, HttpServletRequest request)
+    {
+        ModelAndView modelAndView;
+        try {
+            modelAndView = new ModelAndView("info.jsp");
+        } catch(IndexOutOfBoundsException e) {
+            modelAndView = handleException();
+        }
+        return modelAndView;
+    }
+
+    private void generateException(){
+        throw new IndexOutOfBoundsException();
+    }
+
+    private ModelAndView handleException(){
+        return new ModelAndView("404.jsp");
+    }
+
+*/
+    /*@RequestMapping(value = "/{id:(?!link|index|info|privateURL).*}+", method = RequestMethod.GET , produces ="text/html")
+    public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request,
+                                        HttpServletResponse response) {
+        logger.info("Redirect to HTML: " + id);
         ShortURL l = shortURLRepository.findByHash(id);
-        InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), extractUsesCount(l.getHash()));
         if (l != null) {
-            return new ResponseEntity<>(info, HttpStatus.ACCEPTED);
+            InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), extractUsesCount(l.getHash()));
+            return createSuccessfulRedirectToResponse(l, request, response);
+        } else {
+            logger.info("Empty URL " + id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+*/
+
+    @RequestMapping(value = "/{id:(?!link|index).*}+", method = RequestMethod.GET , produces ="application/json")
+    public ResponseEntity<?> sendJson(@PathVariable String id, HttpServletRequest request) {
+        logger.info("Link info json: " + id);
+        ShortURL l = shortURLRepository.findByHash(id);
+        if (l != null) {
+            InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), extractUsesCount(l.getHash()));
+            return new ResponseEntity<>(info, HttpStatus.OK);
         } else {
             logger.info("Empty URL " + id);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -65,6 +113,19 @@ public class UrlInfoController {
             }
         }
         return n;
+    }
+
+    protected ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l,HttpServletRequest request,
+                                                                   HttpServletResponse response) {
+        response.setStatus(HttpStatus.SEE_OTHER.value());
+        try {
+            request.getRequestDispatcher("info.jsp").forward(request, response);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.SEE_OTHER);
     }
 
 }
