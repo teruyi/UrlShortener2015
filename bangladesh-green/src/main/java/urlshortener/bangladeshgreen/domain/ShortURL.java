@@ -115,4 +115,25 @@ public class ShortURL {
         }
         else {return false;}
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ShortURL shortURL = (ShortURL) o;
+
+        if (privateURI != shortURL.privateURI) return false;
+        if (!hash.equals(shortURL.hash)) return false;
+        if (target != null ? !target.equals(shortURL.target) : shortURL.target != null) return false;
+        if (uri != null ? !uri.equals(shortURL.uri) : shortURL.uri != null) return false;
+        if (created != null ? !created.equals(shortURL.created) : shortURL.created != null) return false;
+        if (creator != null ? !creator.equals(shortURL.creator) : shortURL.creator != null) return false;
+        if (ip != null ? !ip.equals(shortURL.ip) : shortURL.ip != null) return false;
+        return !(privateToken != null ? !privateToken.equals(shortURL.privateToken) : shortURL.privateToken != null);
+
+    }
+
+
+
 }

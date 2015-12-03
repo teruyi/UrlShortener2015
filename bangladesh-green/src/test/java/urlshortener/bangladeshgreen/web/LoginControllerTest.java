@@ -7,7 +7,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by piraces on 23/11/15.
+ * Test that login controller works.
+ * NOTE: We do NOT have to
  */
 public class LoginControllerTest {
 

@@ -2,6 +2,7 @@ package urlshortener.bangladeshgreen.repository;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class UserRepositoryTest {
     public void setUp() throws Exception {
         // Creates new user for testing
         test = new User("test","testEmail","test","testPassword","Test UserRepository");
+
     }
 
     @Test
@@ -41,7 +43,7 @@ public class UserRepositoryTest {
         userRepository.save(test);
         // Finds the user by username, and checks the users are the same
         User other = userRepository.findByUsername(test.getUsername());
-        assertEquals(sameUsers(test,other),true);
+        assertEquals(test,other);
     }
 
     @Test
@@ -50,7 +52,7 @@ public class UserRepositoryTest {
         userRepository.save(test);
         // Finds the user by email, and checks the users are the same
         User other = userRepository.findByEmail(test.getEmail());
-        assertEquals(sameUsers(test,other),true);
+        assertEquals(test,other);
     }
 
     @Test
@@ -63,28 +65,36 @@ public class UserRepositoryTest {
         assertEquals(aux.size(),1);
         User other = aux.get(0);
         // Verifies the content of the list is correct
-        assertEquals(sameUsers(test,other),true);
+        assertEquals(test,other);
     }
 
-    @After
-    public void tearDown() throws Exception {
-        // Deletes the test user
-        userRepository.delete(test);
+    @Test
+    public void testCount() throws Exception {
+
+        userRepository.save(test);
+
+        long count = userRepository.count();
+
+        assertEquals(count,1);
     }
 
-    /**
-     * Compares two Users, to prove that are equal (all their fields are equal).
-     * @param one is the first User.
-     * @param two is the second User.
-     * @return boolean true if Users are the same, boolean false in other case.
-     */
-    public boolean sameUsers(User one, User two){
-        if(one.getUsername().equals(two.getUsername()) && one.getRole().equals(two.getRole())
-                && one.getRealName().equals(two.getRealName()) && one.getPassword().equals(two.getPassword())
-                        && one.getEmail().equals(two.getEmail())){
-            return true;
-        } else {
-            return false;
-        }
+    @Test
+    @Ignore
+    public void testUpdate() throws Exception {
+        //Todo: implement
     }
+
+    @Test
+    public void testDelete() throws Exception {
+
+        userRepository.save(test);
+        userRepository.delete(test.getUsername());
+
+        long count = userRepository.count();
+        assertEquals(count,0);
+
+
+
+    }
+
 }

@@ -11,11 +11,11 @@ import java.util.List;
 /*
  * Short URL repository
  */
-public interface ShortURLRepository extends MongoRepository<ShortURL, URI> {
+public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 
 	public ShortURL findByHash(String hash);
 	@Query("{}")
-	public List<Click> list();
+	public List<ShortURL> list();
 
 
 

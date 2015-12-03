@@ -78,4 +78,20 @@ public class User {
         }
         else {return false;}
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (!username.equals(user.username)) return false;
+        if (email != null ? !email.equals(user.email) : user.email != null) return false;
+        if (password != null ? !password.equals(user.password) : user.password != null) return false;
+        if (role != null ? !role.equals(user.role) : user.role != null) return false;
+        return !(realName != null ? !realName.equals(user.realName) : user.realName != null);
+
+    }
+
 }
