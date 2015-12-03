@@ -2,14 +2,13 @@ package urlshortener.bangladeshgreen.repository;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import urlshortener.bangladeshgreen.config.SpringMongoConfig;
-import urlshortener.bangladeshgreen.config.TestMongoConfig;
+import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.User;
 
 import java.util.List;
@@ -26,6 +25,7 @@ import static org.junit.Assert.*;
 public class UserRepositoryTest {
 
     private User test;
+    private User test2;
 
     @Autowired
     private UserRepository userRepository;
@@ -35,6 +35,36 @@ public class UserRepositoryTest {
     public void setUp() throws Exception {
         // Creates new user for testing
         test = new User("test","testEmail","test","testPassword","Test UserRepository");
+        test2 = new User("test2","testEmail2","test2","testPassword2","Test UserRepository2");
+
+    }
+
+
+    @Test
+    public void testSave() throws Exception {
+        //Saves the test ShortURL
+        userRepository.save(test);
+
+        //Get the count
+        long count = userRepository.count();
+
+        assertEquals(count,1);
+
+    }
+
+    @Test
+    //Tests that a user with the same username is not inserted twice
+    public void testRepeatedSave() throws Exception {
+        //Saves the test ShortURL twice
+        userRepository.save(test);
+        userRepository.save(test);
+
+        //Get the count
+        long count = userRepository.count();
+
+        //Must be 1
+        assertEquals(count,1);
+
     }
 
     @Test
@@ -43,7 +73,7 @@ public class UserRepositoryTest {
         userRepository.save(test);
         // Finds the user by username, and checks the users are the same
         User other = userRepository.findByUsername(test.getUsername());
-        assertEquals(sameUsers(test,other),true);
+        assertEquals(test,other);
     }
 
     @Test
@@ -52,7 +82,7 @@ public class UserRepositoryTest {
         userRepository.save(test);
         // Finds the user by email, and checks the users are the same
         User other = userRepository.findByEmail(test.getEmail());
-        assertEquals(sameUsers(test,other),true);
+        assertEquals(test,other);
     }
 
     @Test
@@ -65,28 +95,68 @@ public class UserRepositoryTest {
         assertEquals(aux.size(),1);
         User other = aux.get(0);
         // Verifies the content of the list is correct
-        assertEquals(sameUsers(test,other),true);
+        assertEquals(test,other);
     }
 
+    @Test
+    public void testCount() throws Exception {
+
+        userRepository.save(test);
+        userRepository.save(test2);
+
+        long count = userRepository.count();
+
+        assertEquals(count,2);
+    }
+
+    @Test
+    @Ignore
+    public void testUpdate() throws Exception {
+        //Todo: implement
+    }
+
+    @Test
+    public void testDelete() throws Exception {
+
+        userRepository.save(test);
+
+        long count = userRepository.count();
+        assertEquals(count,1);
+        userRepository.delete(test.getUsername());
+
+        count = userRepository.count();
+        assertEquals(count,0);
+
+
+
+    }
+
+
+    @Test
+    public void testDeleteAll() throws Exception{
+        // Saves the test shortURL
+        userRepository.save(test);
+        userRepository.save(test2);
+
+        long count = userRepository.count();
+
+        //Count must be two
+        assertEquals(count,2);
+
+        userRepository.deleteAll();
+
+        count = userRepository.count();
+
+        //Count must be zero.
+        assertEquals(count,0);
+
+
+    }
     @After
-    public void tearDown() throws Exception {
-        // Deletes the test user
-        userRepository.delete(test);
+    //After every test, we destroy the data.
+    public void finishTest() throws Exception{
+        userRepository.deleteAll();
     }
 
-    /**
-     * Compares two Users, to prove that are equal (all their fields are equal).
-     * @param one is the first User.
-     * @param two is the second User.
-     * @return boolean true if Users are the same, boolean false in other case.
-     */
-    public boolean sameUsers(User one, User two){
-        if(one.getUsername().equals(two.getUsername()) && one.getRole().equals(two.getRole())
-                && one.getRealName().equals(two.getRealName()) && one.getPassword().equals(two.getPassword())
-                        && one.getEmail().equals(two.getEmail())){
-            return true;
-        } else {
-            return false;
-        }
-    }
+
 }

@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import urlshortener.bangladeshgreen.config.SpringMongoConfig;
-import urlshortener.bangladeshgreen.config.TestMongoConfig;
+import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
 import urlshortener.bangladeshgreen.repository.UserRepository;
@@ -21,6 +20,7 @@ import static org.junit.Assert.assertEquals;
  * It tests all possible operations, requests and responses.
  * Ensures that UserController is working correctly.
  */
+//TODO: Do with Mockito and MockMVC (Like URLShortenerControllerTest)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestMongoConfig.class})
 public class UserControllerTest{

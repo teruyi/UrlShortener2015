@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.config;
+package urlshortener.bangladeshgreen;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
@@ -18,13 +18,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import urlshortener.bangladeshgreen.repository.RepositoryPackage;
-import urlshortener.bangladeshgreen.web.WebPackage;
 
 import java.io.IOException;
 
 @Configuration
 @EnableMongoRepositories(basePackageClasses=RepositoryPackage.class)
-@ComponentScan(basePackageClasses=WebPackage.class)
+@ComponentScan(basePackageClasses=TestPackage.class)
 /**
  * Config for EmbedMongo, used for testing.
  */
@@ -44,6 +43,7 @@ public class TestMongoConfig extends AbstractMongoConfiguration {
     public Mongo mongo() throws IOException {
         Net net = mongod().getConfig().net();
         //Create new mongoDB for testing
+        System.out.println("Testing MONGODB");
         return new MongoClient(net.getServerAddress().getHostName() ,net.getPort() );
     }
 
