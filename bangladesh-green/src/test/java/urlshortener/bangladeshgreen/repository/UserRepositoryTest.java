@@ -25,6 +25,7 @@ import static org.junit.Assert.*;
 public class UserRepositoryTest {
 
     private User test;
+    private User test2;
 
     @Autowired
     private UserRepository userRepository;
@@ -34,6 +35,35 @@ public class UserRepositoryTest {
     public void setUp() throws Exception {
         // Creates new user for testing
         test = new User("test","testEmail","test","testPassword","Test UserRepository");
+        test2 = new User("test2","testEmail2","test2","testPassword2","Test UserRepository2");
+
+    }
+
+
+    @Test
+    public void testSave() throws Exception {
+        //Saves the test ShortURL
+        userRepository.save(test);
+
+        //Get the count
+        long count = userRepository.count();
+
+        assertEquals(count,1);
+
+    }
+
+    @Test
+    //Tests that a user with the same username is not inserted twice
+    public void testRepeatedSave() throws Exception {
+        //Saves the test ShortURL twice
+        userRepository.save(test);
+        userRepository.save(test);
+
+        //Get the count
+        long count = userRepository.count();
+
+        //Must be 1
+        assertEquals(count,1);
 
     }
 
@@ -72,10 +102,11 @@ public class UserRepositoryTest {
     public void testCount() throws Exception {
 
         userRepository.save(test);
+        userRepository.save(test2);
 
         long count = userRepository.count();
 
-        assertEquals(count,1);
+        assertEquals(count,2);
     }
 
     @Test
@@ -88,13 +119,44 @@ public class UserRepositoryTest {
     public void testDelete() throws Exception {
 
         userRepository.save(test);
-        userRepository.delete(test.getUsername());
 
         long count = userRepository.count();
+        assertEquals(count,1);
+        userRepository.delete(test.getUsername());
+
+        count = userRepository.count();
         assertEquals(count,0);
 
 
 
     }
+
+
+    @Test
+    public void testDeleteAll() throws Exception{
+        // Saves the test shortURL
+        userRepository.save(test);
+        userRepository.save(test2);
+
+        long count = userRepository.count();
+
+        //Count must be two
+        assertEquals(count,2);
+
+        userRepository.deleteAll();
+
+        count = userRepository.count();
+
+        //Count must be zero.
+        assertEquals(count,0);
+
+
+    }
+    @After
+    //After every test, we destroy the data.
+    public void finishTest() throws Exception{
+        userRepository.deleteAll();
+    }
+
 
 }

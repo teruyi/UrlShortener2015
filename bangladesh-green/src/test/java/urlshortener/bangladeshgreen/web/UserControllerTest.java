@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
  * It tests all possible operations, requests and responses.
  * Ensures that UserController is working correctly.
  */
+//TODO: Do with Mockito and MockMVC (Like URLShortenerControllerTest)
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestMongoConfig.class})
 public class UserControllerTest{

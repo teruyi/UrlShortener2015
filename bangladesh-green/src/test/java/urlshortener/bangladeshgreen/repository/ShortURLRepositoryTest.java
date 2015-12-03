@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 public class ShortURLRepositoryTest {
 
     private ShortURL test;
+    private ShortURL test2;
 
     @Autowired
     private ShortURLRepository shortURLRepository;
@@ -35,16 +36,44 @@ public class ShortURLRepositoryTest {
     //Executed before every test
     public void setUp() throws Exception {
         test = new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(),"0.0.0.0",false,null);
+        test2 = new ShortURL("someKey2","http://www.google.com",null,"randomUser",new Date(),"0.0.0.0",false,null);
 
     }
 
 
+    @Test
+    public void testSave() throws Exception {
+        //Saves the test ShortURL
+        shortURLRepository.save(test);
+
+        //Get the count
+        long count = shortURLRepository.count();
+
+        assertEquals(count,1);
+
+    }
+
+    @Test
+    //Tests that a ShortURL with the same hash is not inserted
+    public void testRepeatedSave() throws Exception {
+        //Saves the test ShortURL twoce
+        shortURLRepository.save(test);
+        shortURLRepository.save(test);
+
+        //Get the count
+        long count = shortURLRepository.count();
+
+        //Must be 1
+        assertEquals(count,1);
+
+    }
 
     @Test
     public void testFindByHash() throws Exception {
 
         //Saves the test ShortURL
         shortURLRepository.save(test);
+
 
         //Checks that the saved shortURL is intact.
         ShortURL url = shortURLRepository.findByHash(test.getHash());
@@ -85,11 +114,13 @@ public class ShortURLRepositoryTest {
 
         // Saves the test shortURL
         shortURLRepository.save(test);
+        shortURLRepository.save(test2);
+
 
         //Get the count
         long count = shortURLRepository.count();
 
-        assertEquals(count,1);
+        assertEquals(count,2);
 
 
     }
@@ -107,10 +138,36 @@ public class ShortURLRepositoryTest {
         // Saves the test shortURL
         shortURLRepository.save(test);
 
+        long count = shortURLRepository.count();
+
+        //Count must be one.
+        assertEquals(count,1);
+
         //Delete the previously saved shortURL
         shortURLRepository.delete(test.getHash());
 
+         count = shortURLRepository.count();
+
+        //Count must be zero.
+        assertEquals(count,0);
+
+
+    }
+
+    @Test
+    public void testDeleteAll() throws Exception{
+        // Saves the test shortURL
+        shortURLRepository.save(test);
+        shortURLRepository.save(test2);
+
         long count = shortURLRepository.count();
+
+        //Count must be two
+        assertEquals(count,2);
+
+        shortURLRepository.deleteAll();
+
+        count = shortURLRepository.count();
 
         //Count must be zero.
         assertEquals(count,0);
@@ -119,6 +176,11 @@ public class ShortURLRepositoryTest {
     }
 
 
+    @After
+    //After every test, we destroy the data.
+    public void finishTest() throws Exception{
+       shortURLRepository.deleteAll();
+    }
 
 
 

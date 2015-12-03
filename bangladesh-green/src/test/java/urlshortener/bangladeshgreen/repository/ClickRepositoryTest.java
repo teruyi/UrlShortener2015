@@ -20,6 +20,18 @@ public class ClickRepositoryTest {
 
     @Test
     @Ignore
+    public void testSave() throws Exception {
+
+    }
+
+    @Test
+    @Ignore
+    public void testRepeatedSave() throws Exception {
+
+    }
+
+    @Test
+    @Ignore
     public void testFindByHash() throws Exception {
 
     }
@@ -48,6 +60,13 @@ public class ClickRepositoryTest {
 
     }
 
+
+    @Test
+    @Ignore
+    public void testDeleteAll() throws Exception{
+
+
+    }
     @Test
     @Ignore
     public void testCount() throws Exception {
@@ -57,6 +76,12 @@ public class ClickRepositoryTest {
     @Test
     @Ignore
     public void testList() throws Exception {
+
+    }
+
+    @After
+    //After every test, we destroy the data.
+    public void finishTest() throws Exception{
 
     }
 
