@@ -44,6 +44,7 @@ public class SpringMongoConfig extends AbstractMongoConfiguration
     @Bean
     public Mongo mongo() throws Exception
     {
+        System.out.println("REAL MONGODB");
         return new MongoClient("localhost" , 27017 );
     }
 

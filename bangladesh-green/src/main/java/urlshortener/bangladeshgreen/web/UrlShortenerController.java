@@ -104,12 +104,11 @@ public class UrlShortenerController {
 
 		String userName = "anonymous";
 
-		//TODO: Uncomment for enabling authentication
-		//final Claims claims = (Claims) request.getAttribute("claims");
-		//user = claims.getSubject();
 
-		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), UUID
-				.randomUUID().toString(), extractIP(request),shortURL.isPrivateURI());
+		//final Claims claims = (Claims) request.getAttribute("claims");
+		//userName = claims.getSubject();
+
+		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI());
 
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
@@ -121,7 +120,7 @@ public class UrlShortenerController {
 					HttpStatus.CREATED);
 		} else {
 
-			return new ResponseEntity<>(new ErrorResponse("Error creating ShortURL. Not valid"),HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponse("Error creating ShortURL. Not valid or dead"),HttpStatus.BAD_REQUEST);
 		}
 
 
@@ -175,6 +174,7 @@ public class UrlShortenerController {
 			if (available){
 				return shortURLRepository.save(su);
 			} else {
+				//todo: Maybe an exception in order to diferentiate.
 				return null;
 			}
 		} else {
