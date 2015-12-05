@@ -35,14 +35,7 @@ public class Application extends SpringBootServletInitializer {
 
 	//checking
 
-	@Bean
-	public ViewResolver jspViewResolver() {
-		InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-		resolver.setViewClass(JstlView.class);
-		resolver.setPrefix("/static/");
-		resolver.setSuffix(".jsp");
-		return resolver;
-	}
+
 
 
 }
