@@ -398,7 +398,6 @@ public class UrlShortenerControllerTest {
 
 
 
-
 		String hashToBeGeneratedPrivate = Hashing.murmur3_32()
 				.hashString("http://www.google.com/"+"user"+true, StandardCharsets.UTF_8).toString();
 
@@ -461,7 +460,7 @@ public class UrlShortenerControllerTest {
 
 	}
 
-	//todo: Check colission if two privates or public links with same target
+
 
 	@Test
 	/*
