@@ -3,7 +3,7 @@
 
 angular.module('urlshortenerApp')
 
-  .controller('MainCtrl', function ($http) {
+  .controller('MainController', function ($http) {
 
 
     var self = this;
@@ -11,7 +11,7 @@ angular.module('urlshortenerApp')
 	  //Current URL object
     self.url = {
     	target: undefined,
-    	isPrivate: false
+    	privateURI: false
     };
 
 	  //Current result object

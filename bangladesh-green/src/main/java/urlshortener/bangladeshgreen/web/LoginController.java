@@ -44,7 +44,7 @@ public class LoginController {
             throws ServletException {
 
 
-        if (login.getName()==null || login.getName().isEmpty() || login.getPassword()==null ||
+        if (login.getUsername()==null || login.getUsername().isEmpty() || login.getPassword()==null ||
                 login.getPassword().isEmpty()) {
             //No user o no password provided
             ErrorResponse errorResponse = new ErrorResponse("Please, provide both user and password");
@@ -52,7 +52,7 @@ public class LoginController {
         }
         else{
 
-            User requestedUser = userRepository.findByUsername(login.getName());
+            User requestedUser = userRepository.findByUsername(login.getUsername());
             // Convert password to hash for comparing
             String password = Hash.makeHash(login.getPassword());
             // Compares the requested user and both password hashes
@@ -64,7 +64,7 @@ public class LoginController {
                 expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds*1000);
 
                 //All right, generate Token
-                LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getName())
+                LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getUsername())
                         .claim("roles", "user").setIssuedAt(new Date()).setExpiration(expirationDate)
                         .signWith(SignatureAlgorithm.HS256, "secretkey").compact());
 

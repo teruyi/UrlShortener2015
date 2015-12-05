@@ -67,13 +67,13 @@ public class UrlShortenerController {
 				logger.info("Denied redirection with hash " + id + " - privateToken=" + privateToken);
 
 				try{
-					response.setStatus(HttpStatus.UNAUTHORIZED.value());
+					response.setStatus(HttpStatus.FORBIDDEN.value());
 					request.getRequestDispatcher("privateURL.jsp").forward(request, response);
 
 				}
 				catch(ServletException | IOException ex) {
 				}
-				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 
 			}
 			else{
@@ -105,8 +105,8 @@ public class UrlShortenerController {
 		String userName = "anonymous";
 
 
-		//final Claims claims = (Claims) request.getAttribute("claims");
-		//userName = claims.getSubject();
+		final Claims claims = (Claims) request.getAttribute("claims");
+		userName = claims.getSubject();
 
 		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI());
 
@@ -162,7 +162,8 @@ public class UrlShortenerController {
 			String privateToken = null;
 			if(isPrivate){
 				//User wants a private URL, generate random authorization token
-				privateToken = UUID.randomUUID().toString();
+				privateToken = Hashing.murmur3_32()
+						.hashString(UUID.randomUUID().toString(), StandardCharsets.UTF_8).toString();
 			}
 
 			

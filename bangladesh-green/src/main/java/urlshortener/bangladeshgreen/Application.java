@@ -26,7 +26,7 @@ public class Application extends SpringBootServletInitializer {
 		registrationBean.setFilter(new WebTokenFilter());
 		//Type here the URLs to protect with user authentication
 		registrationBean.addUrlPatterns("/protected/*");
-		//registrationBean.addUrlPatterns("/link");
+		registrationBean.addUrlPatterns("/link");
 		return registrationBean;
 	}
 

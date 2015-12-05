@@ -41,7 +41,7 @@
 
 <div class="container">
   <img src="images/lock.png" class="lockImage">
-  <p class="lockText">401: This link is private</p>
+  <p class="lockText">403: This link is private</p>
   <p class="lockTextSecondary">Either no token or an incorrect one has been supplied. </p>
 </div>
 </body>
