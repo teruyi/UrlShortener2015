@@ -6,12 +6,22 @@
         <br>
         <form class="col-lg-12" role="form" id="shortener" >
           <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
+
             <input type="text" class="center-block form-control input-lg"
               title="Enter a URL" placeholder="Enter a URL" name="url" ng-model="ctrl.url.target">
-            <span class="input-group-btn"><button
-                class="btn btn-lg btn-primary" type="submit" ng-click="ctrl.doShort()">Short me!</button></span>
+
+               <span class="input-group-addon">
+               <checkbox
+                       ng-model="ctrl.url.privateURI"
+               ></checkbox> Private
+              </span>
+
           </div>
+            <div class="col-sm-offset-4 col-sm-4">
+            <span class="btn btn-primary btn-block shortButton " ng-click="ctrl.doShort()">Short me!</button></span>
+            </div>
         </form>
+
       </div>
     </div>
     <div class="row">
@@ -19,10 +29,26 @@
         <div class="col-sm-offset-4 col-sm-4 text-center">
           <br />
           <div id="result">
+
+
+
               <div ng-if="ctrl.result.status=='error'" class='alert alert-danger lead'><b>Error creating link</b>
                   <br/>{{ctrl.result.message}}</div>
               <div ng-if="ctrl.result.status=='success'" class='alert alert-success lead'><b>Link shorted successfully</b>
-                  <br/>{{ctrl.result.data.uri}}</div>
+                  <br/><br/>
+                  <table id="table1" style=" text-align: left !important;" >
+                      <tr>
+                          <td><b>Link:</b></b></td><td  style="padding-left:20px;"><a href="{{ctrl.result.data.uri}}">{{ctrl.result.data.uri}}</a></td>
+                      </tr>
+                      <tr ng-if="ctrl.result.data.privateURI">
+                          <td><b>Private token: </b></td><td  style="padding-left:20px;">{{ctrl.result.data.privateToken}}</td>
+                      </tr>
+                  </table>
+                  <br/>
+                  <p ng-if="ctrl.result.data.privateURI" style="font-size: 80%;">Please, share the private token only with the persons you want to be able to access the link.</p>
+                  <p ng-if="!ctrl.result.data.privateURI" style="font-size: 80%;">Remember: This is a public link. Everyone can access to it.</p>
+
+
           </div>
         </div>
       </div>

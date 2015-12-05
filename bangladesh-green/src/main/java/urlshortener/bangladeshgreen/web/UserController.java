@@ -92,8 +92,6 @@ public class UserController {
             return "password";
         } else if (user.getRealName()==null || user.getRealName().isEmpty()){
             return "realName";
-        } else if (user.getRole()==null || user.getRole().isEmpty()){
-            return "role";
         } else if(user.getUsername()==null || user.getUsername().isEmpty()){
             return "username";
         } else {

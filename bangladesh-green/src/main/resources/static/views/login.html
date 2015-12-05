@@ -1,0 +1,96 @@
+<div class=" loginBackground">
+  <div class="wrapper login-background">
+    <div class="outer">
+      <div class="middle">
+        <div class="inner">
+
+<div ng-if="ctrl.alert.type=='error'" class="alert alert-danger" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
+<div ng-if="ctrl.alert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
+      <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+
+        <div class="panel panel-login">
+          <div class="panel-heading">
+            <div class="row">
+              <div class="col-xs-6" ng-click="ctrl.setLoginMode()">
+                <a ng-class="{'active':ctrl.mode=='login'}" id="login-form-link" >Login</a>
+              </div>
+              <div class="col-xs-6" ng-click="ctrl.setRegisterMode()">
+                <a  ng-class="{'active':ctrl.mode=='register'}"id="register-form-link" >Register</a>
+              </div>
+            </div>
+            <hr>
+          </div>
+
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <form  ng-if="ctrl.mode=='login'" id="login-form"  role="form">
+                  <div class="form-group">
+                    <input type="text" name="username" id="username-login" tabindex="1" class="form-control" placeholder="Username" ng-model="ctrl.loginUser.username"
+                           value="" ng-class="{'incorrect-field':ctrl.userErrors.username.error}">
+                    <p ng-if="ctrl.userErrors.username.error">{{ctrl.userErrors.username.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" name="password" id="password-login" tabindex="2" class="form-control" placeholder="Password" ng-model="ctrl.loginUser.password"
+                           ng-class="{'incorrect-field':ctrl.userErrors.password.error}">
+                    <p ng-if="ctrl.userErrors.password.error">{{ctrl.userErrors.password.message}}</p>
+                  </div>
+                  <checkbox
+                          ng-model="ctrl.rememberLogin"
+                  ></checkbox>
+                  <span>   Remember me</span>
+                  <br/><br/>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-sm-6 col-sm-offset-3">
+                        <input type="submit" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" value="Log In" ng-click="ctrl.doLogin()">
+                      </div>
+                    </div>
+                  </div>
+
+                </form>
+                <!-- Register form -->
+                <form ng-if="ctrl.mode=='register'"id="register-form"  style="display: block;">
+                  <div class="form-group">
+                    <input type="text" name="username" id="username" tabindex="1" class="form-control" placeholder="Username" ng-model="ctrl.newUser.username" value=""
+                    ng-class="{'incorrect-field':ctrl.userErrors.username.error}">
+                    <p ng-if="ctrl.userErrors.username.error">{{ctrl.userErrors.username.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="realName" id="realName" tabindex="1" class="form-control" placeholder="Real name" ng-model="ctrl.newUser.realName" value=""
+                    ng-class="{'incorrect-field':ctrl.userErrors.realName.error}">
+                    <p ng-if="ctrl.userErrors.realName.error">{{ctrl.userErrors.realName.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <input type="email" name="email" id="email" tabindex="1" class="form-control" placeholder="Email Address"ng-model="ctrl.newUser.email" value=""
+                    ng-class="{'incorrect-field':ctrl.userErrors.email.error}">
+                   <p ng-if="ctrl.userErrors.email.error"> {{ctrl.userErrors.email.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" name="password" id="password" tabindex="2" class="form-control" placeholder="Password" ng-model="ctrl.newUser.password"
+                    ng-class="{'incorrect-field':ctrl.userErrors.password.error}" ng-change="ctrl.passwordsMatchCheck()">
+                    <p ng-if="ctrl.userErrors.password.error">{{ctrl.userErrors.password.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" name="confirm-password" id="confirm-password" tabindex="2" class="form-control" placeholder="Confirm Password" ng-model="ctrl.newUser.rePassword" ng-class="{'incorrect-field':ctrl.userErrors.rePassword.error}" ng-change="ctrl.passwordsMatchCheck()">
+                   <p ng-if="ctrl.userErrors.rePassword.error"> {{ctrl.userErrors.rePassword.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-sm-6 col-sm-offset-3">
+                        <input type="submit" name="register-submit" id="register-submit" tabindex="4" class="form-control btn btn-register" value="Register Now" ng-click="ctrl.doRegister()">
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                <!-- End of register form -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+        </div>
+      </div>
