@@ -8,11 +8,11 @@
   <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
   <!-- build:css(.) styles/vendor.css -->
   <!-- bower:css -->
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css" />
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css(.tmp) styles/main.css -->
-  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="/styles/main.css">
   <!-- endbuild -->
 </head>
 <body>
@@ -32,7 +32,7 @@
 
       <div class="collapse navbar-collapse" id="js-navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#/">Home</a></li>
+          <l><a href="index.html">Home</a></l>
         </ul>
       </div>
     </div>
@@ -41,7 +41,7 @@
 
 <div class="container">
   <img src="images/lock.png" class="lockImage">
-  <p class="lockText">403: This link is private</p>
+  <p class="lockText">403: This link is private </p>
   <p class="lockTextSecondary">Either no token or an incorrect one has been supplied. </p>
 </div>
 </body>

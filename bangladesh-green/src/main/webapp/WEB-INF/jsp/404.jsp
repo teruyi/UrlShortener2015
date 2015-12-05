@@ -32,7 +32,7 @@
 
       <div class="collapse navbar-collapse" id="js-navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#/">Home</a></li>
+          <li ><a href="index.html">Home</a></li>
         </ul>
       </div>
     </div>
