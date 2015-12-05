@@ -1,2 +1,1 @@
-[repo](https://github.com/teruyi/UrlShortener2015) | [![Build Status](https://travis-ci.org/teruyi/UrlShortener2015.svg?branch=master)](https://travis-ci.org/teruyi/UrlShortener2015)
-https://travis-ci.org/teruyi/UrlShortener2015
+[![Build Status](https://travis-ci.org/teruyi/UrlShortener2015.svg?branch=master)](https://travis-ci.org/teruyi/UrlShortener2015)
