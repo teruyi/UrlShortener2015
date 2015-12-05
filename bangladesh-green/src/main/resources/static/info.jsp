@@ -1,3 +1,4 @@
+<jsp:useBean id="target" scope="request" type="java.lang.String"/>
 <!doctype html>
 <html>
 <head>
@@ -29,6 +30,10 @@
 
       <a class="navbar-brand" href="index.html">WallaLinks!</a>
 
+
+      <h1>
+        < c:out value="${target}" >
+      </h1>
 
       <div class="collapse navbar-collapse" id="js-navbar-collapse">
         <ul class="nav navbar-nav">

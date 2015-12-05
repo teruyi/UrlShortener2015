@@ -1,7 +1,6 @@
 package urlshortener.bangladeshgreen.web;
 
 import com.google.common.hash.Hashing;
-import io.jsonwebtoken.Claims;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class UrlShortenerController {
 	/*
 	* This method does the REDIRECT
 	 */
-	@RequestMapping(value = "/{id:(?!link|index|privateURL|404).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id,
 										@RequestParam(value="privateToken", required=false) String privateToken,
 										HttpServletRequest request,

@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.InfoURL;
 import urlshortener.bangladeshgreen.domain.ShortURL;
@@ -30,12 +30,12 @@ import java.util.List;
  * When a user wants to get info about an URL, the user make a get request with the URL followed by '+' and
  * the controller return a JSON or HTML redirect with the Information.
  */
-@RestController
+@Controller
 public class UrlInfoController {
     private static final Logger log = LoggerFactory
             .getLogger(UrlShortenerController.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UrlInfoController.class);
 
     @Autowired
     protected ShortURLRepository shortURLRepository;
@@ -43,7 +43,7 @@ public class UrlInfoController {
     @Autowired
     protected ClickRepository clickRepository;
 
-
+/*
     @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
     public String exception2(Model model)
     {
@@ -51,13 +51,19 @@ public class UrlInfoController {
         //return "redirect:/resources/info.jsp";
     }
 
-/*
-    @RequestMapping(value = "/{id:(?!link|index).*}+", method = RequestMethod.GET , produces ="text/html")
+*/
+    @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
     public ModelAndView exception2(@PathVariable String id, HttpServletRequest request)
     {
         ModelAndView modelAndView;
+        ShortURL l = shortURLRepository.findByHash(id);
+        int count = clickRepository.findByHash(id).size();
         try {
-            modelAndView = new ModelAndView("info.jsp");
+            modelAndView = new ModelAndView("redirect:/info.jsp");
+            modelAndView.addObject("target",l.getTarget());
+            modelAndView.addObject("date",l.getCreated());
+            modelAndView.addObject("count",count);
+
         } catch(IndexOutOfBoundsException e) {
             modelAndView = handleException();
         }
@@ -72,7 +78,6 @@ public class UrlInfoController {
         return new ModelAndView("404.jsp");
     }
 
-*/
     /*@RequestMapping(value = "/{id:(?!link|index|info|privateURL).*}+", method = RequestMethod.GET , produces ="text/html")
     public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request,
                                         HttpServletResponse response) {
