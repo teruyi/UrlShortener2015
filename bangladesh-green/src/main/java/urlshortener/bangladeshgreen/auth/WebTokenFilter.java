@@ -1,10 +1,7 @@
 package urlshortener.bangladeshgreen.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.*;
 import org.springframework.web.filter.GenericFilterBean;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 
@@ -24,6 +21,8 @@ import java.io.IOException;
  * NOTE: Only executed for protected paths (View Application.java)
  */
 public class WebTokenFilter extends GenericFilterBean {
+
+
 
     @Override
     public void doFilter(final ServletRequest req,
@@ -60,7 +59,7 @@ public class WebTokenFilter extends GenericFilterBean {
                         HttpServletResponse.SC_UNAUTHORIZED,
                         "Authorization error: " + expiredException.getMessage());
             }
-            catch (final SignatureException  | NullPointerException ex) {
+            catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
                 sendErrorResponse(response,
                         HttpServletResponse.SC_UNAUTHORIZED,
                         "Authorization error: Invalid token format. Please obtain a new token from /login");

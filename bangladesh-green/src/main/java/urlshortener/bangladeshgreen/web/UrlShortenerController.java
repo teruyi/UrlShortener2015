@@ -104,9 +104,9 @@ public class UrlShortenerController {
 
 		String userName = "anonymous";
 
-
 		final Claims claims = (Claims) request.getAttribute("claims");
 		userName = claims.getSubject();
+
 
 		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI());
 
@@ -119,6 +119,7 @@ public class UrlShortenerController {
 					h,
 					HttpStatus.CREATED);
 		} else {
+
 
 			return new ResponseEntity<>(new ErrorResponse("Error creating ShortURL. Not valid or dead"),HttpStatus.BAD_REQUEST);
 		}
