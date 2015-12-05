@@ -10,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.junit.Assert.*;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -143,8 +144,6 @@ public class UrlShortenerControllerTest {
 	}
 
 	@Test
-	@Ignore
-	//todo: REMOVE IGNORE WHEN AUTHENTICATION IS ENABLED
 	/*
 	Test that SHORTENER CREATES a new NON-PRIVATE redirect if the url IS OK and IS ALIVE (200 OK).
 
@@ -164,7 +163,7 @@ public class UrlShortenerControllerTest {
 
 
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.google.com/"+"testUser"+false, StandardCharsets.UTF_8).toString();
+				.hashString("http://www.google.com/"+"user"+false, StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
@@ -172,7 +171,7 @@ public class UrlShortenerControllerTest {
 				.with(new RequestPostProcessor() {
 					@Override
 					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims());
+						request.setAttribute("claims",createTestUserClaims("user"));
 						return request;
 					}
 				})
@@ -183,7 +182,7 @@ public class UrlShortenerControllerTest {
 				.andExpect(jsonPath("$.data.target",is("http://www.google.com/")))
 				.andExpect(jsonPath("$.data.hash", is(hashToBeGenerated)))
 				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGenerated)))
-				.andExpect(jsonPath("$.data.creator", is("testUser")))
+				.andExpect(jsonPath("$.data.creator", is("user")))
 				.andExpect(jsonPath("$.data.privateURI", is(false)))
 				.andExpect(jsonPath("$.data.privateToken", is(nullValue())));
 	}
@@ -217,7 +216,7 @@ public class UrlShortenerControllerTest {
 				.with(new RequestPostProcessor() {
 					@Override
 					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims());
+						request.setAttribute("claims",createTestUserClaims("user"));
 						return request;
 					}
 				})
@@ -253,7 +252,7 @@ public class UrlShortenerControllerTest {
 				.with(new RequestPostProcessor() {
 					@Override
 					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims());
+						request.setAttribute("claims",createTestUserClaims("user"));
 						return request;
 					}
 				})
@@ -284,7 +283,7 @@ public class UrlShortenerControllerTest {
 
 
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://example.com/"+"testUser"+true, StandardCharsets.UTF_8).toString();
+				.hashString("http://example.com/"+"user"+true, StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
@@ -292,7 +291,7 @@ public class UrlShortenerControllerTest {
 				.with(new RequestPostProcessor() {
 					@Override
 					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims());
+						request.setAttribute("claims",createTestUserClaims("user"));
 						return request;
 					}
 				})
@@ -303,11 +302,166 @@ public class UrlShortenerControllerTest {
 				.andExpect(jsonPath("$.data.target",is("http://example.com/")))
 				.andExpect(jsonPath("$.data.hash", is(hashToBeGenerated)))
 				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGenerated)))
-				.andExpect(jsonPath("$.data.creator", is("testUser")))
+				.andExpect(jsonPath("$.data.creator", is("user")))
 				.andExpect(jsonPath("$.data.privateURI", is(true)))
 				.andExpect(jsonPath("$.data.privateToken", is(notNullValue())));
 	}
 
+
+	@Test
+	/**
+	 * Checks that, the same target, shortened by two different users, produce different URIs.
+	 */
+	public void thatShortenerCreatesDiferentURLifDiferentUsers() throws Exception{
+
+		configureTransparentSave();
+
+		//Create URL
+		ShortURL shortURL = new ShortURL();
+		shortURL.setTarget("http://www.google.com/");
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(shortURL);
+
+
+		String hashToBeGeneratedUser1 = Hashing.murmur3_32()
+				.hashString("http://www.google.com/"+"user1"+false, StandardCharsets.UTF_8).toString();
+
+		String hashToBeGeneratedUser2 = Hashing.murmur3_32()
+				.hashString("http://www.google.com/"+"user2"+false, StandardCharsets.UTF_8).toString();
+
+		//Do the first request (user1)
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(new RequestPostProcessor() {
+					@Override
+					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+						request.setAttribute("claims",createTestUserClaims("user1"));
+						return request;
+					}
+				})
+		)
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status",is("success")))
+				.andExpect(jsonPath("$.data.target",is("http://www.google.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGeneratedUser1)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGeneratedUser1)))
+				.andExpect(jsonPath("$.data.creator", is("user1")))
+				.andExpect(jsonPath("$.data.privateURI", is(false)))
+				.andExpect(jsonPath("$.data.privateToken", is(nullValue())));
+
+
+		//Do the second request. Same link, different user. (user2)
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(new RequestPostProcessor() {
+					@Override
+					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+						request.setAttribute("claims",createTestUserClaims("user2"));
+						return request;
+					}
+				})
+		)
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status",is("success")))
+				.andExpect(jsonPath("$.data.target",is("http://www.google.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGeneratedUser2)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGeneratedUser2)))
+				.andExpect(jsonPath("$.data.creator", is("user2")))
+				.andExpect(jsonPath("$.data.privateURI", is(false)))
+				.andExpect(jsonPath("$.data.privateToken", is(nullValue())));
+
+
+				//Check that the two hashes are different
+				assertNotEquals(hashToBeGeneratedUser1,hashToBeGeneratedUser2);
+
+
+	}
+
+	@Test
+	/**
+	 * Checks that, if the same users creates two shortened links with the same target,
+	 * but one is private and another is public, different hashes are generated.
+	 */
+	public void thatShortenerCreatesDiferentURLifPrivateAndPublic() throws Exception{
+
+		configureTransparentSave();
+
+		//Create URL
+		ShortURL shortURL = new ShortURL();
+		shortURL.setTarget("http://www.google.com/");
+
+
+		ObjectMapper mapper = new ObjectMapper();
+
+
+
+
+		String hashToBeGeneratedPrivate = Hashing.murmur3_32()
+				.hashString("http://www.google.com/"+"user"+true, StandardCharsets.UTF_8).toString();
+
+		String hashToBeGeneratedPublic = Hashing.murmur3_32()
+				.hashString("http://www.google.com/"+"user"+false, StandardCharsets.UTF_8).toString();
+
+
+
+		//Do the first request (private)
+		shortURL.setPrivateURI(true);
+		String json = mapper.writeValueAsString(shortURL);
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(new RequestPostProcessor() {
+					@Override
+					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+						request.setAttribute("claims",createTestUserClaims("user"));
+						return request;
+					}
+				})
+		)
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status",is("success")))
+				.andExpect(jsonPath("$.data.target",is("http://www.google.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGeneratedPrivate)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGeneratedPrivate)))
+				.andExpect(jsonPath("$.data.creator", is("user")))
+				.andExpect(jsonPath("$.data.privateURI", is(true)))
+				.andExpect(jsonPath("$.data.privateToken", is(notNullValue())));
+
+
+		//Do the second request (public)
+		shortURL.setPrivateURI(false);
+		json = mapper.writeValueAsString(shortURL);
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(new RequestPostProcessor() {
+					@Override
+					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+						request.setAttribute("claims",createTestUserClaims("user"));
+						return request;
+					}
+				})
+		)
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status",is("success")))
+				.andExpect(jsonPath("$.data.target",is("http://www.google.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGeneratedPublic)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGeneratedPublic)))
+				.andExpect(jsonPath("$.data.creator", is("user")))
+				.andExpect(jsonPath("$.data.privateURI", is(false)))
+				.andExpect(jsonPath("$.data.privateToken", is(nullValue())));
+
+
+		//Check that the two hashes are different
+		assertNotEquals(hashToBeGeneratedPublic,hashToBeGeneratedPrivate);
+
+
+	}
+
+	//todo: Check colission if two privates or public links with same target
 
 	@Test
 	/*
@@ -331,7 +485,7 @@ public class UrlShortenerControllerTest {
 				.with(new RequestPostProcessor() {
 					@Override
 					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims());
+						request.setAttribute("claims",createTestUserClaims("user"));
 						return request;
 					}
 				})
@@ -370,9 +524,9 @@ public class UrlShortenerControllerTest {
 	Returns a valid Claim of user testUser and roles: user with key "secretKey".
 	Used for mocking it into the controller and simulate a logged-in user.
 	 */
-	private Claims createTestUserClaims(){
+	private Claims createTestUserClaims(String username){
 
-		String claims =  Jwts.builder().setSubject("testUser")
+		String claims =  Jwts.builder().setSubject(username)
 				.claim("roles", "user").setIssuedAt(new Date())
 				.signWith(SignatureAlgorithm.HS256, "secretkey").compact();
 
