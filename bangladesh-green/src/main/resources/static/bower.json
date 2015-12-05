@@ -11,7 +11,8 @@
     "angular-sanitize": "^1.4.0",
     "angular-touch": "^1.4.0",
     "ngstorage": "~0.3.10",
-    "angular-bootstrap-checkbox": "~0.3.1"
+    "angular-bootstrap-checkbox": "~0.3.1",
+    "angular-jwt": "~0.0.9"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"
