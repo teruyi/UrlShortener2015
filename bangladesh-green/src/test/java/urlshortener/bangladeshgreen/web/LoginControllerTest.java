@@ -55,7 +55,7 @@ public class LoginControllerTest {
         WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(loginController).build();
-
+        this.loginController.setKey("secretkey");
     }
 
 

@@ -42,6 +42,10 @@ public class LoginController {
 
     }
 
+    public void setKey(String key){
+        this.key = key;
+    }
+
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<? extends JsonResponse> login(@RequestBody final LoginRequest login)
             throws ServletException {
