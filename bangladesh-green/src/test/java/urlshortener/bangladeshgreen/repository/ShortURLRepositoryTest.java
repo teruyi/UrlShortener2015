@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
  * Created by piraces on 23/11/15.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
+@ContextConfiguration(classes={TestMongoConfig.class})
 public class ShortURLRepositoryTest {
 
     private ShortURL test;

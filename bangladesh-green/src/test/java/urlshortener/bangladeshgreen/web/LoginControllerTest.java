@@ -11,14 +11,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import urlshortener.bangladeshgreen.Application;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
+import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.LoginRequest;
 import urlshortener.bangladeshgreen.domain.messages.LoginResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
@@ -41,6 +39,7 @@ import static urlshortener.bangladeshgreen.web.fixture.UserFixture.someUser;
 /**
  * Test that login controller works.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class LoginControllerTest {
 
     private MockMvc mockMvc;
@@ -70,6 +69,7 @@ public class LoginControllerTest {
         //Mock URLrepository response to someUrl.
         when(userRepository.findByUsername("user")).thenReturn(someUser());
 
+        User test = userRepository.findByUsername("user");
         LoginRequest request = new LoginRequest();
         request.setUsername("user");
         request.setPassword("password");

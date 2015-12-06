@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  */
 //TODO: Do with Mockito and MockMVC (Like URLShortenerControllerTest)
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
+@ContextConfiguration(classes={TestMongoConfig.class})
 public class UserControllerTest{
 
     private UserController controller;
