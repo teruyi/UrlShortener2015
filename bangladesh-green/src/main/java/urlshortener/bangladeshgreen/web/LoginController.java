@@ -3,6 +3,7 @@ package urlshortener.bangladeshgreen.web;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,8 @@ import java.util.*;
 @RequestMapping("/login")
 public class LoginController {
 
+    @Value("${token.secret_key}")
+    private String key;
 
     @Autowired
     protected UserRepository userRepository;
@@ -37,6 +40,10 @@ public class LoginController {
 
     public LoginController() {
 
+    }
+
+    public void setKey(String key){
+        this.key = key;
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -66,7 +73,7 @@ public class LoginController {
                 //All right, generate Token
                 LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getUsername())
                         .claim("roles", "user").setIssuedAt(new Date()).setExpiration(expirationDate)
-                        .signWith(SignatureAlgorithm.HS256, "secretkey").compact());
+                        .signWith(SignatureAlgorithm.HS256, key).compact());
 
                 HttpHeaders responseHeaders = new HttpHeaders();
                 return new ResponseEntity<>(

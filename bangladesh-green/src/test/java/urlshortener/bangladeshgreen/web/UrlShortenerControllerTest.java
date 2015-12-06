@@ -8,11 +8,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.junit.Assert.*;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,6 +42,7 @@ import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.*;
  * Tests for UrlShortenerController, testing both REDIRECT functionality
  * and SHORTENER functionality.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class UrlShortenerControllerTest {
 
 	private MockMvc mockMvc;
