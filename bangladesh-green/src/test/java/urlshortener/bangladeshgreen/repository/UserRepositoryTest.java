@@ -6,8 +6,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import urlshortener.bangladeshgreen.Application;
 import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.User;
 
@@ -21,7 +23,7 @@ import static org.junit.Assert.*;
  * Ensures that UserRepository is working correctly.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={TestMongoConfig.class})
+@SpringApplicationConfiguration(classes = Application.class)
 public class UserRepositoryTest {
 
     private User test;

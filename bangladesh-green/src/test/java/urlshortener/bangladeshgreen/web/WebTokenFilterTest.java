@@ -4,14 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import urlshortener.bangladeshgreen.Application;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
@@ -33,6 +38,8 @@ import static urlshortener.bangladeshgreen.web.fixture.TokenFixture.*;
  * This class tests the Web Token Filter, responsible of checking the authorization token,
  * and deny or allow access to controllers based on that.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = Application.class)
 public class WebTokenFilterTest {
 
     private MockMvc mockMvc;
@@ -49,7 +56,7 @@ public class WebTokenFilterTest {
 
     @Before
     public void setup() {
-        WebTokenFilter wtf = new WebTokenFilter();
+        WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).addFilter(wtf).build();
 

@@ -1,5 +1,6 @@
 package urlshortener.bangladeshgreen;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -14,6 +15,9 @@ import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
+	@Value("${token.secret_key}")
+	private String key;
+
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
 	}
@@ -26,16 +30,11 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public FilterRegistrationBean jwtFilter() {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-		registrationBean.setFilter(new WebTokenFilter());
+		registrationBean.setFilter(new WebTokenFilter(key));
 		//Type here the URLs to protect with user authentication
 		registrationBean.addUrlPatterns("/protected/*");
 		registrationBean.addUrlPatterns("/link");
 		return registrationBean;
 	}
-
-	//checking
-
-
-
 
 }

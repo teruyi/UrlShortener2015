@@ -7,12 +7,17 @@ import io.jsonwebtoken.Jwts;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import urlshortener.bangladeshgreen.Application;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 import urlshortener.bangladeshgreen.domain.messages.LoginRequest;
 import urlshortener.bangladeshgreen.domain.messages.LoginResponse;
@@ -48,7 +53,7 @@ public class LoginControllerTest {
 
     @Before
     public void setup() {
-        WebTokenFilter wtf = new WebTokenFilter();
+        WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(loginController).build();
 

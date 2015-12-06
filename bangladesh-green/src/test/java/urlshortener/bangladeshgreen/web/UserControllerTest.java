@@ -5,9 +5,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import urlshortener.bangladeshgreen.Application;
 import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
@@ -22,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  */
 //TODO: Do with Mockito and MockMVC (Like URLShortenerControllerTest)
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={TestMongoConfig.class})
+@SpringApplicationConfiguration(classes = Application.class)
 public class UserControllerTest{
 
     private UserController controller;
