@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,11 +27,11 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes={TestMongoConfig.class})
 public class UserRepositoryTest {
 
-    //private User test;
-    //private User test2;
+    private User test;
+    private User test2;
 
-    /*@Autowired
-    private UserRepository userRepository;*/
+    @Mock
+    private UserRepository userRepository;
 
 
     @Before
@@ -43,6 +44,7 @@ public class UserRepositoryTest {
 
 
     @Test
+    @Ignore
     public void testSave() throws Exception {
         /*//Saves the test ShortURL
         userRepository.save(test);
@@ -55,6 +57,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Ignore
     //Tests that a user with the same username is not inserted twice
     public void testRepeatedSave() throws Exception {
         /*//Saves the test ShortURL twice
@@ -70,6 +73,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Ignore
     public void testFindByUsername() throws Exception {
         /*// Saves the test user
         userRepository.save(test);
@@ -79,6 +83,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Ignore
     public void testFindByEmail() throws Exception {
         /*// Saves the test user
         userRepository.save(test);
@@ -88,6 +93,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Ignore
     public void testList() throws Exception {
         /*// Saves the test user
         userRepository.save(test);
@@ -101,6 +107,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Ignore
     public void testCount() throws Exception {
         /*
         userRepository.save(test);
@@ -118,6 +125,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @Ignore
     public void testDelete() throws Exception {
         /*
         userRepository.save(test);
@@ -135,6 +143,7 @@ public class UserRepositoryTest {
 
 
     @Test
+    @Ignore
     public void testDeleteAll() throws Exception{
         /*// Saves the test shortURL
         userRepository.save(test);

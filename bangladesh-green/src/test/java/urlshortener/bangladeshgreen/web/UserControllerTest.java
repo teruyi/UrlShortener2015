@@ -2,8 +2,10 @@ package urlshortener.bangladeshgreen.web;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +29,10 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration(classes={TestMongoConfig.class})
 public class UserControllerTest{
 
-    //private UserController controller;
+    private UserController controller;
 
-    //@Autowired
-    //private UserRepository userRepository;
+    @Mock
+    private UserRepository userRepository;
 
     @Before
     public void setUp() throws Exception {
@@ -54,6 +56,7 @@ public class UserControllerTest{
     }
 
     @Test
+    @Ignore
     public void testUserRegister() throws Exception {
         /*// Register a test user
         ResponseEntity<? extends JsonResponse> response =  controller.register(createTestUser());
@@ -62,6 +65,7 @@ public class UserControllerTest{
     }
 
     @Test
+    @Ignore
     public void testExistingUsernameRegister() throws Exception {
         /*// Register a test user
         ResponseEntity<? extends JsonResponse> response =  controller.register(createTestUser());
@@ -78,6 +82,7 @@ public class UserControllerTest{
     }
 
     @Test
+    @Ignore
     public void testExistingEmailRegister() throws Exception {
         /*// Register a test user
         ResponseEntity<? extends JsonResponse> response =  controller.register(createTestUser());
@@ -94,6 +99,7 @@ public class UserControllerTest{
     }
 
     @Test
+    @Ignore
     public void testRegisterEmptyRequests() throws Exception {
         /*// Check for empty contents
         User request = createTestUser();
@@ -113,6 +119,7 @@ public class UserControllerTest{
     }
 
     @Test
+    @Ignore
     public void testRegisterNullRequests() throws Exception {
         /*// Check for null contents
         User request = createTestUser();
