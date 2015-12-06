@@ -1,4 +1,3 @@
-<jsp:useBean id="target" scope="request" type="java.lang.String"/>
 <!doctype html>
 <html>
 <head>
@@ -28,12 +27,8 @@
 
 
 
-      <a class="navbar-brand" href="index.html">WallaLinks!</a>
+      <a class="navbar-brand" href="index.html"> WallaLinks! </a>
 
-
-      <h1>
-        < c:out value="${target}" >
-      </h1>
 
       <div class="collapse navbar-collapse" id="js-navbar-collapse">
         <ul class="nav navbar-nav">
@@ -44,10 +39,22 @@
   </div>
 </div>
 
-<div class="container">
-  <img src="images/lock.png" class="lockImage">
-  <p class="lockText">401: This link is private</p>
-  <p class="lockTextSecondary">Either no token or an incorrect one has been supplied. </p>
-</div>
+<table class="table table-bordered table-hover">
+  <caption>Infomación de la URL ${url}</caption>
+  <thead>
+  <tr>
+    <th>Target</th>
+    <th>Date</th>
+    <th>Count</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>${target}</td>
+    <td>${date}</td>
+    <td>${count}</td>
+  </tr>
+  </tbody>
+</table>
 </body>
 </html>
