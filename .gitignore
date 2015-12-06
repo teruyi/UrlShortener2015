@@ -25,5 +25,5 @@ bower_components/
 dist/
 build/
 
-# Sensitive data
+# Sensitive data files
 *.properties
