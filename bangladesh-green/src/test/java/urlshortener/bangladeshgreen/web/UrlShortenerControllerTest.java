@@ -6,17 +6,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.junit.Assert.*;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
@@ -26,20 +22,20 @@ import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.*;
 
 /**
  * Tests for UrlShortenerController, testing both REDIRECT functionality
  * and SHORTENER functionality.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class UrlShortenerControllerTest {
 
 	private MockMvc mockMvc;
@@ -86,13 +82,10 @@ public class UrlShortenerControllerTest {
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 				)
 				.andDo(print())
 				.andExpect(status().isCreated())
@@ -131,13 +124,10 @@ public class UrlShortenerControllerTest {
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isBadRequest())
@@ -167,13 +157,10 @@ public class UrlShortenerControllerTest {
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isBadRequest())
@@ -206,13 +193,10 @@ public class UrlShortenerControllerTest {
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isCreated())
@@ -251,13 +235,10 @@ public class UrlShortenerControllerTest {
 		//Do the first request (user1)
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user1"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user1"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isCreated())
@@ -273,13 +254,10 @@ public class UrlShortenerControllerTest {
 		//Do the second request. Same link, different user. (user2)
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user2"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user2"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isCreated())
@@ -329,13 +307,10 @@ public class UrlShortenerControllerTest {
 		String json = mapper.writeValueAsString(shortURL);
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isCreated())
@@ -353,13 +328,10 @@ public class UrlShortenerControllerTest {
 		json = mapper.writeValueAsString(shortURL);
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isCreated())
@@ -399,13 +371,10 @@ public class UrlShortenerControllerTest {
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
-				.with(new RequestPostProcessor() {
-					@Override
-					public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-						request.setAttribute("claims",createTestUserClaims("user"));
-						return request;
-					}
-				})
+				.with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user"));
+                    return request;
+                })
 		)
 				.andDo(print())
 				.andExpect(status().isBadRequest())
@@ -417,22 +386,10 @@ public class UrlShortenerControllerTest {
 	private void configureTransparentSave() {
 
 		when(shortURLRepository.save(org.mockito.Matchers.any(ShortURL.class)))
-				.then(new Answer<ShortURL>() {
-					@Override
-					public ShortURL answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (ShortURL) invocation.getArguments()[0];
-					}
-				});
+				.then(invocation -> invocation.getArguments()[0]);
 
 		when(clickRespository.save(org.mockito.Matchers.any(Click.class)))
-				.then(new Answer<Click>() {
-					@Override
-					public Click answer(InvocationOnMock invocation)
-							throws Throwable {
-						return (Click) invocation.getArguments()[0];
-					}
-				});
+				.then(invocation -> invocation.getArguments()[0]);
 	}
 
 

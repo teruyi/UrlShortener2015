@@ -1,34 +1,21 @@
 package urlshortener.bangladeshgreen.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.hash.Hashing;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import urlshortener.bangladeshgreen.domain.Click;
-import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.somePrivateUrl;
@@ -38,6 +25,7 @@ import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrl;
  * Tests for UrlShortenerController, testing both REDIRECT functionality
  * and SHORTENER functionality.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class RedirectControllerTest {
 
 	private MockMvc mockMvc;

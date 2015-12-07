@@ -1,7 +1,7 @@
 package urlshortener.bangladeshgreen.domain;
 
 /**
- * Created by teruyi on 24/11/15.
+ * Created by teruyi.
  */
 public class InfoURL {
 

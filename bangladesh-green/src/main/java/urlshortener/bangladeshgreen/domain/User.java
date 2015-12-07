@@ -73,10 +73,7 @@ public class User {
 
     }
     public boolean compareTo(User other){
-        if(this.username.compareTo(other.username)==0){
-            return true;
-        }
-        else {return false;}
+        return this.username.compareTo(other.username) == 0;
     }
 
     @Override
