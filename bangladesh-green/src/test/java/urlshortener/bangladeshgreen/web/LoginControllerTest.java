@@ -4,16 +4,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 import urlshortener.bangladeshgreen.domain.messages.LoginRequest;
 import urlshortener.bangladeshgreen.domain.messages.LoginResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
@@ -21,21 +21,18 @@ import urlshortener.bangladeshgreen.repository.UserRepository;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static urlshortener.bangladeshgreen.web.fixture.UserFixture.someUser;
 
 /**
  * Test that login controller works.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class LoginControllerTest {
 
     private MockMvc mockMvc;
@@ -48,10 +45,10 @@ public class LoginControllerTest {
 
     @Before
     public void setup() {
-        WebTokenFilter wtf = new WebTokenFilter();
+        //WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(loginController).build();
-
+        this.loginController.setKey("secretkey");
     }
 
 
@@ -65,6 +62,7 @@ public class LoginControllerTest {
         //Mock URLrepository response to someUrl.
         when(userRepository.findByUsername("user")).thenReturn(someUser());
 
+        //User test = userRepository.findByUsername("user");
         LoginRequest request = new LoginRequest();
         request.setUsername("user");
         request.setPassword("password");

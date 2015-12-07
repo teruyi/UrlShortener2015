@@ -64,10 +64,7 @@ public class Click {
     }
 
     public boolean compareTo(Click other){
-        if(this.id.compareTo(other.id)==0){
-            return true;
-        }
-        else {return false;}
+        return this.id.compareTo(other.id) == 0;
     }
 
 }

@@ -10,16 +10,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.ShortURL;
-import urlshortener.bangladeshgreen.domain.User;
-
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Created by piraces on 23/11/15.
+ * Created by piraces.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestMongoConfig.class})
@@ -32,7 +29,6 @@ public class ShortURLRepositoryTest {
     private ShortURLRepository shortURLRepository;
 
     @Before
-
     //Executed before every test
     public void setUp() throws Exception {
         test = new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(),"0.0.0.0",false,null);
@@ -47,7 +43,7 @@ public class ShortURLRepositoryTest {
         shortURLRepository.save(test);
 
         //Get the count
-        long count = shortURLRepository.count();
+        int count = (int) shortURLRepository.count();
 
         assertEquals(count,1);
 
@@ -70,7 +66,6 @@ public class ShortURLRepositoryTest {
 
     @Test
     public void testFindByHash() throws Exception {
-
         //Saves the test ShortURL
         shortURLRepository.save(test);
 
@@ -78,8 +73,6 @@ public class ShortURLRepositoryTest {
         //Checks that the saved shortURL is intact.
         ShortURL url = shortURLRepository.findByHash(test.getHash());
         assertEquals(test,url);
-
-
     }
 
 
@@ -92,7 +85,6 @@ public class ShortURLRepositoryTest {
 
     @Test
     public void testList() throws Exception {
-
         // Saves the test shortURL
         shortURLRepository.save(test);
 
@@ -111,7 +103,6 @@ public class ShortURLRepositoryTest {
 
     @Test
     public void testCount() throws Exception{
-
         // Saves the test shortURL
         shortURLRepository.save(test);
         shortURLRepository.save(test2);
@@ -121,8 +112,6 @@ public class ShortURLRepositoryTest {
         long count = shortURLRepository.count();
 
         assertEquals(count,2);
-
-
     }
 
     @Test
@@ -134,7 +123,6 @@ public class ShortURLRepositoryTest {
 
     @Test
     public void testDelete() throws Exception{
-
         // Saves the test shortURL
         shortURLRepository.save(test);
 
@@ -150,7 +138,6 @@ public class ShortURLRepositoryTest {
 
         //Count must be zero.
         assertEquals(count,0);
-
 
     }
 
@@ -171,7 +158,6 @@ public class ShortURLRepositoryTest {
 
         //Count must be zero.
         assertEquals(count,0);
-
 
     }
 
