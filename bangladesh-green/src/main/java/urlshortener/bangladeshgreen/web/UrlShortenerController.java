@@ -10,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
@@ -19,9 +18,7 @@ import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -155,13 +152,9 @@ public class UrlShortenerController {
 			connection.setConnectTimeout(3000);
 			// Connects to the URI to check.
 			connection.connect();
-			Integer code = new Integer(connection.getResponseCode());
+			Integer code = connection.getResponseCode();
 			// If it returns 2XX or 3XX code, the check it's successful
-			if(code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
-				return true;
-			} else {
-				return false;
-			}
+			return code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3';
 		} catch (IOException e) {
 			System.out.println("Warning: IOException while checking URI for short it.");
 			return false;

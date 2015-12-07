@@ -2,9 +2,7 @@ package urlshortener.bangladeshgreen.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.GenericFilterBean;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 

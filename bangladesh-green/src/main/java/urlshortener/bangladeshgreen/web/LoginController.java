@@ -36,8 +36,6 @@ public class LoginController {
     protected UserRepository userRepository;
 
 
-    private final long expirationTimeInSeconds = 3600; //One hour
-
     public LoginController() {
 
     }
@@ -68,7 +66,8 @@ public class LoginController {
 
                 //Expiration time of token
                 Date expirationDate = new Date();
-                expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds*1000);
+                long expirationTimeInSeconds = 3600;
+                expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
                 LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getUsername())

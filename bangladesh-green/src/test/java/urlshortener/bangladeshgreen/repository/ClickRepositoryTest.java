@@ -5,10 +5,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
- * Created by piraces on 23/11/15.
+ * Created by piraces.
  */
 public class ClickRepositoryTest {
 

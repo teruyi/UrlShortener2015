@@ -1,18 +1,13 @@
 package urlshortener.bangladeshgreen.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.hash.Hashing;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
@@ -21,10 +16,7 @@ import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -74,8 +66,6 @@ public class WebTokenFilterTest {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(shortURL);
 
-        String hashToBeGenerated = Hashing.murmur3_32()
-                .hashString("http://www.google.com/"+"user"+false, StandardCharsets.UTF_8).toString();
 
         //Do the post request
         mockMvc.perform(post("/link").contentType("application/json").content(json))
@@ -101,8 +91,6 @@ public class WebTokenFilterTest {
 
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(shortURL);
-
-
 
         //Do the post request
         mockMvc.perform(post("/link").contentType("application/json").content(json).header("Authorization","Bearer " + "badFormatToken"))
@@ -198,21 +186,9 @@ public class WebTokenFilterTest {
     private void configureTransparentSave() {
 
         when(shortURLRepository.save(org.mockito.Matchers.any(ShortURL.class)))
-                .then(new Answer<ShortURL>() {
-                    @Override
-                    public ShortURL answer(InvocationOnMock invocation)
-                            throws Throwable {
-                        return (ShortURL) invocation.getArguments()[0];
-                    }
-                });
+                .then(invocation -> invocation.getArguments()[0]);
 
         when(clickRespository.save(org.mockito.Matchers.any(Click.class)))
-                .then(new Answer<Click>() {
-                    @Override
-                    public Click answer(InvocationOnMock invocation)
-                            throws Throwable {
-                        return (Click) invocation.getArguments()[0];
-                    }
-                });
+                .then(invocation -> invocation.getArguments()[0]);
     }
 }

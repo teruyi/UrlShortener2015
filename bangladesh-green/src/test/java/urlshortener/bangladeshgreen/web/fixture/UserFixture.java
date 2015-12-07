@@ -4,7 +4,7 @@ import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.secure.Hash;
 
 /**
- * Created by ismaro3 on 5/12/15.
+ * Created by ismaro3.
  */
 public class UserFixture {
 

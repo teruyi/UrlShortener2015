@@ -2,12 +2,11 @@ package urlshortener.bangladeshgreen.web.fixture;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 
 /**
- * Created by ismaro3 on 5/12/15.
+ * Created by ismaro3.
  */
 public class TokenFixture {
 
@@ -35,9 +34,5 @@ public class TokenFixture {
                 .claim("roles", "user").setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, "badsign").compact();
 
-    }
-
-    public static String badFormedToken(){
-        return "badToken";
     }
 }

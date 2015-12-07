@@ -8,23 +8,15 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
-import urlshortener.bangladeshgreen.domain.Click;
-import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.repository.RepositoryPackage;
-import urlshortener.bangladeshgreen.repository.UserRepository;
 import urlshortener.bangladeshgreen.web.WebPackage;
 
-import java.util.List;
-
 /**
- * Created by guytili on 21/11/2015.
+ * Created by guytili.
  */
 @Configuration
 @EnableMongoRepositories(basePackageClasses=RepositoryPackage.class)

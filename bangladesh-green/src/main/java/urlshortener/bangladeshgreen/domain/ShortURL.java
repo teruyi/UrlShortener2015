@@ -34,7 +34,7 @@ public class ShortURL {
         this.privateToken = privateToken;
     }
 
-    public ShortURL(){};
+    public ShortURL(){}
 
     public boolean isPrivateURI() {
         return privateURI;

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.InfoURL;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
@@ -18,11 +17,10 @@ import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Created by teruyi on 23/11/15.
+ * Created by teruyi.
  */
 /**
  * Controller used for show URL info.
@@ -31,8 +29,6 @@ import java.util.Map;
  */
 @Controller
 public class UrlInfoController {
-    private static final Logger log = LoggerFactory
-            .getLogger(UrlShortenerController.class);
 
     private static final Logger logger = LoggerFactory.getLogger(UrlInfoController.class);
 
@@ -105,20 +101,4 @@ public class UrlInfoController {
             return "404";
         }
     }
-
-    /**
-     * Return number usesCounter
-     */
-    protected int extractUsesCount(String hash) {
-        int n = 0;
-        List<Click> c = clickRepository.list();
-        for (Click click : c){
-            if (click.getHash().compareTo(hash) == 0){
-                n++;
-            }
-        }
-        return n;
-    }
-
-
 }
