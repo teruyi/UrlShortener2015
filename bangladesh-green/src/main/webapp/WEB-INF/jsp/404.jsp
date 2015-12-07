@@ -23,19 +23,15 @@
 <!-- Add your site or application content here -->
 <div class="header">
   <div class="navbar navbar-default" role="navigation">
-    <div class="container">
-
 
 
       <a class="navbar-brand" href="index.html">WallaLinks!</a>
-
 
       <div class="collapse navbar-collapse" id="js-navbar-collapse">
         <ul class="nav navbar-nav">
           <li ><a href="index.html">Home</a></li>
         </ul>
       </div>
-    </div>
   </div>
 </div>
 

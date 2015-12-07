@@ -55,6 +55,7 @@ public class UrlInfoController {
             if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
                 //If private and incorrect token, then unauthorized
                 response.setStatus(HttpStatus.FORBIDDEN.value());
+                model.put("hash",id + "+");
                 return "privateURL";
             }
             else{

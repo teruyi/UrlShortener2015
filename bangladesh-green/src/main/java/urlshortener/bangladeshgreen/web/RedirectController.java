@@ -53,7 +53,7 @@ public class RedirectController {
             if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
                 //If private and incorrect token, then unauthorized
                 response.setStatus(HttpStatus.FORBIDDEN.value());
-                //model.put("target","hey");
+                model.put("hash",id);
                 return "privateURL";
             }
             else{
