@@ -103,7 +103,7 @@ public class UrlInfoControllerTest {
     @Test
 	/*
 	 *Test that REDIRECT over a URLInfo link redirects if id exist
-	 * and headers is {Accept=[application/json]}
+	 * and headers is {Accept=[text/html]}
 	 */
     public void thatReturnsTemporaryRedirectIfIdExists()
             throws Exception {
