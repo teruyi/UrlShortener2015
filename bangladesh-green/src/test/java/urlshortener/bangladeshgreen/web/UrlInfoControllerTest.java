@@ -13,8 +13,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
-import java.util.Date;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -62,7 +60,7 @@ public class UrlInfoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.target").value("http://www.google.es"))
-                .andExpect(jsonPath("$.creationDate").value(new Date().toString()))
+                //.andExpect(jsonPath("$.creationDate").value(new Date().toString()))
                 .andExpect(jsonPath("$.usesCount").value(0));
     }
 
@@ -78,12 +76,15 @@ public class UrlInfoControllerTest {
 
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json"))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("error"))
+                .andExpect(jsonPath("$.message").value("URL not found"));
     }
 
     @Test
 	/*
-	Test that REDIRECT over a PRIVATE InfoLink gives error 401 if key exists
+	Test that REDIRECT over a PRIVATE InfoLink gives error 403 if key exists
 	and Private Token IS NOT CORRECT.
 	 */
     public void thatReturnsJsonPrivateTokenIncorrect()
@@ -96,7 +97,10 @@ public class UrlInfoControllerTest {
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json")
                 .param("privateToken","incorrectToken"))
                 .andDo(print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value("error"))
+                .andExpect(jsonPath("$.message").value("This link is private"));
     }
 
 
@@ -139,7 +143,7 @@ public class UrlInfoControllerTest {
 
     @Test
 	/*
-	Test that REDIRECT over a PRIVATE InfoLink gives error 401 if key exists
+	Test that REDIRECT over a PRIVATE InfoLink gives error 403 if key exists
 	and Private Token IS NOT CORRECT.
 	 */
     public void thatRedirectToPrivateInfoReturnsTemporaryRedirectIfKeyExistsAndPrivateTokenIncorrect()

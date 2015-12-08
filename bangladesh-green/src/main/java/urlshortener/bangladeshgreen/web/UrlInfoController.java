@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import urlshortener.bangladeshgreen.domain.InfoURL;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
@@ -85,11 +86,11 @@ public class UrlInfoController {
         ShortURL l = shortURLRepository.findByHash(id);
         int count = clickRepository.findByHash(id).size();
         if (l != null) {
-            if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
+            if(l.isPrivateURI() && (privateToken == null || !l.getPrivateToken().equals(privateToken))){
                 //If private and incorrect token, then unauthorized
                 response.setStatus(HttpStatus.FORBIDDEN.value());
-
-                return "privateURL";
+                ErrorResponse error = new ErrorResponse("This link is private");
+                return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
             }
             else{
                 InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), count);
@@ -99,7 +100,8 @@ public class UrlInfoController {
         } else {
             logger.info("Empty URL " + id);
             response.setStatus(HttpStatus.NOT_FOUND.value());
-            return "404";
+            ErrorResponse error = new ErrorResponse("URL not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
     }
 }
