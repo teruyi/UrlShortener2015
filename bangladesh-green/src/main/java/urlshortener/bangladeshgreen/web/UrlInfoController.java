@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import urlshortener.bangladeshgreen.domain.InfoURL;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
+import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
@@ -94,8 +95,9 @@ public class UrlInfoController {
             }
             else{
                 InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), count);
+                SuccessResponse success = new SuccessResponse(info);
                 response.setStatus(HttpStatus.OK.value());
-                return new ResponseEntity<>(info, HttpStatus.OK);
+                return new ResponseEntity<>(success, HttpStatus.OK);
             }
         } else {
             logger.info("Empty URL " + id);

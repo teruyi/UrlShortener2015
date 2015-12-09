@@ -59,9 +59,10 @@ public class UrlInfoControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.target").value("http://www.google.es"))
+                .andExpect(jsonPath("$.status").value("success"))
+                .andExpect(jsonPath("$.data.target").value("http://www.google.es"))
                 //.andExpect(jsonPath("$.creationDate").value(new Date().toString()))
-                .andExpect(jsonPath("$.usesCount").value(0));
+                .andExpect(jsonPath("$.data.usesCount").value(0));
     }
 
     @Test
