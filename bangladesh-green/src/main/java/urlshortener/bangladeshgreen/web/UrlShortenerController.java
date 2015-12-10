@@ -35,7 +35,8 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
-
+	private static String NAME = "Server";
+	private static String GOOGLE_KEY = ;
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
@@ -198,9 +199,24 @@ public class UrlShortenerController {
 			// Connects to the URI to check.
 			connection.connect();
 			Integer code = new Integer(connection.getResponseCode());
+			URL google = new
+					URL("https://sb-ssl.google.com/safebrowsing/api/lookup?client=api&key="+GOOGLE_KEY+"&appver=1.5.2&pver=3.1&url="+URI);
+			HttpURLConnection connection2 = (HttpURLConnection)google.openConnection();
+			connection2.setRequestMethod("GET");
+
+			// Sets default timeout to 3 seconds
+			connection2.setConnectTimeout(3000);
+			// Connects to the URI to check.
+			connection2.connect();
+			Integer code2 = new Integer(connection2.getResponseCode());
+			String respuesta = new String(connection2.getResponseMessage());
+			System.out.println(code2);
+
 			// If it returns 2XX or 3XX code, the check it's successful
-			if(code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
-				return true;
+			if( code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
+				if (code2.toString().compareTo("204")== 0){
+					return true;
+				}else{ return false;}
 			} else {
 				return false;
 			}
