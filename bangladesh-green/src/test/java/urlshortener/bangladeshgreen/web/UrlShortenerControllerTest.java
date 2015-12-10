@@ -107,7 +107,7 @@ public class UrlShortenerControllerTest {
 	We can't test here what happens if the user is not logged-in or the JWT is incorrect,
 	that belongs to WebTokenFilter.
 	 */
-	public void thatShortenerCreatesARedirectIfTheURLisOKandIsDead() throws Exception {
+	public void thatShortenerDoesNotCreateARedirectIfTheURLisOKandIsDead() throws Exception {
 		configureTransparentSave();
 
 		//Create URL
@@ -290,7 +290,6 @@ public class UrlShortenerControllerTest {
 
 
 		ObjectMapper mapper = new ObjectMapper();
-
 
 
 		String hashToBeGeneratedPrivate = Hashing.murmur3_32()

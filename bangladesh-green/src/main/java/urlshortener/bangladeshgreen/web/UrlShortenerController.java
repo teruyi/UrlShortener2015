@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
@@ -34,11 +36,14 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
+
 public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
+
 	@Value("${app.safe_browsing_key}")
 	private String GOOGLE_KEY;
+
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
@@ -114,6 +119,8 @@ public class UrlShortenerController {
 
 			// Check if the URI is available
 			boolean available = checkURI(url);
+			boolean safe = checkSafeURI(url);
+			System.out.println("SAFE: " + safe);
 
 			//If private, create token
 			String privateToken = null;
@@ -129,7 +136,7 @@ public class UrlShortenerController {
 							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
 
 			// If it's available, save the shortUrl and return it
-			if (available){
+			if (available && safe){
 				return shortURLRepository.save(su);
 			} else {
 				//todo: Maybe an exception in order to diferentiate.
@@ -141,6 +148,38 @@ public class UrlShortenerController {
 
 	}
 
+
+
+
+	protected boolean checkSafeURI(String URI){
+		try{
+
+
+		URL google = new
+				URL("https://sb-ssl.google.com/safebrowsing/api/lookup?client=api&key="+GOOGLE_KEY+"&appver=1.5.2&pver=3.1&url="+URI);
+			System.out.println("GOOGLE KEY: " + GOOGLE_KEY);
+		HttpURLConnection connection = (HttpURLConnection)google.openConnection();
+		connection.setRequestMethod("GET");
+
+		// Sets default timeout to 3 seconds
+		connection.setConnectTimeout(3000);
+		// Connects to the URI to check.
+		connection.connect();
+
+			Integer code2 = new Integer(connection.getResponseCode());
+			String respuesta = new String(connection.getResponseMessage());
+
+			System.out.println("CODE2: " + code2);
+			System.out.println("RESPUESTA: " + respuesta);
+			if (code2.toString().compareTo("204")== 0){
+				return true;
+			}else{ return false;}
+		}
+		catch(IOException ex){
+			ex.printStackTrace();
+			return false;
+		}
+	}
 	/**
 	 * Checks if an URI is available (returns 2XX or 3XX code).
 	 * Allows redirections.
@@ -157,23 +196,12 @@ public class UrlShortenerController {
 			// Connects to the URI to check.
 			connection.connect();
 			Integer code = new Integer(connection.getResponseCode());
-			URL google = new
-					URL("https://sb-ssl.google.com/safebrowsing/api/lookup?client=api&key="+GOOGLE_KEY+"&appver=1.5.2&pver=3.1&url="+URI);
-			HttpURLConnection connection2 = (HttpURLConnection)google.openConnection();
-			connection2.setRequestMethod("GET");
 
-			// Sets default timeout to 3 seconds
-			connection2.setConnectTimeout(3000);
-			// Connects to the URI to check.
-			connection2.connect();
-			Integer code2 = new Integer(connection2.getResponseCode());
-			String respuesta = new String(connection2.getResponseMessage());
+
 
 			// If it returns 2XX or 3XX code, the check it's successful
 			if( code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
-				if (code2.toString().compareTo("204")== 0){
-					return true;
-				}else{ return false;}
+				return true;
 			} else {
 				return false;
 			}

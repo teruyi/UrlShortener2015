@@ -83,7 +83,7 @@ public class ShortURLRepositoryTest {
 
 
         //Checks that the saved shortURL is intact.
-        ShortURL url = shortURLRepository.findByTarjet(test.getTarget());
+        ShortURL url = shortURLRepository.findByTarget(test.getTarget());
         assertEquals(test,url);
 
     }
