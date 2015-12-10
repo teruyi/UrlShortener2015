@@ -23,26 +23,34 @@
 <!-- Add your site or application content here -->
 <div class="header">
   <div class="navbar navbar-default" role="navigation">
-    <div class="container">
 
 
+    <a class="navbar-brand" href="index.html">WallaLinks!</a>
 
-      <a class="navbar-brand" href="index.html">WallaLinks!</a>
-
-
-      <div class="collapse navbar-collapse" id="js-navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="#/">Home</a></li>
-        </ul>
-      </div>
+    <div class="collapse navbar-collapse" id="js-navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li ><a href="index.html">Home</a></li>
+      </ul>
     </div>
   </div>
 </div>
 
-<div class="container">
-  <img src="images/404.png" class="lockImage">
-  <p class="lockText">404: URL not found</p>
-  <p class="lockTextSecondary">We are sorry, but we don't have any information about this URL.</p>
-</div>
+<table class="table table-bordered table-hover">
+  <caption>Infomación de la URL ${url}</caption>
+  <thead>
+  <tr>
+    <th>Target</th>
+    <th>Date</th>
+    <th>Count</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>${target}</td>
+    <td>${date}</td>
+    <td>${count}</td>
+  </tr>
+  </tbody>
+</table>
 </body>
 </html>

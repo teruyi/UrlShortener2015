@@ -3,6 +3,7 @@ package urlshortener.bangladeshgreen.repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.User;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * User repository.
  */
-
+@Component
 public interface UserRepository extends MongoRepository<User, String> {
 
     public User findByUsername(String username);

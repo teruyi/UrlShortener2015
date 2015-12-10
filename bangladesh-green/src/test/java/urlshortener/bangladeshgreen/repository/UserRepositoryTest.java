@@ -13,7 +13,7 @@ import urlshortener.bangladeshgreen.domain.User;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Class for testing the UserRepository.
@@ -100,7 +100,6 @@ public class UserRepositoryTest {
 
     @Test
     public void testCount() throws Exception {
-
         userRepository.save(test);
         userRepository.save(test2);
 
@@ -117,7 +116,6 @@ public class UserRepositoryTest {
 
     @Test
     public void testDelete() throws Exception {
-
         userRepository.save(test);
 
         long count = userRepository.count();
@@ -126,8 +124,6 @@ public class UserRepositoryTest {
 
         count = userRepository.count();
         assertEquals(count,0);
-
-
 
     }
 
@@ -149,9 +145,8 @@ public class UserRepositoryTest {
 
         //Count must be zero.
         assertEquals(count,0);
-
-
     }
+
     @After
     //After every test, we destroy the data.
     public void finishTest() throws Exception{

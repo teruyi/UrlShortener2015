@@ -1,10 +1,8 @@
 package urlshortener.bangladeshgreen.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.web.filter.GenericFilterBean;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 
@@ -23,7 +21,18 @@ import java.io.IOException;
  * If there is an error, an error message is returned. Else, the filter chain continues.
  * NOTE: Only executed for protected paths (View Application.java)
  */
+@Configurable
 public class WebTokenFilter extends GenericFilterBean {
+
+    private String key;
+
+    /**
+     * Constructor of servlet filter.
+     * @param key is the secret key for signing.
+     */
+    public WebTokenFilter(String key){
+        this.key = key;
+    }
 
     @Override
     public void doFilter(final ServletRequest req,
@@ -47,7 +56,7 @@ public class WebTokenFilter extends GenericFilterBean {
             final String token = extractToken(authHeader);
             try {
                 //Parse claims from JWT
-                final Claims claims = Jwts.parser().setSigningKey("secretkey")
+                final Claims claims = Jwts.parser().setSigningKey(key)
                         .parseClaimsJws(token).getBody();
 
                     //Correct token -> User is logged-in
@@ -60,7 +69,7 @@ public class WebTokenFilter extends GenericFilterBean {
                         HttpServletResponse.SC_UNAUTHORIZED,
                         "Authorization error: " + expiredException.getMessage());
             }
-            catch (final SignatureException  | NullPointerException ex) {
+            catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
                 sendErrorResponse(response,
                         HttpServletResponse.SC_UNAUTHORIZED,
                         "Authorization error: Invalid token format. Please obtain a new token from /login");

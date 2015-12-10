@@ -9,21 +9,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-import urlshortener.bangladeshgreen.domain.Click;
+import org.springframework.web.bind.annotation.RequestParam;
 import urlshortener.bangladeshgreen.domain.InfoURL;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
+import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
+import java.util.Map;
 
 /**
- * Created by teruyi on 23/11/15.
+ * Created by teruyi.
  */
 /**
  * Controller used for show URL info.
@@ -32,8 +31,6 @@ import java.util.List;
  */
 @Controller
 public class UrlInfoController {
-    private static final Logger log = LoggerFactory
-            .getLogger(UrlShortenerController.class);
 
     private static final Logger logger = LoggerFactory.getLogger(UrlInfoController.class);
 
@@ -43,94 +40,70 @@ public class UrlInfoController {
     @Autowired
     protected ClickRepository clickRepository;
 
-/*
-    @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
-    public String exception2(Model model)
-    {
-        return "redirect:/resources/static/info.jsp";
-        //return "redirect:/resources/info.jsp";
-    }
 
-*/
     @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
-    public ModelAndView exception2(@PathVariable String id, HttpServletRequest request)
-    {
-        ModelAndView modelAndView;
+    public Object sendHtml(@PathVariable String id,
+                             @RequestParam(value="privateToken", required=false) String privateToken,
+                             HttpServletResponse response, HttpServletRequest request,
+                             Map<String, Object> model) {
+
+        logger.info("Requested Link Info URL HTML with hash " + id + " - privateToken=" + privateToken);
         ShortURL l = shortURLRepository.findByHash(id);
         int count = clickRepository.findByHash(id).size();
-        try {
-            modelAndView = new ModelAndView("redirect:/info.jsp");
-            modelAndView.addObject("target",l.getTarget());
-            modelAndView.addObject("date",l.getCreated());
-            modelAndView.addObject("count",count);
 
-        } catch(IndexOutOfBoundsException e) {
-            modelAndView = handleException();
-        }
-        return modelAndView;
-    }
 
-    private void generateException(){
-        throw new IndexOutOfBoundsException();
-    }
-
-    private ModelAndView handleException(){
-        return new ModelAndView("404.jsp");
-    }
-
-    /*@RequestMapping(value = "/{id:(?!link|index|info|privateURL).*}+", method = RequestMethod.GET , produces ="text/html")
-    public ResponseEntity<?> redirectTo(@PathVariable String id, HttpServletRequest request,
-                                        HttpServletResponse response) {
-        logger.info("Redirect to HTML: " + id);
-        ShortURL l = shortURLRepository.findByHash(id);
         if (l != null) {
-            InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), extractUsesCount(l.getHash()));
-            return createSuccessfulRedirectToResponse(l, request, response);
+
+            if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
+                //If private and incorrect token, then unauthorized
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                model.put("hash",id + "+");
+                return "privateURL";
+            }
+            else{
+                response.setStatus(HttpStatus.SEE_OTHER.value());
+                model.put("url",l.getUri());
+                model.put("target",l.getTarget());
+                model.put("date",l.getCreated());
+                model.put("count",count);
+                return "info";
+            }
         } else {
             logger.info("Empty URL " + id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return "404";
+
         }
     }
-*/
+
 
     @RequestMapping(value = "/{id:(?!link|index).*}+", method = RequestMethod.GET , produces ="application/json")
-    public ResponseEntity<?> sendJson(@PathVariable String id, HttpServletRequest request) {
-        logger.info("Link info json: " + id);
+    public Object sendJson(@PathVariable String id,
+                                      @RequestParam(value="privateToken", required=false) String privateToken,
+                                      HttpServletResponse response, HttpServletRequest request,
+                                      Map<String, Object> model) {
+
+        logger.info("Requested Link Info URL JSON with hash " + id + " - privateToken=" + privateToken);
         ShortURL l = shortURLRepository.findByHash(id);
+        int count = clickRepository.findByHash(id).size();
         if (l != null) {
-            InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), extractUsesCount(l.getHash()));
-            return new ResponseEntity<>(info, HttpStatus.OK);
+            if(l.isPrivateURI() && (privateToken == null || !l.getPrivateToken().equals(privateToken))){
+                //If private and incorrect token, then unauthorized
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                ErrorResponse error = new ErrorResponse("This link is private");
+                return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+            }
+            else{
+                InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), count);
+                SuccessResponse success = new SuccessResponse(info);
+                response.setStatus(HttpStatus.OK.value());
+                return new ResponseEntity<>(success, HttpStatus.OK);
+            }
         } else {
             logger.info("Empty URL " + id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            ErrorResponse error = new ErrorResponse("URL not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
     }
-
-    /**
-     * Return number usesCounter
-     */
-    protected int extractUsesCount(String hash) {
-        int n = 0;
-        List<Click> c = clickRepository.list();
-        for (Click click : c){
-            if (click.getHash().compareTo(hash) == 0){
-                n++;
-            }
-        }
-        return n;
-    }
-
-    protected ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l,HttpServletRequest request,
-                                                                   HttpServletResponse response) {
-        response.setStatus(HttpStatus.SEE_OTHER.value());
-        try {
-            request.getRequestDispatcher("info.jsp").forward(request, response);
-        } catch (ServletException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(HttpStatus.SEE_OTHER);
-    }
-
 }

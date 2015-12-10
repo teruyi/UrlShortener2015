@@ -3,6 +3,7 @@ package urlshortener.bangladeshgreen.web;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +29,19 @@ import java.util.*;
 @RequestMapping("/login")
 public class LoginController {
 
+    @Value("${token.secret_key}")
+    private String key;
 
     @Autowired
     protected UserRepository userRepository;
 
 
-    private final long expirationTimeInSeconds = 3600; //One hour
-
     public LoginController() {
 
+    }
+
+    public void setKey(String key){
+        this.key = key;
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -44,7 +49,7 @@ public class LoginController {
             throws ServletException {
 
 
-        if (login.getName()==null || login.getName().isEmpty() || login.getPassword()==null ||
+        if (login.getUsername()==null || login.getUsername().isEmpty() || login.getPassword()==null ||
                 login.getPassword().isEmpty()) {
             //No user o no password provided
             ErrorResponse errorResponse = new ErrorResponse("Please, provide both user and password");
@@ -52,7 +57,7 @@ public class LoginController {
         }
         else{
 
-            User requestedUser = userRepository.findByUsername(login.getName());
+            User requestedUser = userRepository.findByUsername(login.getUsername());
             // Convert password to hash for comparing
             String password = Hash.makeHash(login.getPassword());
             // Compares the requested user and both password hashes
@@ -61,12 +66,13 @@ public class LoginController {
 
                 //Expiration time of token
                 Date expirationDate = new Date();
-                expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds*1000);
+                long expirationTimeInSeconds = 3600;
+                expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
-                LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getName())
+                LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getUsername())
                         .claim("roles", "user").setIssuedAt(new Date()).setExpiration(expirationDate)
-                        .signWith(SignatureAlgorithm.HS256, "secretkey").compact());
+                        .signWith(SignatureAlgorithm.HS256, key).compact());
 
                 HttpHeaders responseHeaders = new HttpHeaders();
                 return new ResponseEntity<>(

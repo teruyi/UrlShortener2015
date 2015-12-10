@@ -1,4 +1,3 @@
-<jsp:useBean id="target" scope="request" type="java.lang.String"/>
 <!doctype html>
 <html>
 <head>
@@ -24,30 +23,22 @@
 <!-- Add your site or application content here -->
 <div class="header">
   <div class="navbar navbar-default" role="navigation">
-    <div class="container">
-
 
 
       <a class="navbar-brand" href="index.html">WallaLinks!</a>
 
-
-      <h1>
-        < c:out value="${target}" >
-      </h1>
-
       <div class="collapse navbar-collapse" id="js-navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#/">Home</a></li>
+          <li ><a href="index.html">Home</a></li>
         </ul>
       </div>
-    </div>
   </div>
 </div>
 
 <div class="container">
-  <img src="images/lock.png" class="lockImage">
-  <p class="lockText">401: This link is private</p>
-  <p class="lockTextSecondary">Either no token or an incorrect one has been supplied. </p>
+  <img src="images/404.png" class="lockImage">
+  <p class="lockText">404: URL not found</p>
+  <p class="lockTextSecondary">We are sorry, but we don't have any information about this URL.</p>
 </div>
 </body>
 </html>
