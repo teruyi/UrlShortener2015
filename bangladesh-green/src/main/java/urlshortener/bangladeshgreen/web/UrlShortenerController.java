@@ -36,7 +36,7 @@ public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
 	private static String NAME = "Server";
-	private static String GOOGLE_KEY = ;
+	private static String GOOGLE_KEY = "AIzaSyAeq05mga7GrH8YElzYhfVbW-yt5VnoD2I";
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
