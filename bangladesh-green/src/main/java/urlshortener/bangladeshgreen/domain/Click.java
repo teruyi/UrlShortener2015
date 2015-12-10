@@ -67,4 +67,22 @@ public class Click {
         return this.id.compareTo(other.id) == 0;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Click click = (Click) o;
+
+        if (id != null ? !id.equals(click.id) : click.id != null) return false;
+        if (hash != null ? !hash.equals(click.hash) : click.hash != null) return false;
+        if (date != null ? !date.equals(click.date) : click.date != null) return false;
+        return !(ip != null ? !ip.equals(click.ip) : click.ip != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 }

@@ -108,7 +108,7 @@ public class ClickRepositoryTest {
         assertEquals(count, 1);
 
         //Delete the previously saved
-        clickRepository.delete(test.getHash());
+        clickRepository.delete(test.getId());
 
         count = clickRepository.count();
 
