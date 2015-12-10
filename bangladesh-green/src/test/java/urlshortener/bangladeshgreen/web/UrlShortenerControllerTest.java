@@ -56,7 +56,6 @@ public class UrlShortenerControllerTest {
 	}
 
 
-
 	@Test
 	/*
 	Test that SHORTENER CREATES a new NON-PRIVATE redirect if the url IS OK and IS ALIVE (200 OK).
@@ -77,29 +76,29 @@ public class UrlShortenerControllerTest {
 
 
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.google.com/"+"user"+false, StandardCharsets.UTF_8).toString();
+				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
 				//Modify the request object to include a custom Claims object. (testUser)
 				.with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("user"));
-                    return request;
-                })
-				)
+					request.setAttribute("claims", createTestUserClaims("user"));
+					return request;
+				})
+		)
 				.andDo(print())
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.status",is("success")))
-				.andExpect(jsonPath("$.data.target",is("http://www.google.com/")))
+				.andExpect(jsonPath("$.status", is("success")))
+				.andExpect(jsonPath("$.data.target", is("http://www.google.com/")))
 				.andExpect(jsonPath("$.data.hash", is(hashToBeGenerated)))
-				.andExpect(jsonPath("$.data.uri", is("http://localhost/"+hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/" + hashToBeGenerated)))
 				.andExpect(jsonPath("$.data.creator", is("user")))
 				.andExpect(jsonPath("$.data.privateURI", is(false)))
 				.andExpect(jsonPath("$.data.privateToken", is(nullValue())));
 	}
 
 
-	@Test
+		@Test
 	/*
 	Test that SHORTENER DOES NOT CREATE a new NON-PRIVATE redirect if the url IS OK and IS DEAD ( NOT 200 OK)
 	AND RETURNS 400 BAD REQUEST.

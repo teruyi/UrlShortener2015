@@ -109,9 +109,13 @@ public class UserRepositoryTest {
     }
 
     @Test
-    @Ignore
     public void testUpdate() throws Exception {
-        //Todo: implement
+        userRepository.save(test);
+        test.setEmail("change");
+        userRepository.save(test);
+        User change = userRepository.findByUsername(test.getUsername());
+
+        assertEquals("change",change.getEmail());
     }
 
     @Test
