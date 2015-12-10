@@ -69,14 +69,14 @@ public class ClickRepositoryTest {
         clickRepository.save(test);
 
 
-        //Checks that the saved shortURL is intact.
+        //Checks that the saved Click is intact.
         List<Click> click = clickRepository.findByHash(test.getHash());
         assertEquals(test,click.get(0));
     }
 
     @Test
     public void testFindByIp() throws Exception {
-        //Saves the test ShortURL
+        //Saves the test Click
         clickRepository.save(test);
 
 
@@ -99,7 +99,7 @@ public class ClickRepositoryTest {
 
     @Test
     public void testDelete() throws Exception {
-        // Saves the test shortURL
+        // Saves the test Click
         clickRepository.save(test);
 
         long count = clickRepository.count();
@@ -107,7 +107,7 @@ public class ClickRepositoryTest {
         //Count must be one.
         assertEquals(count, 1);
 
-        //Delete the previously saved shortURL
+        //Delete the previously saved
         clickRepository.delete(test.getHash());
 
         count = clickRepository.count();
@@ -119,7 +119,7 @@ public class ClickRepositoryTest {
 
     @Test
     public void testDeleteAll() throws Exception{
-        // Saves the test shortURL
+        // Saves the test Click
         clickRepository.save(test);
         clickRepository.save(test2);
 
@@ -138,7 +138,7 @@ public class ClickRepositoryTest {
     }
     @Test
     public void testCount() throws Exception {
-        // Saves the test shortURL
+
         clickRepository.save(test);
         clickRepository.save(test2);
 
@@ -151,10 +151,10 @@ public class ClickRepositoryTest {
 
     @Test
     public void testList() throws Exception {
-        // Saves the test shortURL
+        // Saves the test Click
         clickRepository.save(test);
 
-        // Gets all shortURL's in a list (one user)
+        // Gets all Click's in a list (one user)
         List<Click> aux = clickRepository.list();
 
         // Verifies the size of the list

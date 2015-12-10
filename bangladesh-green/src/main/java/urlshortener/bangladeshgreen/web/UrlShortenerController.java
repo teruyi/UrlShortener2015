@@ -38,7 +38,7 @@ public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
 	@Value("${app.safe_browsing_key}")
-	private static String GOOGLE_KEY;
+	private String GOOGLE_KEY;
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
@@ -168,7 +168,6 @@ public class UrlShortenerController {
 			connection2.connect();
 			Integer code2 = new Integer(connection2.getResponseCode());
 			String respuesta = new String(connection2.getResponseMessage());
-			System.out.println(code2);
 
 			// If it returns 2XX or 3XX code, the check it's successful
 			if( code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
