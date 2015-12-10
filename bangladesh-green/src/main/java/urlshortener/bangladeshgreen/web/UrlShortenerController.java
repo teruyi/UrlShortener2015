@@ -41,7 +41,7 @@ public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
 
-	@Value("${app.safe_browsing_key}")
+	@Value("${token.safe_browsing_key}")
 	private String GOOGLE_KEY;
 
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
@@ -54,6 +54,10 @@ public class UrlShortenerController {
 	protected ClickRepository clickRepository;
 
 
+
+	public String getGoogleKey(){
+		return this.GOOGLE_KEY;
+	}
 
 	/**
 	 * This method CREATES a new SHORT-LINK.
