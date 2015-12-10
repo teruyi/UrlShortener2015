@@ -8,6 +8,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
@@ -28,7 +34,8 @@ import static urlshortener.bangladeshgreen.web.fixture.TokenFixture.*;
  * This class tests the Web Token Filter, responsible of checking the authorization token,
  * and deny or allow access to controllers based on that.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(initializers=ConfigFileApplicationContextInitializer.class)
 public class WebTokenFilterTest {
 
     private MockMvc mockMvc;
@@ -37,17 +44,24 @@ public class WebTokenFilterTest {
     private ShortURLRepository shortURLRepository;
 
 
+    private String GOOGLE_KEY;
+
     @Mock
     private ClickRepository clickRespository;
 
     @InjectMocks
     private UrlShortenerController urlShortener;
 
+    @Autowired
+    private ConfigurableApplicationContext c;
+
     @Before
     public void setup() {
         WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).addFilter(wtf).build();
+        GOOGLE_KEY =  c.getEnvironment().getProperty("token.safe_browsing_key");
+        ReflectionTestUtils.setField(urlShortener,"GOOGLE_KEY", GOOGLE_KEY);
 
     }
 

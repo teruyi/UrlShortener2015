@@ -12,15 +12,30 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
@@ -35,10 +50,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tests for UrlShortenerController, testing both REDIRECT functionality
  * and SHORTENER functionality.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(initializers=ConfigFileApplicationContextInitializer.class)
 public class UrlShortenerControllerTest {
 
 	private MockMvc mockMvc;
+
+
+	private String GOOGLE_KEY;
 
 	@Mock
 	private ShortURLRepository shortURLRepository;
@@ -49,12 +68,18 @@ public class UrlShortenerControllerTest {
 	@InjectMocks
 	private UrlShortenerController urlShortener;
 
+	@Autowired
+	private ConfigurableApplicationContext c;
+
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).build();
-	}
+		GOOGLE_KEY =  c.getEnvironment().getProperty("token.safe_browsing_key");
+		ReflectionTestUtils.setField(urlShortener,"GOOGLE_KEY", GOOGLE_KEY);
 
+
+	}
 
 	@Test
 	/*
@@ -65,6 +90,7 @@ public class UrlShortenerControllerTest {
 	that belongs to WebTokenFilter.
 	 */
 	public void thatShortenerCreatesARedirectIfTheURLisOKandIsAlive() throws Exception {
+
 		configureTransparentSave();
 
 		//Create URL
@@ -357,6 +383,7 @@ public class UrlShortenerControllerTest {
 	public void thatShortenerFailsIfTheRepositoryReturnsNull() throws Exception {
 		when(shortURLRepository.save(org.mockito.Matchers.any(ShortURL.class)))
 				.thenReturn(null);
+
 
 		//Create URL
 		ShortURL shortURL = new ShortURL();
