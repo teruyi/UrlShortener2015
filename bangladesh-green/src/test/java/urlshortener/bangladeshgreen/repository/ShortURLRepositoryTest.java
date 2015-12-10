@@ -14,9 +14,10 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-
 /**
- * Created by piraces.
+ * Class for testing the ShortURLRepository.
+ * It tests all possible operations with the repository.
+ * Ensures that ShortURLRepository is working correctly.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestMongoConfig.class})
@@ -77,9 +78,13 @@ public class ShortURLRepositoryTest {
 
 
     @Test
-    @Ignore
     public void testFindByTarget() throws Exception{
-        //TODO: Test findByTarget()
+        shortURLRepository.save(test);
+
+
+        //Checks that the saved shortURL is intact.
+        ShortURL url = shortURLRepository.findByTarjet(test.getTarget());
+        assertEquals(test,url);
 
     }
 
@@ -115,9 +120,15 @@ public class ShortURLRepositoryTest {
     }
 
     @Test
-    @Ignore
     public void testUpdate() throws Exception{
-        //Todo: implement
+        shortURLRepository.save(test);
+        test.setTarget("change");
+        shortURLRepository.save(test);
+
+        //Get the count
+        long count = shortURLRepository.count();
+        ShortURL change = shortURLRepository.findByHash(test.getHash());
+        assertEquals("change",change.getTarget());
     }
 
 

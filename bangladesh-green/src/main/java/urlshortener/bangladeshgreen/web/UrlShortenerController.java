@@ -6,6 +6,7 @@ import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,8 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 public class UrlShortenerController {
 	private static final Logger log = LoggerFactory
 			.getLogger(UrlShortenerController.class);
-	private static String NAME = "Server";
-	private static String GOOGLE_KEY = "AIzaSyAeq05mga7GrH8YElzYhfVbW-yt5VnoD2I";
+	@Value("${app.safe_browsing_key}")
+	private static String GOOGLE_KEY;
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 

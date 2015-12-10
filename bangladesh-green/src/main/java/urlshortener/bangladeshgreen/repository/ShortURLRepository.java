@@ -16,6 +16,8 @@ import java.util.List;
 public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 
 	public ShortURL findByHash(String hash);
+	@Query("{'tarjet' : ?0}")
+	public ShortURL findByTarjet(String tarjet);
 	@Query("{}")
 	public List<ShortURL> list();
 

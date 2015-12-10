@@ -55,7 +55,39 @@ public class UrlShortenerControllerTest {
 		this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).build();
 	}
 
+	@Test
+	/*
+	Test that SHORTENER CREATES a not create redirect if the url IS DANGER .
 
+	Note: The user has to be logged-in in order to do this operation.
+	We can't test here what happens if the user is not logged-in or the JWT is incorrect,
+	that belongs to WebTokenFilter.
+	 */
+	public void thatShortenerNotCreatesARedirectIfTheURLisNotSafe() throws Exception {
+		configureTransparentSave();
+
+		//Create URL
+		ShortURL shortURL = new ShortURL();
+		shortURL.setTarget("http://ianfette.org");
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(shortURL);
+
+
+		String hashToBeGenerated = Hashing.murmur3_32()
+				.hashString("http://ianfette.org/"+"user"+false, StandardCharsets.UTF_8).toString();
+
+		//Do the post request
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(request -> {
+					request.setAttribute("claims",createTestUserClaims("user"));
+					return request;
+				})
+		)
+				.andDo(print())
+				.andNotExpect(status().isCreated())
+				.andNotExpect(jsonPath("$.status",is("success")));
 
 	@Test
 	/*
@@ -65,7 +97,7 @@ public class UrlShortenerControllerTest {
 	We can't test here what happens if the user is not logged-in or the JWT is incorrect,
 	that belongs to WebTokenFilter.
 	 */
-	public void thatShortenerCreatesARedirectIfTheURLisOKandIsAlive() throws Exception {
+	public void thatShortenerCreatesARedirectIfTheURLisOKandIsAliveandIsSafe() throws Exception {
 		configureTransparentSave();
 
 		//Create URL
