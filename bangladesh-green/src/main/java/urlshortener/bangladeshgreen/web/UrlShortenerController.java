@@ -50,10 +50,6 @@ public class UrlShortenerController {
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 
-	@Autowired
-	protected ClickRepository clickRepository;
-
-
 
 	public String getGoogleKey(){
 		return this.GOOGLE_KEY;
@@ -92,11 +88,6 @@ public class UrlShortenerController {
 
 	}
 
-	protected void createAndSaveClick(String hash, String ip) {
-		Click cl = new Click(hash, new Date(),ip);
-		cl=clickRepository.save(cl);
-		log.info(cl!=null?"["+hash+"] saved with date ["+cl.getDate()+"]":"["+hash+"] was not saved");
-	}
 
 	protected String extractIP(HttpServletRequest request) {
 		return request.getRemoteAddr();
