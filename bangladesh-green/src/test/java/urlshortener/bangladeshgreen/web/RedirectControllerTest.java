@@ -5,9 +5,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
@@ -36,8 +38,13 @@ public class RedirectControllerTest {
 	@Mock
 	private ClickRepository clickRespository;
 
+	@Mock
+	private RabbitTemplate rabbitTemplate;
+
 	@InjectMocks
 	private RedirectController redirectController;
+
+
 
 	@Before
 	public void setup() {
@@ -69,6 +76,7 @@ public class RedirectControllerTest {
 	public void thatRedirectToPrivateReturnsTemporaryRedirectIfKeyExistsAndPrivateTokenCorrect()
 			throws Exception {
 
+		
 		//Mock URLrepository response to someUrl.
 		when(shortURLRepository.findByHash("someKey")).thenReturn(somePrivateUrl());
 

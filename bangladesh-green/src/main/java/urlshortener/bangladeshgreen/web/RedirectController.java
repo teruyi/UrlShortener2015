@@ -2,6 +2,7 @@ package urlshortener.bangladeshgreen.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -38,6 +39,9 @@ public class RedirectController {
     @Autowired
     protected ClickRepository clickRepository;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
@@ -46,6 +50,9 @@ public class RedirectController {
 
         logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
         ShortURL l = shortURLRepository.findByHash(id);
+
+
+
 
 
         if (l != null) {
@@ -57,6 +64,10 @@ public class RedirectController {
                 return "privateURL";
             }
             else{
+                //Prueba de cola. Por cada redirección, se envía un mensaje a la colaEjemplo
+
+                this.rabbitTemplate.convertAndSend("colaEjemplo", "Se ha hecho click en en el link" + "id");
+
                 createAndSaveClick(id, extractIP(request));
                 return createSuccessfulRedirectToResponse(l,response);
             }
