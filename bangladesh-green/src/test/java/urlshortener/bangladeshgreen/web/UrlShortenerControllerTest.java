@@ -75,6 +75,8 @@ public class UrlShortenerControllerTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).build();
+
+		//Get GOOGLE_KEY from properties and set it on urlShortener
 		GOOGLE_KEY =  c.getEnvironment().getProperty("token.safe_browsing_key");
 		ReflectionTestUtils.setField(urlShortener,"GOOGLE_KEY", GOOGLE_KEY);
 

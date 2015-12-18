@@ -60,6 +60,8 @@ public class WebTokenFilterTest {
         WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).addFilter(wtf).build();
+
+        //Get GOOGLE_KEY from properties and set it on urlShortener
         GOOGLE_KEY =  c.getEnvironment().getProperty("token.safe_browsing_key");
         ReflectionTestUtils.setField(urlShortener,"GOOGLE_KEY", GOOGLE_KEY);
 
