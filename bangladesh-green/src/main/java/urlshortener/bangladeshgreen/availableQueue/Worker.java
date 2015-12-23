@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
 
 /**
  * Worker that is executed by the listener of the queue ("availableQueue").
@@ -20,36 +21,45 @@ import java.util.Date;
 public class Worker implements Runnable {
 
     // Interval that sets when a URI has to be checked again (1h)
-    // private final long interval = 3600*1000;
-    private final long interval = 1000;
+    private final long interval = 3600*1000;
 
 
     @Autowired
     private URIAvailableRepository repository;
 
+    private Semaphore lock = new Semaphore(1);
+
     private String param;
-    public synchronized void setParameter(String param){
-        this.param = param;
+    public void setParameter(String param){
+        try {
+            // Sets a lock around the parameter (can be overwritten).
+            lock.acquire();
+            this.param = param;
+        } catch (InterruptedException e) {
+            System.out.println("Worker: failing with locks.");
+        }
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
+        String parameter = param;
+        lock.release();
         long id =  Thread.currentThread().getId();
-        System.out.println("[URIAvailable] Worker - " + param + " - ID: " + id);
-        URIAvailable old = repository.findByTarget(param);
+        System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id);
+        URIAvailable old = repository.findByTarget(parameter);
         Date now = new Date();
         if(old == null) {
-            System.out.println("[URIAvailable] Worker - " + param + " - ID: " + id + " - "
-                   + "URI not checked, checking now: " + param);
-            boolean check = checkURI(param);
-            URIAvailable checked = new URIAvailable(param, check, now.getTime());
+            System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id + " - "
+                   + "URI not checked, checking now: " + parameter);
+            boolean check = checkURI(parameter);
+            URIAvailable checked = new URIAvailable(parameter, check, now.getTime());
             repository.save(checked);
         } else {
             if(now.getTime()-old.getDate()>interval){
-                System.out.println("[URIAvailable] Worker - " + param + " - ID: " + id + " - "
-                       + "URI checked long time ago, doing check again: " + param);
-                boolean check = checkURI(param);
-                URIAvailable checked = new URIAvailable(param, check, now.getTime());
+                System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id + " - "
+                       + "URI checked long time ago, doing check again: " + parameter);
+                boolean check = checkURI(parameter);
+                URIAvailable checked = new URIAvailable(parameter, check, now.getTime());
                 repository.save(checked);
             }
         }

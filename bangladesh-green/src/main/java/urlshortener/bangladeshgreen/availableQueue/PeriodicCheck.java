@@ -22,7 +22,7 @@ public class PeriodicCheck {
 	private URIAvailableRepository availableRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 10000L)
+	@Scheduled(fixedDelay = 3600000L)
 	public void send() {
 		List<URIAvailable> list = availableRepository.list();
 		for(URIAvailable uri : list) {
