@@ -22,12 +22,11 @@ public class PeriodicCheck {
 	private URIAvailableRepository availableRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 3600000L)
+	@Scheduled(fixedDelay = 10000L)
 	public void send() {
 		List<URIAvailable> list = availableRepository.list();
 		for(URIAvailable uri : list) {
-			// Todo: warning. Use convertAndSend()?? it can cause overload and the app gets slow
-			this.rabbitTemplate.convertSendAndReceive("availableQueue",uri.getTarget());
+			this.rabbitTemplate.convertAndSend("availableQueue",uri.getTarget());
 		}
 	}
 

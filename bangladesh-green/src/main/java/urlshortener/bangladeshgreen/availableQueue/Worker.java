@@ -20,19 +20,20 @@ import java.util.Date;
 public class Worker implements Runnable {
 
     // Interval that sets when a URI has to be checked again (1h)
-    private final long interval = 3600*1000;
+    // private final long interval = 3600*1000;
+    private final long interval = 1000;
+
 
     @Autowired
     private URIAvailableRepository repository;
 
     private String param;
-    public void setParameter(String param){
+    public synchronized void setParameter(String param){
         this.param = param;
-
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         long id =  Thread.currentThread().getId();
         System.out.println("[URIAvailable] Worker - " + param + " - ID: " + id);
         URIAvailable old = repository.findByTarget(param);
