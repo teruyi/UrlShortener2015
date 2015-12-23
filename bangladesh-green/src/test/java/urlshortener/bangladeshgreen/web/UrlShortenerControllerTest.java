@@ -6,12 +6,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
@@ -27,8 +29,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import java.io.File;
 import java.io.FileReader;
@@ -45,6 +49,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrl;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
 
 /**
  * Tests for UrlShortenerController, testing both REDIRECT functionality
@@ -64,6 +71,9 @@ public class UrlShortenerControllerTest {
 
 	@Mock
 	private ClickRepository clickRespository;
+
+	@Mock
+	private RabbitTemplate rabbitTemplate;
 
 	@InjectMocks
 	private UrlShortenerController urlShortener;
@@ -126,39 +136,48 @@ public class UrlShortenerControllerTest {
 	}
 
 
-		@Test
+	@Test
 	/*
 	Test that SHORTENER DOES NOT CREATE a new NON-PRIVATE redirect if the url IS OK and IS DEAD ( NOT 200 OK)
-	AND RETURNS 400 BAD REQUEST.
+	AND RETURNS SUCCESS.
 
 	Note: The user has to be logged-in in order to do this operation.
 	We can't test here what happens if the user is not logged-in or the JWT is incorrect,
 	that belongs to WebTokenFilter.
 	 */
-	public void thatShortenerDoesNotCreateARedirectIfTheURLisOKandIsDead() throws Exception {
+	public void thatShortenerCreateARedirectIfTheURLisOKandIsDead() throws Exception {
 		configureTransparentSave();
 
 		//Create URL
 		ShortURL shortURL = new ShortURL();
 		shortURL.setTarget("http://www.welikewebengineering-eina.com/");
 
+
+
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(shortURL);
 
-
+		String hashToBeGenerated = Hashing.murmur3_32()
+				.hashString("http://www.welikewebengineering-eina.com/" + "user" + false,
+						StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
-
 				//Modify the request object to include a custom Claims object. (testUser)
 				.with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("user"));
-                    return request;
-                })
+					request.setAttribute("claims", createTestUserClaims("user"));
+					return request;
+				})
 		)
 				.andDo(print())
-				.andExpect(status().isBadRequest())
-				.andExpect(jsonPath("$.status",is("error")));
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status", is("success")))
+				.andExpect(jsonPath("$.data.target", is("http://www.welikewebengineering-eina.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/" + hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.creator", is("user")))
+				.andExpect(jsonPath("$.data.privateURI", is(false)))
+				.andExpect(jsonPath("$.data.privateToken", is(nullValue())));
 	}
 
 	@Test
