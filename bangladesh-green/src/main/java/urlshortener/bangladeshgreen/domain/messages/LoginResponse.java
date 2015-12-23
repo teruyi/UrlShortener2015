@@ -10,8 +10,8 @@ public class LoginResponse {
 
 
     public LoginResponse(){
-
     }
+
     public LoginResponse(final String token) {
 
         this.token = token;
