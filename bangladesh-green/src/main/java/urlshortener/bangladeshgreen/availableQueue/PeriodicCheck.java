@@ -9,7 +9,7 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 import java.util.List;
 
 /**
- * Class for periodic check of the shorten URIs.
+ * Class for periodic check of the shorten URIs
  * It's scheduled and when it runs, obtains all the outdated links from the DB, checking all again.
  * It checks the URIs by inserting again the URIs in the queue.
  */
@@ -26,6 +26,7 @@ public class PeriodicCheck {
 	public void send() {
 		List<URIAvailable> list = availableRepository.list();
 		for(URIAvailable uri : list) {
+			// Todo: warning. Use convertAndSend()?? it can cause overload and the app gets slow
 			this.rabbitTemplate.convertSendAndReceive("availableQueue",uri.getTarget());
 		}
 	}
