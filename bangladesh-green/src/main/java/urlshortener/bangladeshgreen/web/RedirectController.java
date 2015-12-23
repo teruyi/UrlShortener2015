@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,7 +42,7 @@ public class RedirectController {
     protected ClickRepository clickRepository;
 
     @Autowired
-    private RabbitTemplate rabbitTemplate;
+    protected URIAvailableRepository availableRepository;
 
     @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
@@ -50,27 +52,27 @@ public class RedirectController {
 
         logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
         ShortURL l = shortURLRepository.findByHash(id);
+        // Checks if target continues available
+        URIAvailable check = null;
+        if(l!=null) {
+            check = availableRepository.findByTarget(l.getTarget());
+        }
+        // If the ShortURL exists and its target is available
+        if (l != null && check!=null && check.isAvailable()) {
 
-
-
-
-
-        if (l != null) {
-
-            if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
+            if (l.isPrivateURI() && (privateToken == null || !l.getPrivateToken().equals(privateToken))) {
                 //If private and incorrect token, then unauthorized
                 response.setStatus(HttpStatus.FORBIDDEN.value());
-                model.put("hash",id);
+                model.put("hash", id);
                 return "privateURL";
-            }
-            else{
-                //Prueba de cola. Por cada redirección, se envía un mensaje a la colaEjemplo
-
-                this.rabbitTemplate.convertAndSend("colaEjemplo", "Se ha hecho click en en el link" + "id");
-
+            } else {
                 createAndSaveClick(id, extractIP(request));
-                return createSuccessfulRedirectToResponse(l,response);
+                return createSuccessfulRedirectToResponse(l, response);
             }
+        } else if (check!=null && !check.isAvailable()){
+            // If the target URI is not available
+            response.setStatus(HttpStatus.GONE.value());
+            return "410";
         } else {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return "404";

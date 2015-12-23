@@ -11,13 +11,14 @@ import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 /**
- * Class for testing the ShortURLRepository.
+ * Class for testing the URIAvailableRepository.
  * It tests all possible operations with the repository.
- * Ensures that ShortURLRepository is working correctly.
+ * Ensures that URIAvailableRepository is working correctly.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={TestMongoConfig.class})
@@ -32,15 +33,15 @@ public class URIAvailableRepositoryTest {
     @Before
     //Executed before every test
     public void setUp() throws Exception {
-        test = new URIAvailable("http://www.google.es", true);
-        test2 = new URIAvailable("http://www.unizar.es", false);
+        test = new URIAvailable("http://www.google.es", true, new Date().getTime());
+        test2 = new URIAvailable("http://www.unizar.es", false, new Date().getTime());
 
     }
 
 
     @Test
     public void testSave() throws Exception {
-        //Saves the test ShortURL
+        //Saves the test URIAvailable
         URIRepository.save(test);
 
         //Get the count
@@ -51,9 +52,9 @@ public class URIAvailableRepositoryTest {
     }
 
     @Test
-    //Tests that a ShortURL with the same hash is not inserted
+    //Tests that a URIAvailable with the same hash is not inserted
     public void testRepeatedSave() throws Exception {
-        //Saves the test ShortURL twoce
+        //Saves the test URIAvailable twice
         URIRepository.save(test);
         URIRepository.save(test);
 
@@ -71,7 +72,7 @@ public class URIAvailableRepositoryTest {
         URIRepository.save(test);
 
 
-        //Checks that the saved shortURL is intact.
+        //Checks that the saved URIAvailable is intact.
         URIAvailable url = URIRepository.findByTarget(test.getTarget());
         assertEquals(test, url);
 
@@ -79,10 +80,10 @@ public class URIAvailableRepositoryTest {
 
     @Test
     public void testList() throws Exception {
-        // Saves the test shortURL
+        // Saves the test URIAvailable
         URIRepository.save(test);
 
-        // Gets all shortURL's in a list (one user)
+        // Gets all URIAvailable's in a list (one user)
         List<URIAvailable> aux = URIRepository.list();
 
         // Verifies the size of the list
@@ -96,7 +97,7 @@ public class URIAvailableRepositoryTest {
 
     @Test
     public void testCount() throws Exception {
-        // Saves the test shortURL
+        // Saves the test URIAvailable
         URIRepository.save(test);
         URIRepository.save(test2);
 
@@ -122,7 +123,7 @@ public class URIAvailableRepositoryTest {
 
     @Test
     public void testDelete() throws Exception {
-        // Saves the test shortURL
+        // Saves the test URIAvailable
         URIRepository.save(test);
 
         long count = URIRepository.count();
@@ -130,7 +131,7 @@ public class URIAvailableRepositoryTest {
         //Count must be one.
         assertEquals(count, 1);
 
-        //Delete the previously saved shortURL
+        //Delete the previously saved URIAvailable
         URIRepository.delete(test.getTarget());
 
         count = URIRepository.count();
@@ -142,7 +143,7 @@ public class URIAvailableRepositoryTest {
 
     @Test
     public void testDeleteAll() throws Exception {
-        // Saves the test shortURL
+        // Saves the test URIAvailable
         URIRepository.save(test);
         URIRepository.save(test2);
 
