@@ -69,7 +69,10 @@ public class RedirectController {
                 model.put("hash", id);
                 return "privateURL";
             } else {
+                //final
                 //this.rabbitTemplate.convertSendAndReceive(queue2,extractIP(request)+","+l.getHash());
+
+                //simulation
                 this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+l.getHash());
                 return createSuccessfulRedirectToResponse(l, response);
             }
