@@ -38,7 +38,7 @@ dependencies {
     compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.0'
     compile 'jstl:jstl:1.2'
     compile 'org.apache.tomcat.embed:tomcat-embed-jasper:8.0.28'
-
+    compile 'com.google.code.gson:gson:2.5'
 
     // Testing framework
     testCompile 'junit:junit:4.12'

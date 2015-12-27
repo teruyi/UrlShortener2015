@@ -2,7 +2,6 @@ package urlshortener.bangladeshgreen.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -35,6 +34,8 @@ public class RedirectController {
 
     private static final Logger logger = LoggerFactory.getLogger(RedirectController.class);
 
+    //private static final String queue = "locationQueue";
+
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
@@ -43,6 +44,9 @@ public class RedirectController {
 
     @Autowired
     protected URIAvailableRepository availableRepository;
+
+    //@Autowired
+    //private RabbitTemplate rabbitTemplate;
 
     @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
@@ -66,6 +70,7 @@ public class RedirectController {
                 model.put("hash", id);
                 return "privateURL";
             } else {
+                //this.rabbitTemplate.convertSendAndReceive(queue,"66.249.66.106");
                 createAndSaveClick(id, extractIP(request));
                 return createSuccessfulRedirectToResponse(l, response);
             }
