@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.locationQuerue;
+package urlshortener.bangladeshgreen.locationQueue;
 
 import com.google.gson.Gson;
 import org.slf4j.Logger;
@@ -15,64 +15,60 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+import java.util.Scanner;
 
 /**
- * Worker that is executed by the listener of the queue ("availableQueue").
- * It checks the URI set in the Worker parameter, and inserts the result in the DB (for caching).
- * The check consists in one GET request to the target URI.
- * If the URI has been checked before (before an hour ago), it doesn't make the request.
+ * Created by teruyi on 27/12/15.
  */
 @Component
-public class LocationWorker implements Runnable {
-
-    private static final Logger logger = LoggerFactory.getLogger(LocationWorker.class);
+public class Worker3  implements Runnable{
 
     @Autowired
     protected ClickRepository clickRepository;
 
-    //private Semaphore lock = new Semaphore(1);
-
-    private String IP;
+    private static final Logger logger = LoggerFactory.getLogger(Worker3.class);
+    private String p1;
     private String hash;
-    public void setParameter(String IP){
-        try {
-            // Sets a lock around the parameter (can be overwritten).
-            //lock.acquire();
-            this.IP = IP;
-            //this.hash = IP.getHash();
-        } catch (Exception e) {
-            logger.info("Worker: failing with locks.");
-        }
+    private String ip;
+
+    public void setParameter(String p1){
+        this.p1 = p1;
     }
+
 
     @Override
     public void run() {
-        String parameter2 = IP;
-        Click parameter = new Click();
-        //lock.release();
+        setparameters();
 
+        Date now = new Date();
+        Click click = new Click(hash,now,ip);
 
         long id =  Thread.currentThread().getId();
-        logger.info("[LocationInfo] Worker - " + parameter2 + " - ID: " + id);
-        Date now = new Date();
-        Location location = getLocation(parameter2);
-        //Location location = getLocation(param.getIp(), id);
+        logger.info("[LocationInfo] Worker - ID: " + id);
+
+        Location location = getLocation(ip);
         if (location != null){
-            parameter.setCity(location.getCity());
-            parameter.setCountry(location.getCountry());
-            parameter.setCountryCode(location.getCountryCode());
-            parameter.setRegion(location.getRegion());
-            parameter.setRegionName(location.getRegionName());
-            logger.info("[LocationInfo] Worker - " + parameter.getIp() + " - ID: " + id + " Fail getting location");
+            click.setCity(location.getCity());
+            click.setCountry(location.getCountry());
+            click.setCountryCode(location.getCountryCode());
+            click.setRegion(location.getRegion());
+            click.setRegionName(location.getRegionName());
+            logger.info("[LocationInfo] Worker - ID: " + id + " Gets location IP " + ip);
         }else{
-            logger.info("[LocationInfo] Worker - " + parameter.getIp() + " - ID: " + id + " gets location");
+            logger.info("[LocationInfo] Worker - ID: " + id + " Fail getting location IP " + ip);
         }
 
-        Click cl = clickRepository.save(parameter);
-        logger.info(cl!=null? "[LocationInfo] Worker - " + parameter2 + " - ID: " + id +
-                "["+cl.hashCode()+"] saved with date ["+cl.getDate()+"]"+
-                "[LocationInfo] Worker - " + parameter2 + " - ID: " + id :"["+cl.getHash()+"] was not saved");
+        Click cl = clickRepository.save(click);
+        logger.info(cl!=null? "[LocationInfo] Worker - ID: " + id +
+                "["+cl.getHash()+"] saved with date ["+cl.getDate()+"]"+
+                "[LocationInfo] Worker - ID: " + id :"["+cl.getHash()+"] was not saved");
+    }
 
+    protected void setparameters (){
+        Scanner s = new Scanner(p1);
+        s.useDelimiter(",");
+        ip = s.next();
+        hash = s.next();
 
     }
 
@@ -102,7 +98,6 @@ public class LocationWorker implements Runnable {
                 }
                 br.close();
                 Location location = new Gson().fromJson(sb.toString(),Location.class);
-                System.out.println(location);
                 return location;
             } else {
                 return null;

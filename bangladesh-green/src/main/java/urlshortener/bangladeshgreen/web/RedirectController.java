@@ -2,6 +2,7 @@ package urlshortener.bangladeshgreen.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
-import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
@@ -19,7 +19,6 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -34,7 +33,7 @@ public class RedirectController {
 
     private static final Logger logger = LoggerFactory.getLogger(RedirectController.class);
 
-    //private static final String queue = "locationQueue";
+    private static final String queue2 = "locaQueue1";
 
     @Autowired
     protected ShortURLRepository shortURLRepository;
@@ -45,8 +44,8 @@ public class RedirectController {
     @Autowired
     protected URIAvailableRepository availableRepository;
 
-    //@Autowired
-    //private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
@@ -70,8 +69,8 @@ public class RedirectController {
                 model.put("hash", id);
                 return "privateURL";
             } else {
-                //this.rabbitTemplate.convertSendAndReceive(queue,"66.249.66.106");
-                createAndSaveClick(id, extractIP(request));
+                //this.rabbitTemplate.convertSendAndReceive(queue2,extractIP(request)+","+l.getHash());
+                this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+l.getHash());
                 return createSuccessfulRedirectToResponse(l, response);
             }
         } else if (check!=null && !check.isAvailable()){
@@ -92,13 +91,6 @@ public class RedirectController {
         redirView.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
         return redirView;
 
-    }
-
-
-    protected void createAndSaveClick(String hash, String ip) {
-        Click cl = new Click(hash, new Date(),ip);
-        cl=clickRepository.save(cl);
-        log.info(cl!=null?"["+hash+"] saved with date ["+cl.getDate()+"]":"["+hash+"] was not saved");
     }
 
     protected String extractIP(HttpServletRequest request) {
