@@ -8,20 +8,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.somePrivateUrl;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrl;
-import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.*;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
 
 /**
  * Tests for UrlShortenerController, testing both REDIRECT functionality
@@ -41,8 +43,12 @@ public class RedirectControllerTest {
 	@Mock
 	private URIAvailableRepository availableRepository;
 
+	@Mock
+	private RabbitTemplate rabbitTemplate;
+
 	@InjectMocks
 	private RedirectController redirectController;
+
 
 
 
