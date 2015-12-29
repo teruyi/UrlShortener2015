@@ -5,41 +5,31 @@ import com.google.common.hash.Hashing;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.hamcrest.Matchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import urlshortener.bangladeshgreen.TestMongoConfig;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
-import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
-import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Properties;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.is;
@@ -49,9 +39,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrl;
-import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
-import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
 
 /**
  * Tests for UrlShortenerController, testing both REDIRECT functionality
@@ -137,6 +124,100 @@ public class UrlShortenerControllerTest {
 
 
 	@Test
+	/*
+	Test that SHORTENER CREATES a new regular (NON-PRIVATE) redirect with EXPIRATION time
+	(if it is alive and not harmful).
+	 */
+	public void thatShortenerCreatesARedirectWithExpirationIfTheURLisOKandIsAlive() throws Exception {
+
+		configureTransparentSave();
+
+		//Create URL
+		ShortURL shortURL = new ShortURL();
+		shortURL.setTarget("http://www.google.com/");
+
+		Random secondsGenerator = new Random();
+		long seconds = secondsGenerator.nextLong()*9999;
+
+		shortURL.setExpirationSeconds(seconds);
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(shortURL);
+
+
+		String hashToBeGenerated = Hashing.murmur3_32()
+				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString();
+
+		//Do the post request
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(request -> {
+					request.setAttribute("claims", createTestUserClaims("user"));
+					return request;
+				})
+		)
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status", is("success")))
+				.andExpect(jsonPath("$.data.target", is("http://www.google.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/" + hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.creator", is("user")))
+				.andExpect(jsonPath("$.data.privateURI", is(false)))
+				.andExpect(jsonPath("$.data.privateToken", is(nullValue())))
+				.andExpect(jsonPath("$.data.expirationSeconds").value(seconds));
+	}
+
+	@Test
+	/*
+	Test that SHORTENER CREATES a new regular (NON-PRIVATE) redirect with AUTHORIZED USER LIST
+	(if it is alive and not harmful).
+	 */
+	public void thatShortenerCreatesARedirectWithUserListIfTheURLisOKandIsAlive() throws Exception {
+
+		configureTransparentSave();
+
+		//Create URL
+		ShortURL shortURL = new ShortURL();
+		shortURL.setTarget("http://www.google.com/");
+
+		ArrayList<String> users = new ArrayList<>();
+		users.add("ismaro3");
+		users.add("pepito");
+		users.add("alberto");
+
+		shortURL.setAuthorizedUsers(users);
+
+		ObjectMapper mapper = new ObjectMapper();
+		String json = mapper.writeValueAsString(shortURL);
+
+
+		//Ends with '*' because it has a user list and needs authentication
+		String hashToBeGenerated = Hashing.murmur3_32()
+				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString()+"*";
+
+		//Do the post request
+		mockMvc.perform(post("/link").contentType("application/json").content(json)
+				//Modify the request object to include a custom Claims object. (testUser)
+				.with(request -> {
+					request.setAttribute("claims", createTestUserClaims("user"));
+					return request;
+				})
+		)
+				.andDo(print())
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.status", is("success")))
+				.andExpect(jsonPath("$.data.target", is("http://www.google.com/")))
+				.andExpect(jsonPath("$.data.hash", is(hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.uri", is("http://localhost/" + hashToBeGenerated)))
+				.andExpect(jsonPath("$.data.creator", is("user")))
+				.andExpect(jsonPath("$.data.privateURI", is(false)))
+				.andExpect(jsonPath("$.data.privateToken", is(nullValue())))
+				.andExpect(jsonPath("$.data.authorizedUsers", Matchers.containsInAnyOrder("ismaro3","pepito","alberto")));
+	}
+
+
+	@Test
+
 	/*
 	Test that SHORTENER DOES NOT CREATE a new NON-PRIVATE redirect if the url IS OK and IS DEAD ( NOT 200 OK)
 	AND RETURNS SUCCESS.
@@ -254,6 +335,8 @@ public class UrlShortenerControllerTest {
 				.andExpect(jsonPath("$.data.privateURI", is(true)))
 				.andExpect(jsonPath("$.data.privateToken", is(notNullValue())));
 	}
+
+
 
 
 	@Test

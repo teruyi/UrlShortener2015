@@ -19,6 +19,8 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -54,38 +56,78 @@ public class RedirectController {
                              Map<String, Object> model) {
 
         logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
-        ShortURL l = shortURLRepository.findByHash(id);
-        // Checks if target continues available
-        URIAvailable check = null;
-        if(l!=null) {
-            check = availableRepository.findByTarget(l.getTarget());
-        }
-        // If the ShortURL exists and its target is available
-        if (l != null && check!=null && check.isAvailable()) {
 
-            if (l.isPrivateURI() && (privateToken == null || !l.getPrivateToken().equals(privateToken))) {
-                //If private and incorrect token, then unauthorized
+        URIAvailable URIavailability = null;
+        ShortURL shortURL = shortURLRepository.findByHash(id);
+
+
+            if(shortURL == null){
+               //Is null, not found
+               response.setStatus(HttpStatus.NOT_FOUND.value());
+               return "404";
+            }
+
+            //Check if link is expired
+            boolean hasExpired = hasExpired(shortURL);
+
+            //Check if private token is required
+            boolean isPrivate = shortURL.isPrivateURI();
+
+            if(hasExpired){
+                //Has expired
+                response.setStatus(HttpStatus.GONE.value());
+                return "410";
+            }
+
+            if(isPrivate && (privateToken == null || !shortURL.getPrivateToken().equals(privateToken))){
+                //Is private and no correct token has been supplied
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 model.put("hash", id);
                 return "privateURL";
-            } else {
-                //final
-                //this.rabbitTemplate.convertSendAndReceive(queue2,extractIP(request)+","+l.getHash());
-
-                //simulation
-                this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+l.getHash());
-                return createSuccessfulRedirectToResponse(l, response);
             }
-        } else if (check!=null && !check.isAvailable()){
-            // If the target URI is not available
-            response.setStatus(HttpStatus.GONE.value());
-            return "410";
-        } else {
-            response.setStatus(HttpStatus.NOT_FOUND.value());
-            return "404";
+
+            URIavailability = availableRepository.findByTarget(shortURL.getTarget());
+           if(!URIavailability.isAvailable()){
+                 // If the target URI is not available
+                 response.setStatus(HttpStatus.GONE.value());
+                 return "410";
+             }
+
+             //Else: Correct, redirect
+              //simulation
+            this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+shortURL.getHash());
+            return createSuccessfulRedirectToResponse(shortURL, response);
+
+
+    }
+
+    /**
+     * Returns true if link has expired.
+     * False otherwise.
+     * @param shortURL
+     * @return
+     */
+    private boolean hasExpired(ShortURL shortURL){
+        final long ONE_SECOND_IN_MILLIS = 1000;
+
+        Long expirationSeconds = shortURL.getExpirationSeconds();
+        if(expirationSeconds!=null){
+            Date creationDate = shortURL.getCreated();
+            Date expirationDate = new Date(creationDate.getTime() + expirationSeconds*ONE_SECOND_IN_MILLIS);
+
+            long expirationDateMillis = expirationDate.getTime();
+            Calendar date = Calendar.getInstance();
+            long currentTimeMillis = date.getTimeInMillis();
+
+            return currentTimeMillis > expirationDateMillis;
 
         }
+        else{
+            return false;
+        }
     }
+
+
 
 
     protected RedirectView createSuccessfulRedirectToResponse(ShortURL l, HttpServletResponse response) {

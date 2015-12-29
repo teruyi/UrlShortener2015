@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import urlshortener.bangladeshgreen.auth.URLProtection;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
@@ -62,6 +63,20 @@ public class WebTokenFilterTest {
     @Before
     public void setup() {
         WebTokenFilter wtf = new WebTokenFilter("secretkey");
+
+        //Protect all methods from "/link"
+        URLProtection linkURL = new URLProtection("/link");
+        linkURL.setAllMethods();
+        wtf.addUrlToProtect(linkURL);
+
+        //Protect GET, DELETE and PUT from "/user"
+        URLProtection userURL = new URLProtection("/user");
+        userURL.addMethod("GET");
+        userURL.addMethod("DELETE");
+        userURL.addMethod("PUT");
+
+        wtf.addUrlToProtect(userURL);
+
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).addFilter(wtf).build();
 
