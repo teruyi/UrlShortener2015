@@ -193,7 +193,7 @@ public class UrlShortenerControllerTest {
 
 		//Ends with '*' because it has a user list and needs authentication
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString()+"*";
+				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString()+"_";
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)

@@ -118,6 +118,7 @@ public class RedirectControllerTest {
 				.andExpect(status().isGone());
 	}
 
+
 	@Test
 	/*
 	Test that REDIRECT over a PRIVATE link redirects if KEY EXISTS

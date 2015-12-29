@@ -39,15 +39,18 @@ public class Application extends SpringBootServletInitializer {
 
 
 		//Protect all methods from "/link"
-		URLProtection linkURL = new URLProtection("/link");
+		URLProtection linkURL = new URLProtection("/link.*");
 		linkURL.setAllMethods();
 		authenticationFilter.addUrlToProtect(linkURL);
 
 		//Protect GET, DELETE and PUT from "/user"
-		URLProtection userURL = new URLProtection("/user");
+		URLProtection userURL = new URLProtection("/user.*");
 		userURL.addMethod("GET");
 		userURL.addMethod("DELETE");
 		userURL.addMethod("PUT");
+
+		//Protect redirection to "user-protected" links
+
 
 		authenticationFilter.addUrlToProtect(userURL);
 		registrationBean.setFilter(authenticationFilter);
@@ -83,7 +86,7 @@ public class Application extends SpringBootServletInitializer {
 		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 		connector.setScheme("http");
 		connector.setPort(8080);
-		connector.setSecure(false);
+		connector.setSecure(true);
 		connector.setRedirectPort(8443);
 
 		return connector;

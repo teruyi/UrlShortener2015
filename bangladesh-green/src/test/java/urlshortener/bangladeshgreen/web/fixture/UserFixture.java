@@ -12,5 +12,9 @@ public class UserFixture {
         return new User("user","user@mail.com","user", Hash.makeHash("password"),"Real name");
     }
 
+    public static User someUser2() {
+        return new User("user2","user2@mail.com","user", Hash.makeHash("password2"),"Real name2");
+    }
+
 
 }

@@ -234,6 +234,16 @@ html, body{
 
 }
 
+
+
+.mainBackground {
+
+  width: 100% !important;
+  height: 100%;
+
+
+}
+
 .outer {
   display: table;
   position: absolute;
@@ -253,3 +263,25 @@ html, body{
 }
 
 
+.columnDecoration {
+    margin-top:5px;
+    border-radius: 5px;
+    border: 2px solid black;
+    padding: 20px;
+
+}
+
+.checkLabel{
+  font-size:120%;
+  margin-left:20px;
+}
+
+
+.checkSublabel{
+  font-size:90%;
+
+}
+
+.optionSet{
+  margin-top:30px;
+}
