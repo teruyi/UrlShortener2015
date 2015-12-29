@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import urlshortener.bangladeshgreen.domain.Click;
+import urlshortener.bangladeshgreen.domain.ClickAdds;
 import urlshortener.bangladeshgreen.domain.InfoURL;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
@@ -19,7 +21,7 @@ import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by teruyi.
@@ -105,5 +107,139 @@ public class UrlInfoController {
             ErrorResponse error = new ErrorResponse("URL not found");
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
+    }
+
+    private List<ClickAdds> listByRegion(Date desde, Date hasta) {
+        List<Click> list = clickRepository.findAll();
+        List<ClickAdds> listt = new ArrayList<ClickAdds>();
+
+        HashMap<String, Integer> names = new HashMap<String, Integer>();
+        int indice = 0;
+        for (Click a : list) {
+            if(desde !=null  && hasta!= null) {
+                if (a.getDate().after(desde) && a.getDate().before(hasta)) {
+
+                    if (names.containsKey(a.getRegionName())) {
+                        names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
+                    } else {
+                        names.put(a.getRegionName(), 1);
+                    }
+                }
+            }else if (desde == null && hasta !=null){
+                if(a.getDate().before(hasta)){
+                    if (names.containsKey(a.getRegionName())) {
+                        names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
+                    } else {
+                        names.put(a.getRegionName(), 1);
+                    }
+                }
+            }
+            else if(desde !=null && hasta ==null){
+                if(a.getDate().after(desde)){
+                    if (names.containsKey(a.getRegionName())) {
+                        names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
+                    } else {
+                        names.put(a.getRegionName(), 1);
+                    }
+                }
+            }
+            else{return null;}
+        }
+        Set keys = names.keySet();
+        Iterator iterator=keys.iterator();
+        while(iterator.hasNext()){
+            String key = (String)iterator.next();
+            ClickAdds aux = new ClickAdds(key,names.get(key));
+            listt.add(aux);
+        }
+        return listt;
+    }
+    private List<ClickAdds> listByCity(Date desde, Date hasta) {
+        List<Click> list = clickRepository.findAll();
+        List<ClickAdds> listt = new ArrayList<ClickAdds>();
+
+        HashMap<String, Integer> names = new HashMap<String, Integer>();
+        int indice = 0;
+        for (Click a : list) {
+            if(desde !=null  && hasta!= null) {
+                if (a.getDate().after(desde) && a.getDate().before(hasta)) {
+
+                    if (names.containsKey(a.getCity())) {
+                        names.replace(a.getCity(), names.get(a.getCity()) + 1);
+                    } else {
+                        names.put(a.getCity(), 1);
+                    }
+                }
+            }else if (desde == null && hasta !=null){
+                if(a.getDate().before(hasta)){
+                    if (names.containsKey(a.getCity())) {
+                        names.replace(a.getCity(), names.get(a.getCity()) + 1);
+                    } else {
+                        names.put(a.getCity(), 1);
+                    }
+                }
+            }
+            else if(desde !=null && hasta ==null){
+                if(a.getDate().after(desde)){
+                    if (names.containsKey(a.getCity())) {
+                        names.replace(a.getCity(), names.get(a.getCity()) + 1);
+                    } else {
+                        names.put(a.getCity(), 1);
+                    }
+                }
+            }else{return null;}
+        }
+        Set keys = names.keySet();
+        Iterator iterator=keys.iterator();
+        while(iterator.hasNext()){
+            String key = (String)iterator.next();
+            ClickAdds aux = new ClickAdds(key,names.get(key));
+            listt.add(aux);
+        }
+        return listt;
+    }
+    private List<ClickAdds> listByCountry(Date desde, Date hasta) {
+        List<Click> list = clickRepository.findAll();
+        List<ClickAdds> listt = new ArrayList<ClickAdds>();
+
+        HashMap<String, Integer> names = new HashMap<String, Integer>();
+        int indice = 0;
+        for (Click a : list) {
+            if(desde !=null  && hasta!= null) {
+                if (a.getDate().after(desde) && a.getDate().before(hasta)) {
+
+                    if (names.containsKey(a.getCountry())) {
+                        names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
+                    } else {
+                        names.put(a.getCountry(), 1);
+                    }
+                }
+            }else if (desde == null && hasta !=null){
+                if(a.getDate().before(hasta)){
+                    if (names.containsKey(a.getCountry())) {
+                        names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
+                    } else {
+                        names.put(a.getCountry(), 1);
+                    }
+                }
+            }
+            else if(desde !=null && hasta ==null){
+                if(a.getDate().after(desde)){
+                    if (names.containsKey(a.getCountry())) {
+                        names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
+                    } else {
+                        names.put(a.getCountry(), 1);
+                    }
+                }
+            }else{return null;}
+        }
+        Set keys = names.keySet();
+        Iterator iterator=keys.iterator();
+        while(iterator.hasNext()){
+            String key = (String)iterator.next();
+            ClickAdds aux = new ClickAdds(key,names.get(key));
+            listt.add(aux);
+        }
+        return listt;
     }
 }
