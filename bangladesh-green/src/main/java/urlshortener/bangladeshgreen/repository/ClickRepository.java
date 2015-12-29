@@ -27,9 +27,4 @@ public interface ClickRepository extends MongoRepository<Click, String> {
 	@Query("{'ip' : ?0}")
 	public List<Click> findByIP(String ip);
 
-	public List<ClickAdds> listByCountryBetween(Date from, Date to);
-
-	public List<ClickAdds> listByRegionBetween(Date from, Date to);
-
-	public List<ClickAdds> listByCity(Date from, Date to);
 }
