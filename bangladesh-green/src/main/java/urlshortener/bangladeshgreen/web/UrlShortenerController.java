@@ -115,7 +115,7 @@ public class UrlShortenerController {
 					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
 			if(authorizedUsers!= null && authorizedUsers.size() >0){
-				id+="*";
+				id+="_";
 			}
 
 			// Check if the URI is available and safe
@@ -134,6 +134,8 @@ public class UrlShortenerController {
 			ShortURL su = new ShortURL(id,url,	linkTo(
 					methodOn(RedirectController.class).redirectTo(
 							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken,expirationSeconds,authorizedUsers);
+
+			System.out.println("Autorizados: "  + authorizedUsers.size());
 
 			// If it's available, save the shortUrl and return it
 			if (safe){

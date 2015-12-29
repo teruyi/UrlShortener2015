@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -115,11 +117,16 @@ public class WebTokenFilter extends GenericFilterBean {
         System.out.println("Checking for " + destinationURL);
         System.out.println(request.getMethod());
 
+
+
         //Check every URL to protect
         for(URLProtection url: toProtect){
+            Pattern p = Pattern.compile(url.getUrl());
+
 
             System.out.println(url.getUrl());
-            if(url.getUrl().equals(destinationURL)){ //A filter has been found for that URL
+            Matcher m = p.matcher(destinationURL);
+            if(m.matches()){ //A filter has been found for that URL
                 //Check method
                 System.out.println("Check");
                 if(url.hasMethod(request.getMethod())){

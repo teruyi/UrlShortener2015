@@ -11,7 +11,8 @@ angular.module('urlshortenerApp')
 	  //Current URL object
     self.url = {
     	target: undefined,
-    	privateURI: false
+    	privateURI: false,
+		authorizedUsers: ["ismaro3"]
     };
 
 	  //Current result object
