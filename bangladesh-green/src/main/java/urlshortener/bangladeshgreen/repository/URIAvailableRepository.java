@@ -18,7 +18,8 @@ public interface URIAvailableRepository extends MongoRepository<URIAvailable, St
     public URIAvailable findByTarget(String target);
 
     public List<URIAvailable> findByDateLessThan(long date);
-
+    @Query("{}")
+    public List<URIAvailable> list();
 
 
 }
