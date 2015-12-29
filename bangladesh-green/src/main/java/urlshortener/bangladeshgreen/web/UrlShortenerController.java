@@ -5,25 +5,23 @@ import io.jsonwebtoken.Claims;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
-import urlshortener.bangladeshgreen.domain.Click;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
-import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -44,11 +42,15 @@ public class UrlShortenerController {
 	@Value("${token.safe_browsing_key}")
 	private String GOOGLE_KEY;
 
+	private static final String queue = "availableQueue";
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
+
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
 
 
 	public String getGoogleKey(){
@@ -112,10 +114,9 @@ public class UrlShortenerController {
 			String id = Hashing.murmur3_32()
 					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
-			// Check if the URI is available
-			boolean available = checkURI(url);
+			// Check if the URI is available and safe
+			rabbitTemplate.convertSendAndReceive(queue,url);
 			boolean safe = checkSafeURI(url);
-			System.out.println("SAFE: " + safe);
 
 			//If private, create token
 			String privateToken = null;
@@ -131,7 +132,7 @@ public class UrlShortenerController {
 							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
 
 			// If it's available, save the shortUrl and return it
-			if (available && safe){
+			if (safe){
 				return shortURLRepository.save(su);
 			} else {
 				//todo: Maybe an exception in order to diferentiate.
@@ -152,7 +153,6 @@ public class UrlShortenerController {
 
 		URL google = new
 				URL("https://sb-ssl.google.com/safebrowsing/api/lookup?client=api&key="+GOOGLE_KEY+"&appver=1.5.2&pver=3.1&url="+URI);
-			System.out.println("GOOGLE KEY: " + GOOGLE_KEY);
 		HttpURLConnection connection = (HttpURLConnection)google.openConnection();
 		connection.setRequestMethod("GET");
 
@@ -164,45 +164,14 @@ public class UrlShortenerController {
 			Integer code2 = new Integer(connection.getResponseCode());
 			String respuesta = new String(connection.getResponseMessage());
 
-			System.out.println("CODE2: " + code2);
-			System.out.println("RESPUESTA: " + respuesta);
 			if (code2.toString().compareTo("204")== 0){
 				return true;
-			}else{ return false;}
+			} else { return false;}
 		}
 		catch(IOException ex){
 			ex.printStackTrace();
 			return false;
 		}
 	}
-	/**
-	 * Checks if an URI is available (returns 2XX or 3XX code).
-	 * Allows redirections.
-	 * @param URI is the URI to check
-	 * @return boolean True if available, false in other case.
-     */
-	protected boolean checkURI(String URI){
-		try {
-			URL url = new URL(URI);
-			HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-			connection.setRequestMethod("GET");
-			// Sets default timeout to 3 seconds
-			connection.setConnectTimeout(3000);
-			// Connects to the URI to check.
-			connection.connect();
-			Integer code = new Integer(connection.getResponseCode());
 
-
-
-			// If it returns 2XX or 3XX code, the check it's successful
-			if( code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
-				return true;
-			} else {
-				return false;
-			}
-		} catch (IOException e) {
-			System.out.println("Warning: IOException while checking URI for short it.");
-			return false;
-		}
-	}
 }

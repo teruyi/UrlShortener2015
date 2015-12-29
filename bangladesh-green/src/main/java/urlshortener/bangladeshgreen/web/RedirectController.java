@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
-import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -33,11 +33,16 @@ public class RedirectController {
 
     private static final Logger logger = LoggerFactory.getLogger(RedirectController.class);
 
+    private static final String queue2 = "locaQueue1";
+
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
     @Autowired
     protected ClickRepository clickRepository;
+
+    @Autowired
+    protected URIAvailableRepository availableRepository;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -50,27 +55,31 @@ public class RedirectController {
 
         logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
         ShortURL l = shortURLRepository.findByHash(id);
+        // Checks if target continues available
+        URIAvailable check = null;
+        if(l!=null) {
+            check = availableRepository.findByTarget(l.getTarget());
+        }
+        // If the ShortURL exists and its target is available
+        if (l != null && check!=null && check.isAvailable()) {
 
-
-
-
-
-        if (l != null) {
-
-            if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
+            if (l.isPrivateURI() && (privateToken == null || !l.getPrivateToken().equals(privateToken))) {
                 //If private and incorrect token, then unauthorized
                 response.setStatus(HttpStatus.FORBIDDEN.value());
-                model.put("hash",id);
+                model.put("hash", id);
                 return "privateURL";
-            }
-            else{
-                //Prueba de cola. Por cada redirección, se envía un mensaje a la colaEjemplo
+            } else {
+                //final
+                //this.rabbitTemplate.convertSendAndReceive(queue2,extractIP(request)+","+l.getHash());
 
-                this.rabbitTemplate.convertAndSend("colaEjemplo", "Se ha hecho click en en el link" + "id");
-
-                createAndSaveClick(id, extractIP(request));
-                return createSuccessfulRedirectToResponse(l,response);
+                //simulation
+                this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+l.getHash());
+                return createSuccessfulRedirectToResponse(l, response);
             }
+        } else if (check!=null && !check.isAvailable()){
+            // If the target URI is not available
+            response.setStatus(HttpStatus.GONE.value());
+            return "410";
         } else {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return "404";
@@ -85,13 +94,6 @@ public class RedirectController {
         redirView.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
         return redirView;
 
-    }
-
-
-    protected void createAndSaveClick(String hash, String ip) {
-        Click cl = new Click(hash, new Date(),ip);
-        cl=clickRepository.save(cl);
-        log.info(cl!=null?"["+hash+"] saved with date ["+cl.getDate()+"]":"["+hash+"] was not saved");
     }
 
     protected String extractIP(HttpServletRequest request) {
