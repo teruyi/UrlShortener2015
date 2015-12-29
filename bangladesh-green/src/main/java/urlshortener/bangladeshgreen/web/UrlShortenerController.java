@@ -29,6 +29,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -104,7 +105,7 @@ public class UrlShortenerController {
 
 
 	protected ShortURL createAndSaveIfValid(String url,
-			 String creator, String ip, boolean isPrivate, Long expirationSeconds, ArrayList<String> authorizedUsers) {
+			 String creator, String ip, boolean isPrivate, Long expirationSeconds, List<String> authorizedUsers) {
 
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
@@ -115,7 +116,7 @@ public class UrlShortenerController {
 					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
 			if(authorizedUsers!= null && authorizedUsers.size() >0){
-				id+="*";
+				id+="_";
 			}
 
 			// Check if the URI is available and safe
@@ -134,6 +135,8 @@ public class UrlShortenerController {
 			ShortURL su = new ShortURL(id,url,	linkTo(
 					methodOn(RedirectController.class).redirectTo(
 							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken,expirationSeconds,authorizedUsers);
+
+
 
 			// If it's available, save the shortUrl and return it
 			if (safe){

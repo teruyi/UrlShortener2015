@@ -1,24 +1,21 @@
 package urlshortener.bangladeshgreen.web;
 
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.*;
 import urlshortener.bangladeshgreen.repository.UserRepository;
 import urlshortener.bangladeshgreen.secure.Hash;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
- * Controller used for user sign up.
- * When a user wants to register, they pass an object with all its user data.
- * When receiving a valid request, if user doesn't exists and sign up is correct,
- * it returns an HTTP "CREATED" response. Otherwise, an error response is sent.
+ * Controller used for user management.
  */
 @RestController
 @RequestMapping("/user")
@@ -36,9 +33,12 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
+    /**
+     * Register a new user
+     */
     public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg)
             throws ServletException {
-        
+
         // Checks for null fields
         String check = checkRequest(reg);
 
@@ -79,6 +79,187 @@ public class UserController {
             return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @RequestMapping(method = RequestMethod.GET)
+    /*
+    All users list, only can be obtained by admin.
+     */
+    public ResponseEntity<? extends JsonResponse> getUserList(
+            HttpServletRequest request
+    ) throws ServletException {
+
+        final Claims claims = (Claims) request.getAttribute("claims");
+        String loggedUser = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+
+        if(loggedRoles.contains("admin")){
+
+            List<User> userList = userRepository.list();
+            for(User u: userList){
+                u.setPassword(null);
+            }
+
+            SuccessResponse<List<User>> successResponse = new SuccessResponse<>(userList);
+            return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+        }
+
+        else{
+            //Not authorized
+            ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
+
+
+    }
+
+
+    @RequestMapping(value ="/{username}",method = RequestMethod.GET)
+    /*
+    User data visualization. Only a user can view its own profile (And a admin user).
+    The password is never provided (Neither the hash).
+     */
+    public ResponseEntity<? extends JsonResponse> getUserDetails(
+            @PathVariable String username,HttpServletRequest request
+    ) throws ServletException {
+
+
+        final Claims claims = (Claims) request.getAttribute("claims");
+        String loggedUser = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+        //Get user from DB
+        User user = userRepository.findByUsername(username);
+
+        if(user==null){
+            //User does not exist
+            ErrorResponse errorResponse = new ErrorResponse("Username does not exist.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+        else{
+            if(loggedUser.equalsIgnoreCase(username) || loggedRoles.contains("admin")){
+                //User exists and is the same user or admin
+                user.setPassword(null);
+                SuccessResponse<User> successResponse = new SuccessResponse<>(user);
+                return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+            }
+            else{
+                //Not authorized
+                ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+                return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+    /*
+         User deletion. Only a user can delete its own profile (And a admin user).
+   */
+    @RequestMapping(value ="/{username}",method = RequestMethod.DELETE)
+    public ResponseEntity<? extends JsonResponse> deleteUser(
+            @PathVariable String username,HttpServletRequest request
+    ) throws ServletException {
+
+
+        final Claims claims = (Claims) request.getAttribute("claims");
+        String loggedUser = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+        //Get user from DB
+        User user = userRepository.findByUsername(username);
+
+        if(user==null){
+            //User does not exist
+            ErrorResponse errorResponse = new ErrorResponse("Username does not exist.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+        else{
+            if(loggedUser.equalsIgnoreCase(username) || loggedRoles.contains("admin")){
+                //User exists and is the same user or admin -> can delete
+                userRepository.delete(user.getUsername());
+                SuccessResponse<String> successResponse = new SuccessResponse<>("User " + username + " has been deleted.");
+                return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+            }
+            else{
+                //Not authorized
+                ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+                return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+            }
+        }
+
+    }
+
+
+    /*
+     User update.
+     Users can change its password and real name.
+     Admins can change all except username.
+     */
+    @RequestMapping(value ="/{username}",method = RequestMethod.PUT)
+    public ResponseEntity<? extends JsonResponse> updateUser(
+            @PathVariable String username,
+            @RequestBody final User updatedData,
+            HttpServletRequest request
+    ) throws ServletException {
+
+
+        final Claims claims = (Claims) request.getAttribute("claims");
+        String loggedUser = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+
+        //Get user from DB
+        User user = userRepository.findByUsername(username);
+
+
+
+
+        if(user==null){
+            //User does not exist
+            ErrorResponse errorResponse = new ErrorResponse("Username does not exist.");
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+        else{
+            //User exists and is the same user or admin and username from object and path are the same
+            if(loggedUser.equalsIgnoreCase(username) || loggedRoles.contains("admin")){
+
+
+                String newMail = updatedData.getEmail();
+                String newPassword = updatedData.getPassword();
+                String newRealName = updatedData.getRealName();
+                String newRole = updatedData.getRole();
+
+                if(loggedRoles.contains("admin")){
+                    //If admin, can change email and role
+                    user.setEmail(newMail);
+                    user.setRole(newRole);
+                }
+
+                user.setRealName(newRealName);
+                //Password only changed if not null and length > 0
+                if(newPassword != null && newPassword.length()>0){
+                    user.setPassword(Hash.makeHash(newPassword));
+                }
+
+                userRepository.save(user);
+
+                user.setPassword(null); //Hash is not sent
+                SuccessResponse<User> successResponse = new SuccessResponse<>(user);
+                return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+            }
+            else{
+                //Not authorized
+                ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+                return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+            }
+        }
+
+    }
+
+
+
 
 
     /**

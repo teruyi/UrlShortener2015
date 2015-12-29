@@ -112,7 +112,7 @@ angular.module('urlshortenerApp')
             self.userErrors.password.message = "Please repeat your password";
             hasErrors = true;
         }
-   
+
 
         return !hasErrors;
     };
@@ -147,7 +147,7 @@ angular.module('urlshortenerApp')
 
         //Only if data can be valid
         if(self.newUserDataIsValid()){
-            $http.post('/user', self.newUser)
+            $http.post('http://localhost:8080/user', self.newUser)
             .then(function(message){
                 //Success
                 self.alert.type = "success";
@@ -178,7 +178,7 @@ angular.module('urlshortenerApp')
 
             });
         }
-        
+
     };
 
 
@@ -188,7 +188,7 @@ angular.module('urlshortenerApp')
 
             //Only if data can be valid
             if(self.loginUserDataIsValid()){
-                $http.post('/login', self.loginUser)
+                $http.post('http://localhost:8080/login', self.loginUser)
                     .then(function(message){
 
                         self.loginUser = {};          //Clear new user

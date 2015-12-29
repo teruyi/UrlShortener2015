@@ -17,6 +17,7 @@ public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 
 	public ShortURL findByHash(String hash);
 	@Query("{'target' : ?0}")
+
 	public ShortURL findByTarget(String target);
 	@Query("{}")
 	public List<ShortURL> list();
