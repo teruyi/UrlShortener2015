@@ -94,7 +94,7 @@ public class RedirectController {
 
              //Else: Correct, redirect
               //simulation
-            //this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+shortURL.getHash());
+        this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+shortURL.getHash());
             return createSuccessfulRedirectToResponse(shortURL, response);
 
 
