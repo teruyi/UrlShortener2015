@@ -31,8 +31,8 @@ public class ShortURLRepositoryTest {
     @Before
     //Executed before every test
     public void setUp() throws Exception {
-        test = new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(),"0.0.0.0",false,null);
-        test2 = new ShortURL("someKey2","http://www.google.com",null,"randomUser",new Date(),"0.0.0.0",false,null);
+        test = new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(),"0.0.0.0",false,null,null,null);
+        test2 = new ShortURL("someKey2","http://www.google.com",null,"randomUser",new Date(),"0.0.0.0",false,null,null,null);
 
     }
 
