@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Represents a short URL.
@@ -24,9 +25,9 @@ public class ShortURL {
     private String privateToken;
     private boolean privateURI;
     private Long expirationSeconds;
-    private ArrayList<String> authorizedUsers;
+    private List<String> authorizedUsers;
 
-    public ShortURL(String hash, String target, URI uri, String creator, Date created, String ip, boolean privateURI, String privateToken, Long expirationSeconds, ArrayList<String> authorizedUsers) {
+    public ShortURL(String hash, String target, URI uri, String creator, Date created, String ip, boolean privateURI, String privateToken, Long expirationSeconds, List<String> authorizedUsers) {
         this.hash = hash;
         this.target = target;
         this.uri = uri;
@@ -113,7 +114,7 @@ public class ShortURL {
         this.expirationSeconds = expirationSeconds;
     }
 
-    public ArrayList<String> getAuthorizedUsers() {
+    public List<String> getAuthorizedUsers() {
         return authorizedUsers;
     }
 

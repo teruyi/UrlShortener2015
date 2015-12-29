@@ -25,8 +25,6 @@ public class URLProtection {
         this.addMethod("PUT");
         this.addMethod("POST");
         this.addMethod("DELETE");
-        this.addMethod("HEAD");
-        this.addMethod("OPTIONS");
     }
 
     public ArrayList<String> getMethods() {

@@ -100,7 +100,24 @@ public class WebTokenFilter extends GenericFilterBean {
             }
         }
         else{
-            //Does not require authentication
+
+            //Does not require authentication, but if a valid token is supplied, we pass it to the controller
+            //(For example, for being able to handle authentication-required URLs)
+            if(authHeader!= null && authHeader.startsWith("Bearer ")) {
+                //Authentication in the request
+                final String token = extractToken(authHeader);
+                try {
+                    //Parse claims from JWT
+                    final Claims claims = Jwts.parser().setSigningKey(key)
+                            .parseClaimsJws(token).getBody();
+
+                    //Correct token -> User is logged-in
+                    request.setAttribute("claims", claims);
+
+                } catch (Exception ex) {
+                    //Nothing
+                }
+            }
             System.out.println("Does not require authentication");
             chain.doFilter(req,res);
         }

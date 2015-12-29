@@ -20,10 +20,7 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ismaro3.
@@ -51,7 +48,7 @@ public class RedirectController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
@@ -78,7 +75,7 @@ public class RedirectController {
             if(hasExpired){
                 //Has expired
                 response.setStatus(HttpStatus.GONE.value());
-                return "410";
+                return "expired";
             }
 
             if(isPrivate && (privateToken == null || !shortURL.getPrivateToken().equals(privateToken))){
@@ -97,14 +94,14 @@ public class RedirectController {
 
              //Else: Correct, redirect
               //simulation
-            this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+shortURL.getHash());
+            //this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+shortURL.getHash());
             return createSuccessfulRedirectToResponse(shortURL, response);
 
 
     }
 
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info).*}_", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*}_", method = RequestMethod.GET)
     public Object redirectToWithUserList(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
@@ -118,6 +115,7 @@ public class RedirectController {
 
         logger.info("Requested USER PROTECTED redirection with hash " + id + " - privateToken=" + privateToken);
 
+
         ShortURL shortURL = shortURLRepository.findByHash(id);
         System.out.println(shortURL);
 
@@ -127,7 +125,7 @@ public class RedirectController {
             return "404";
         }
         else{
-            ArrayList<String> authorizedUsers = shortURL.getAuthorizedUsers();
+            List<String> authorizedUsers = shortURL.getAuthorizedUsers();
             if(authorizedUsers.contains(userName)){
                 //Authorized, can proceed to next step
                 return redirectTo(id,privateToken,response,request,model);

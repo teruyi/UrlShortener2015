@@ -224,6 +224,9 @@ public class UserControllerTest{
 
 
     @Test
+    /**
+     * Test that a user can view its own profile.
+     */
     public void testAuthorizedUserVisualization() throws Exception{
 
         User someUser = someUser();
@@ -233,7 +236,7 @@ public class UserControllerTest{
         mockMvc.perform(get("/user/{username}", "user").header("Accept", "application/json")
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("user"));
+                    request.setAttribute("claims",createTestUserClaims("user","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -248,6 +251,9 @@ public class UserControllerTest{
     }
 
     @Test
+    /**
+     * Test that a user can not view another profile.
+     */
     public void testUnauthorizedUserVisualization() throws Exception{
 
         User someUser = someUser();
@@ -257,7 +263,7 @@ public class UserControllerTest{
         mockMvc.perform(get("/user/{username}", "user").header("Accept", "application/json")
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("anotherUser"));
+                    request.setAttribute("claims",createTestUserClaims("anotherUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -269,6 +275,9 @@ public class UserControllerTest{
     }
 
     @Test
+    /**
+     * Test that a user can delete its own profile
+     */
     public void testAuthorizedDeletion() throws Exception{
 
         User someUser = someUser();
@@ -278,7 +287,7 @@ public class UserControllerTest{
         mockMvc.perform(delete("/user/{username}", "user").header("Accept", "application/json")
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("user"));
+                    request.setAttribute("claims",createTestUserClaims("user","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -290,6 +299,9 @@ public class UserControllerTest{
     }
 
     @Test
+    /**
+     * Test that a user can't delete another profile
+     */
     public void testUnauthorizedDeletion() throws Exception{
 
         User someUser = someUser();
@@ -299,7 +311,7 @@ public class UserControllerTest{
         mockMvc.perform(delete("/user/{username}", "user").header("Accept", "application/json")
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("anotherUser"));
+                    request.setAttribute("claims",createTestUserClaims("anotherUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -336,7 +348,7 @@ public class UserControllerTest{
                 .content(json)
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("user"));
+                    request.setAttribute("claims",createTestUserClaims("user","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -377,7 +389,7 @@ public class UserControllerTest{
                 .content(json)
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("admin"));
+                    request.setAttribute("claims",createTestUserClaims("admin","admin"));
                     return request;
                 }))
                 .andDo(print())
@@ -395,6 +407,9 @@ public class UserControllerTest{
 
 
     @Test
+    /**
+     * Tests that admin can obtain a listing of all users.
+     */
     public void testAuthorizedAllUsersVisualization() throws Exception{
 
         User someUser = someUser();
@@ -409,7 +424,7 @@ public class UserControllerTest{
         mockMvc.perform(get("/user").header("Accept", "application/json")
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("admin"));
+                    request.setAttribute("claims",createTestUserClaims("admin","admin"));
                     return request;
                 }))
                 .andDo(print())
@@ -421,6 +436,9 @@ public class UserControllerTest{
     }
 
     @Test
+    /**
+     * Tests that a non-admin user can't view a listing of all users.
+     */
     public void testUnauthorizedAllUsersVisualization() throws Exception{
 
         User someUser = someUser();
@@ -435,14 +453,12 @@ public class UserControllerTest{
         mockMvc.perform(get("/user").header("Accept", "application/json")
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("regularUser"));
+                    request.setAttribute("claims",createTestUserClaims("regularUser","user"));
                     return request;
                 }))
                 .andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message",is("Permission denied")));
-
-
 
     }
 
@@ -469,7 +485,7 @@ public class UserControllerTest{
                 .content(json)
                 //Modify the request object to include a custom Claims object. (testUser)
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("anotherUser"));
+                    request.setAttribute("claims",createTestUserClaims("anotherUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -486,10 +502,10 @@ public class UserControllerTest{
 	Returns a valid Claim of user testUser and roles: user with key "secretKey".
 	Used for mocking it into the controller and simulate a logged-in user.
 	 */
-    private Claims createTestUserClaims(String username){
+    private Claims createTestUserClaims(String username, String roles){
 
         String claims =  Jwts.builder().setSubject(username)
-                .claim("roles", "user").setIssuedAt(new Date())
+                .claim("roles", roles).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, "secretkey").compact();
 
         return Jwts.parser().setSigningKey("secretkey")

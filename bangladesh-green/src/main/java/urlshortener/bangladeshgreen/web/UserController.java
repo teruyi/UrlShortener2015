@@ -15,10 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * Controller used for user sign up.
- * When a user wants to register, they pass an object with all its user data.
- * When receiving a valid request, if user doesn't exists and sign up is correct,
- * it returns an HTTP "CREATED" response. Otherwise, an error response is sent.
+ * Controller used for user management.
  */
 @RestController
 @RequestMapping("/user")
@@ -36,6 +33,9 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
+    /**
+     * Register a new user
+     */
     public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg)
             throws ServletException {
 
@@ -81,15 +81,18 @@ public class UserController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    //User list visualization, only admin
+    /*
+    All users list, only can be obtained by admin.
+     */
     public ResponseEntity<? extends JsonResponse> getUserList(
             HttpServletRequest request
     ) throws ServletException {
 
         final Claims claims = (Claims) request.getAttribute("claims");
         String loggedUser = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
 
-        if(loggedUser.equalsIgnoreCase("admin")){
+        if(loggedRoles.contains("admin")){
 
             List<User> userList = userRepository.list();
             for(User u: userList){
@@ -111,7 +114,10 @@ public class UserController {
 
 
     @RequestMapping(value ="/{username}",method = RequestMethod.GET)
-    //User visualization
+    /*
+    User data visualization. Only a user can view its own profile (And a admin user).
+    The password is never provided (Neither the hash).
+     */
     public ResponseEntity<? extends JsonResponse> getUserDetails(
             @PathVariable String username,HttpServletRequest request
     ) throws ServletException {
@@ -119,7 +125,7 @@ public class UserController {
 
         final Claims claims = (Claims) request.getAttribute("claims");
         String loggedUser = claims.getSubject();
-
+        String loggedRoles = (String) claims.get("roles");
         //Get user from DB
         User user = userRepository.findByUsername(username);
 
@@ -129,7 +135,7 @@ public class UserController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
         else{
-            if(loggedUser.equalsIgnoreCase(username) || loggedUser.equalsIgnoreCase("admin")){
+            if(loggedUser.equalsIgnoreCase(username) || loggedRoles.contains("admin")){
                 //User exists and is the same user or admin
                 user.setPassword(null);
                 SuccessResponse<User> successResponse = new SuccessResponse<>(user);
@@ -149,7 +155,10 @@ public class UserController {
 
 
 
-    //User deletion
+
+    /*
+         User deletion. Only a user can delete its own profile (And a admin user).
+   */
     @RequestMapping(value ="/{username}",method = RequestMethod.DELETE)
     public ResponseEntity<? extends JsonResponse> deleteUser(
             @PathVariable String username,HttpServletRequest request
@@ -158,7 +167,7 @@ public class UserController {
 
         final Claims claims = (Claims) request.getAttribute("claims");
         String loggedUser = claims.getSubject();
-
+        String loggedRoles = (String) claims.get("roles");
         //Get user from DB
         User user = userRepository.findByUsername(username);
 
@@ -168,7 +177,7 @@ public class UserController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
         else{
-            if(loggedUser.equalsIgnoreCase(username) || loggedUser.equalsIgnoreCase("admin")){
+            if(loggedUser.equalsIgnoreCase(username) || loggedRoles.contains("admin")){
                 //User exists and is the same user or admin -> can delete
                 userRepository.delete(user.getUsername());
                 SuccessResponse<String> successResponse = new SuccessResponse<>("User " + username + " has been deleted.");
@@ -184,7 +193,11 @@ public class UserController {
     }
 
 
-    //User update (Users can change password and real name, admins can change all except username)
+    /*
+     User update.
+     Users can change its password and real name.
+     Admins can change all except username.
+     */
     @RequestMapping(value ="/{username}",method = RequestMethod.PUT)
     public ResponseEntity<? extends JsonResponse> updateUser(
             @PathVariable String username,
@@ -195,7 +208,7 @@ public class UserController {
 
         final Claims claims = (Claims) request.getAttribute("claims");
         String loggedUser = claims.getSubject();
-
+        String loggedRoles = (String) claims.get("roles");
 
         //Get user from DB
         User user = userRepository.findByUsername(username);
@@ -210,7 +223,7 @@ public class UserController {
         }
         else{
             //User exists and is the same user or admin and username from object and path are the same
-            if(loggedUser.equalsIgnoreCase(username) || loggedUser.equalsIgnoreCase("admin")){
+            if(loggedUser.equalsIgnoreCase(username) || loggedRoles.contains("admin")){
 
 
                 String newMail = updatedData.getEmail();
@@ -218,7 +231,7 @@ public class UserController {
                 String newRealName = updatedData.getRealName();
                 String newRole = updatedData.getRole();
 
-                if(loggedUser.equalsIgnoreCase("admin")){
+                if(loggedRoles.contains("admin")){
                     //If admin, can change email and role
                     user.setEmail(newMail);
                     user.setRole(newRole);
