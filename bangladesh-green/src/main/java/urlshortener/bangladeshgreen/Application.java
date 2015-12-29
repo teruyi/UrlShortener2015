@@ -14,6 +14,7 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import urlshortener.bangladeshgreen.auth.URLProtection;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 
 @SpringBootApplication
@@ -34,10 +35,22 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public FilterRegistrationBean jwtFilter() {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-		registrationBean.setFilter(new WebTokenFilter(key));
-		//Type here the URLs to protect with user authentication
-		registrationBean.addUrlPatterns("/protected/*");
-		registrationBean.addUrlPatterns("/link");
+		WebTokenFilter authenticationFilter = new WebTokenFilter(key);
+
+
+		//Protect all methods from "/link"
+		URLProtection linkURL = new URLProtection("/link");
+		linkURL.setAllMethods();
+		authenticationFilter.addUrlToProtect(linkURL);
+
+		//Protect GET, DELETE and PUT from "/user"
+		URLProtection userURL = new URLProtection("/user");
+		userURL.addMethod("GET");
+		userURL.addMethod("DELETE");
+		userURL.addMethod("PUT");
+
+		authenticationFilter.addUrlToProtect(userURL);
+		registrationBean.setFilter(authenticationFilter);
 		return registrationBean;
 	}
 

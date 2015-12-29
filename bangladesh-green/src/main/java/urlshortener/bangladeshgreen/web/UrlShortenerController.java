@@ -27,6 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class UrlShortenerController {
 	@Value("${token.safe_browsing_key}")
 	private String GOOGLE_KEY;
 
-	private static final String queue = "availableQueue";
+	private static final String availableQueue = "availableQueue";
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
@@ -70,8 +71,7 @@ public class UrlShortenerController {
 		final Claims claims = (Claims) request.getAttribute("claims");
 		userName = claims.getSubject();
 
-
-		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI());
+		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI(), shortURL.getExpirationSeconds(),shortURL.getAuthorizedUsers());
 
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
@@ -104,7 +104,7 @@ public class UrlShortenerController {
 
 
 	protected ShortURL createAndSaveIfValid(String url,
-			 String creator, String ip, boolean isPrivate) {
+			 String creator, String ip, boolean isPrivate, Long expirationSeconds, ArrayList<String> authorizedUsers) {
 
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
@@ -114,8 +114,12 @@ public class UrlShortenerController {
 			String id = Hashing.murmur3_32()
 					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
+			if(authorizedUsers!= null && authorizedUsers.size() >0){
+				id+="*";
+			}
+
 			// Check if the URI is available and safe
-			rabbitTemplate.convertSendAndReceive(queue,url);
+			rabbitTemplate.convertSendAndReceive(availableQueue,url);
 			boolean safe = checkSafeURI(url);
 
 			//If private, create token
@@ -129,7 +133,7 @@ public class UrlShortenerController {
 
 			ShortURL su = new ShortURL(id,url,	linkTo(
 					methodOn(RedirectController.class).redirectTo(
-							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken);
+							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken,expirationSeconds,authorizedUsers);
 
 			// If it's available, save the shortUrl and return it
 			if (safe){

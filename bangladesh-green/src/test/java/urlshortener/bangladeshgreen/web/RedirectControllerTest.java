@@ -20,8 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.somePrivateUrl;
-import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrl;
+import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.*;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
 
@@ -75,6 +74,48 @@ public class RedirectControllerTest {
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isTemporaryRedirect())
 				.andExpect(redirectedUrl("http://www.google.es"));
+	}
+
+
+	@Test
+	/*
+	Test that REDIRECT over a NON-PRIVATE link redirects if KEY EXISTS,
+	a EXPIRATION DATE has been set but is not expired.
+	 */
+	public void thatRedirectToReturnsTemporaryRedirectIfKeyExistsAndNotExpired()
+			throws Exception {
+
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlWithExpirationDateButNotExpired());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
+
+		//Test redirection
+		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().isTemporaryRedirect())
+				.andExpect(redirectedUrl("http://www.google.es"));
+	}
+
+	@Test
+	/*
+	Test that REDIRECT over a NON-PRIVATE link DOES NOT redirect if KEY EXISTS,
+	but the link IS EXPIRED.
+	 */
+	public void thatRedirectToReturnsTemporaryRedirectIfKeyExistsAndExpired()
+			throws Exception {
+
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlWithExpirationDateAndExpired());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
+
+		//Test redirection
+		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().isGone());
 	}
 
 	@Test

@@ -13,6 +13,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 /**
@@ -26,13 +27,24 @@ public class WebTokenFilter extends GenericFilterBean {
 
     private String key;
 
+    private ArrayList<URLProtection> toProtect;
+
     /**
      * Constructor of servlet filter.
      * @param key is the secret key for signing.
      */
     public WebTokenFilter(String key){
         this.key = key;
+        toProtect = new ArrayList<>();
     }
+
+    public void addUrlToProtect(URLProtection p){
+        this.toProtect.add(p);
+    }
+
+
+
+
 
     @Override
     public void doFilter(final ServletRequest req,
@@ -44,40 +56,79 @@ public class WebTokenFilter extends GenericFilterBean {
         final String authHeader = request.getHeader("Authorization"); //Authorization header
 
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            //No authentication in the request
-            sendErrorResponse(response,
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Authorization error: No token is supplied. Please obtain one from /login.");
-        }
 
+
+        if(requiresAuthentication(request)){
+
+            //Requires authentication
+            System.out.println("Requires authentication");
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                //No authentication in the request
+                sendErrorResponse(response,
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Authorization error: No token is supplied. Please obtain one from /login.");
+            }
+
+            else{
+                //Authentication in the request
+                final String token = extractToken(authHeader);
+                try {
+                    //Parse claims from JWT
+                    final Claims claims = Jwts.parser().setSigningKey(key)
+                            .parseClaimsJws(token).getBody();
+
+                        //Correct token -> User is logged-in
+                        request.setAttribute("claims",claims);
+                        chain.doFilter(req, res); //Continue with filters
+
+                }
+                catch(ExpiredJwtException expiredException){
+                    sendErrorResponse(response,
+                            HttpServletResponse.SC_UNAUTHORIZED,
+                            "Authorization error: " + expiredException.getMessage());
+                }
+                catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
+                    sendErrorResponse(response,
+                            HttpServletResponse.SC_UNAUTHORIZED,
+                            "Authorization error: Invalid token format. Please obtain a new token from /login");
+                }
+
+
+            }
+        }
         else{
-            //Authentication in the request
-            final String token = extractToken(authHeader);
-            try {
-                //Parse claims from JWT
-                final Claims claims = Jwts.parser().setSigningKey(key)
-                        .parseClaimsJws(token).getBody();
-
-                    //Correct token -> User is logged-in
-                    request.setAttribute("claims",claims);
-                    chain.doFilter(req, res); //Continue with filters
-
-            }
-            catch(ExpiredJwtException expiredException){
-                sendErrorResponse(response,
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        "Authorization error: " + expiredException.getMessage());
-            }
-            catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
-                sendErrorResponse(response,
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        "Authorization error: Invalid token format. Please obtain a new token from /login");
-            }
-
-
+            //Does not require authentication
+            System.out.println("Does not require authentication");
+            chain.doFilter(req,res);
         }
 
+    }
+
+
+
+    /**
+     * Returns true if the URL requires authentication.
+     */
+    public boolean requiresAuthentication(HttpServletRequest request){
+        String destinationURL = request.getRequestURI();
+        System.out.println("Checking for " + destinationURL);
+        System.out.println(request.getMethod());
+
+        //Check every URL to protect
+        for(URLProtection url: toProtect){
+
+            System.out.println(url.getUrl());
+            if(url.getUrl().equals(destinationURL)){ //A filter has been found for that URL
+                //Check method
+                System.out.println("Check");
+                if(url.hasMethod(request.getMethod())){
+                    //It has a method that needs to be authenticated
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public String extractToken(String authHeader){
