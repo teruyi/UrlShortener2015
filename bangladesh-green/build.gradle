@@ -34,9 +34,11 @@ dependencies {
     compile 'io.jsonwebtoken:jjwt:0.6.0'
     compile 'org.springframework.boot:spring-boot-starter-web:1.2.6.RELEASE'
     compile "org.springframework.boot:spring-boot-starter-data-mongodb"
+    compile 'org.springframework.boot:spring-boot-starter-amqp'
     compile 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.0'
     compile 'jstl:jstl:1.2'
     compile 'org.apache.tomcat.embed:tomcat-embed-jasper:8.0.28'
+    compile 'com.google.code.gson:gson:2.5'
 
     // Testing framework
     testCompile 'junit:junit:4.12'

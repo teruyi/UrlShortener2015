@@ -8,18 +8,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
-
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.somePrivateUrl;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrl;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
 
 /**
  * Tests for UrlShortenerController, testing both REDIRECT functionality
@@ -36,8 +40,17 @@ public class RedirectControllerTest {
 	@Mock
 	private ClickRepository clickRespository;
 
+	@Mock
+	private URIAvailableRepository availableRepository;
+
+	@Mock
+	private RabbitTemplate rabbitTemplate;
+
 	@InjectMocks
 	private RedirectController redirectController;
+
+
+
 
 	@Before
 	public void setup() {
@@ -52,8 +65,11 @@ public class RedirectControllerTest {
 	public void thatRedirectToReturnsTemporaryRedirectIfKeyExists()
 			throws Exception {
 
-		//Mock URLrepository response to someUrl.
+		// Mock URLrepository response to someUrl.
 		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrl());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
 
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
@@ -69,8 +85,12 @@ public class RedirectControllerTest {
 	public void thatRedirectToPrivateReturnsTemporaryRedirectIfKeyExistsAndPrivateTokenCorrect()
 			throws Exception {
 
+		
 		//Mock URLrepository response to someUrl.
 		when(shortURLRepository.findByHash("someKey")).thenReturn(somePrivateUrl());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
 
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")
@@ -91,6 +111,9 @@ public class RedirectControllerTest {
 		//Mock URLrepository response to a private URL.
 		when(shortURLRepository.findByHash("someKey")).thenReturn(somePrivateUrl());
 
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
 		//Test that 401 Unauthorized is returned (Bad Private token)
 		mockMvc.perform(get("/{id}", "someKey")
 				.param("privateToken","incorrectToken"))
@@ -109,6 +132,9 @@ public class RedirectControllerTest {
 		//Mock URLrepository response to a private URL.
 		when(shortURLRepository.findByHash("someKey")).thenReturn(somePrivateUrl());
 
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
 		//Test that 401 Unauthorized is returned (Bad Private token)
 		mockMvc.perform(get("/{id}", "someKey"))
 				.andDo(print())
@@ -125,10 +151,47 @@ public class RedirectControllerTest {
 		//Mock URLRepository to return null -> Not found
 		when(shortURLRepository.findByHash("someKey")).thenReturn(null);
 
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
+	@Test
+	/*
+	Test that REDIRECT over an available URI.
+	 */
+	public void thatRedirectToAvailableURI()
+			throws Exception {
 
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrl());
 
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
+		//Test redirection
+		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().isTemporaryRedirect())
+				.andExpect(redirectedUrl("http://www.google.es"));
+	}
+
+	@Test
+	/*
+	Test that NO REDIRECT over a NO available URI.
+	 */
+	public void thatNoRedirectToNoAvailableURI()
+			throws Exception {
+
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrl());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someNotAvailable());
+
+		//Test redirection
+		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().isGone());
+	}
 }

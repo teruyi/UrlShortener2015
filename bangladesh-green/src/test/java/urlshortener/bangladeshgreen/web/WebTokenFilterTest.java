@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.ConfigFileApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -49,6 +50,9 @@ public class WebTokenFilterTest {
     @Mock
     private ClickRepository clickRespository;
 
+    @Mock
+    private RabbitTemplate rabbitTemplate;
+
     @InjectMocks
     private UrlShortenerController urlShortener;
 
@@ -60,6 +64,8 @@ public class WebTokenFilterTest {
         WebTokenFilter wtf = new WebTokenFilter("secretkey");
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(urlShortener).addFilter(wtf).build();
+
+        //Get GOOGLE_KEY from properties and set it on urlShortener
         GOOGLE_KEY =  c.getEnvironment().getProperty("token.safe_browsing_key");
         ReflectionTestUtils.setField(urlShortener,"GOOGLE_KEY", GOOGLE_KEY);
 
