@@ -27,7 +27,6 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -120,7 +119,11 @@ public class UrlShortenerController {
 			}
 
 			// Check if the URI is available and safe
-			rabbitTemplate.convertSendAndReceive(availableQueue,url);
+			long current = System.currentTimeMillis();
+			rabbitTemplate.convertAndSend(availableQueue,url);
+			long current2 = System.currentTimeMillis();
+			current2 = (current2 - current);
+			System.out.println(current2);
 			boolean safe = checkSafeURI(url);
 
 			//If private, create token

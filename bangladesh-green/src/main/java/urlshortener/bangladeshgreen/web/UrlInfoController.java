@@ -109,6 +109,49 @@ public class UrlInfoController {
         }
     }
 
+    @RequestMapping(value = "/info", method = RequestMethod.GET , produces ="application/json")
+    public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
+                               @RequestParam(value="type", required=false) String type,
+                               @RequestParam(value="start", required=false) Date start,
+                               @RequestParam(value="end", required=false) Date end,
+                               HttpServletResponse response, HttpServletRequest request,
+                               Map<String, Object> model) {
+
+        System.out.println(type);
+        System.out.println(start);
+        System.out.println(end);
+        List <ClickAdds> list;
+
+        if (type.compareTo("city")==0){
+
+            list = listByCity(start, end);
+            logger.info("(/info) - (city) Ok request - list size: " + list.size());
+
+        } else if (type.compareTo("region")==0){
+
+            list = listByRegion(start, end);
+            logger.info("(/info) - (region) Ok request - list size: " + list.size());
+
+        } else if (type.compareTo("country")==0){
+
+            list = listByCountry(start, end);
+            logger.info("(/info) - (country) Ok request - list size: " + list.size());
+
+        } else {
+
+            logger.info("(/info) Bad request");
+            ErrorResponse error = new ErrorResponse("Bad request");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+        }
+
+        SuccessResponse success = new SuccessResponse(list);
+        response.setStatus(HttpStatus.OK.value());
+        return new ResponseEntity<>(success, HttpStatus.OK);
+    }
+
+
+
     private List<ClickAdds> listByRegion(Date desde, Date hasta) {
         List<Click> list = clickRepository.findAll();
         List<ClickAdds> listt = new ArrayList<ClickAdds>();
