@@ -71,6 +71,10 @@ public class UrlShortenerController {
 		final Claims claims = (Claims) request.getAttribute("claims");
 		userName = claims.getSubject();
 
+		System.out.println("CLAIMS: " + request.getAttribute("claims"));
+
+		System.out.println("CUENTA: " + shortURL.getAuthorizedUsers());
+
 		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI(), shortURL.getExpirationSeconds(),shortURL.getAuthorizedUsers());
 
 		if (su != null) {
@@ -84,7 +88,7 @@ public class UrlShortenerController {
 		} else {
 
 
-			return new ResponseEntity<>(new ErrorResponse("Error creating ShortURL. Not valid or dead"),HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponse("Error creating ShortURL. Not valid."),HttpStatus.BAD_REQUEST);
 		}
 
 

@@ -1,5 +1,6 @@
 package urlshortener.bangladeshgreen.web;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ import urlshortener.bangladeshgreen.repository.UserRepository;
 import urlshortener.bangladeshgreen.secure.Hash;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -45,8 +49,10 @@ public class LoginController {
     }
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<? extends JsonResponse> login(@RequestBody final LoginRequest login)
+    public ResponseEntity<? extends JsonResponse> login(@RequestBody final LoginRequest login, HttpServletRequest request, HttpServletResponse response)
             throws ServletException {
+
+
 
 
         if (login.getUsername()==null || login.getUsername().isEmpty() || login.getPassword()==null ||
@@ -70,14 +76,13 @@ public class LoginController {
                 expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
-                LoginResponse loginResponse = new LoginResponse(Jwts.builder().setSubject(login.getUsername())
-                        .claim("roles", "user").setIssuedAt(new Date()).setExpiration(expirationDate)
+                Cookie cookie = new Cookie("wallaclaim",Jwts.builder().setSubject(login.getUsername())
+                        .claim("roles", requestedUser.getRole()).setIssuedAt(new Date()).setExpiration(expirationDate)
                         .signWith(SignatureAlgorithm.HS256, key).compact());
 
-                HttpHeaders responseHeaders = new HttpHeaders();
+                response.addCookie(cookie);
                 return new ResponseEntity<>(
-                        new SuccessResponse<>(loginResponse),
-                        responseHeaders,
+                        new SuccessResponse<>("OK"),
                         HttpStatus.OK);
 
             }

@@ -24,6 +24,8 @@ import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
+import javax.servlet.http.Cookie;
+
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -128,7 +130,8 @@ public class WebTokenFilterTest {
         String json = mapper.writeValueAsString(shortURL);
 
         //Do the post request
-        mockMvc.perform(post("/link").contentType("application/json").content(json).header("Authorization","Bearer " + "badFormatToken"))
+        Cookie cookie = new Cookie("wallaclaim","badFormatToken");
+        mockMvc.perform(post("/link").contentType("application/json").content(json).cookie(cookie))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status",is("error")))
@@ -154,7 +157,8 @@ public class WebTokenFilterTest {
 
 
         //Do the post request
-        mockMvc.perform(post("/link").contentType("application/json").content(json).header("Authorization","Bearer " + expiredToken()))
+        Cookie cookie = new Cookie("wallaclaim",expiredToken());
+        mockMvc.perform(post("/link").contentType("application/json").content(json).cookie(cookie))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status",is("error")))
@@ -180,7 +184,8 @@ public class WebTokenFilterTest {
         String json = mapper.writeValueAsString(shortURL);
 
         //Do the post request
-        mockMvc.perform(post("/link").contentType("application/json").content(json).header("Authorization","Bearer " + badSignToken()))
+        Cookie cookie = new Cookie("wallaclaim",badSignToken());
+        mockMvc.perform(post("/link").contentType("application/json").content(json).cookie(cookie))
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status",is("error")))
@@ -208,7 +213,8 @@ public class WebTokenFilterTest {
 
 
         //Do the post request
-        mockMvc.perform(post("/link").contentType("application/json").content(json).header("Authorization","Bearer " + correctToken()))
+        Cookie cookie = new Cookie("wallaclaim",correctToken());
+        mockMvc.perform(post("/link").contentType("application/json").content(json).cookie(cookie))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status",is("success")));

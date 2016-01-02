@@ -1,5 +1,6 @@
 package urlshortener.bangladeshgreen.web;
 
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,10 +20,7 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ismaro3.
@@ -50,11 +48,15 @@ public class RedirectController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*[^_]$}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
                              Map<String, Object> model) {
+
+
+        final Claims claims = (Claims) request.getAttribute("claims");
+        System.out.println("Claims: " + claims);
 
         logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
 
@@ -111,19 +113,27 @@ public class RedirectController {
     }
 
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*}_", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*_}", method = RequestMethod.GET)
     public Object redirectToWithUserList(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
                              Map<String, Object> model) {
 
 
-        String userName = "ismaro3";
-        //final Claims claims = (Claims) request.getAttribute("claims");
-        //userName = claims.getSubject();
+
+        boolean authenticated = false;
+        String userName = null;
+
+        final Claims claims = (Claims) request.getAttribute("claims");
+       //
+        if(claims!=null){
+            System.out.println("Claims: " + claims);
+            userName = claims.getSubject();
+            authenticated = true;
+        }
 
 
-        logger.info("Requested USER PROTECTED redirection with hash " + id + " - privateToken=" + privateToken);
+        logger.info("Requested USER PROTECTED redirection with hash " + id + " - privateToken=" + privateToken+ " -loggedUser: " + userName);
 
 
         ShortURL shortURL = shortURLRepository.findByHash(id);
@@ -135,15 +145,34 @@ public class RedirectController {
             return "404";
         }
         else{
-            List<String> authorizedUsers = shortURL.getAuthorizedUsers();
-            if(authorizedUsers.contains(userName)){
-                //Authorized, can proceed to next step
-                return redirectTo(id,privateToken,response,request,model);
+            if(!authenticated){
+                //NOT AUTHENTICATED: Send to AngularJS login bridge
+                System.out.println("INFO: NOT AUTHENTICATED, TO FRONTEND");
+                return createLoginRedirect(id,request,response);
             }
             else{
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                return "403";
+                //AUTHENTICATED: Check if authorized
+                System.out.println("INFO: AUTHENTICATED, CHECK IF AUTHORIZED");
+
+
+                //todo: Que funcione, ahora esta fijo
+                List<String> authorizedUsers = new ArrayList<String>();
+                authorizedUsers.add("ismaro3");
+
+                if(userName!=null && authorizedUsers.contains(userName)){
+                    System.out.println("INFO: AUTHENTICATED, AUTHORIZED");
+                    //Authorized, can proceed to next step
+                    return redirectTo(id,privateToken,response,request,model);
+                }
+                else{
+                    System.out.println("INFO: AUTHENTICATED, NOT AUTHORIZED");
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    model.put("hash",id);
+                    //Tengo que mandarle al AngularJS... el que se encarga
+                    return "forbidden";
+                }
             }
+
         }
 
 
@@ -182,6 +211,15 @@ public class RedirectController {
     protected RedirectView createSuccessfulRedirectToResponse(ShortURL l, HttpServletResponse response) {
 
         RedirectView redirView = new RedirectView(l.getTarget());
+        redirView.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
+        return redirView;
+
+    }
+
+
+    protected RedirectView createLoginRedirect(String id, HttpServletRequest request,HttpServletResponse response) {
+
+        RedirectView redirView = new RedirectView("http://" + request.getServerName() + ":" + request.getServerPort() + "/#/bridge/" + id);
         redirView.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
         return redirView;
 

@@ -3,7 +3,7 @@
 
 angular.module('urlshortenerApp')
 
-    .service('UserService', function (jwtHelper,$localStorage) {
+    .service('UserService', function (jwtHelper,$cookies) {
 
 
         var self = this;
@@ -17,10 +17,9 @@ angular.module('urlshortenerApp')
 
 
         /**
-         * Sets new token from "newToken" from String.
-         * if "saveOnLocalStorage", saves it on localStorage for future uses.
+         * Sets new token from "newToken" from String
          */
-        self.setNewToken = function(newToken,saveOnLocalStorage){
+        self.setNewToken = function(newToken){
 
             self.token = newToken;
             self.claims = jwtHelper.decodeToken(self.token);
@@ -29,24 +28,20 @@ angular.module('urlshortenerApp')
 
             self.currentlyLogged = true; //Set flag to TRUE
 
-            console.log("[LOGIN] Obtained token for  " + self.username);
+            console.log("[LOGIN] Obtained token for  " + self.username + " from cookie.");
 
-            if(saveOnLocalStorage){
-                //Save token on LocalStorage if requested
-                $localStorage.token = self.token;
-                console.log("[LOGIN] Saved token on localStorage");
-            }
+
 
         };
 
 
         /*
-         Loads token from local storage and returns true.
+         Loads token from cookie and returns true.
          If does not exists, returns false;
          */
-        self.loadFromLocalStorage = function(){
-            if($localStorage.token){
-                self.setNewToken($localStorage.token);
+        self.loadFromCookie = function(){
+            if($cookies.get("wallaclaim")){
+                self.setNewToken($cookies.get("wallaclaim"));
                 return true;
             }
             return false;
@@ -55,12 +50,12 @@ angular.module('urlshortenerApp')
 
 
         /**
-         * Deletes all data of token from memory and localStorage.
+         * Deletes all data of token from memory and cookie
          */
         self.deleteCurrentToken = function(){
 
-            //Delete from localStorage
-            $localStorage.token = undefined;
+            //Delete from cookies
+            $cookies.remove("wallaclaim");
 
             //Delete from memory
             self.username = undefined;
@@ -74,7 +69,7 @@ angular.module('urlshortenerApp')
 
 
         //At start, load from local storage
-        self.loadFromLocalStorage();
+        self.loadFromCookie();
 
 
     });

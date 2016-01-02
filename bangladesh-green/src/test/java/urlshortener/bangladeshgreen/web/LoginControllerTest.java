@@ -19,12 +19,16 @@ import urlshortener.bangladeshgreen.domain.messages.LoginResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
 import urlshortener.bangladeshgreen.repository.UserRepository;
 
+import javax.servlet.http.Cookie;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static urlshortener.bangladeshgreen.web.fixture.UserFixture.someUser;
@@ -54,7 +58,7 @@ public class LoginControllerTest {
 
     @Test
 	/*
-	Test that login with a correct user and password return OK and a correct token with its username.
+	Test that login with a correct user and password return OK and a correct token in the cookie
 	 */
     public void thatLoginOKifUserAndPasswordOK()
             throws Exception {
@@ -76,14 +80,11 @@ public class LoginControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status",is("success")))
-                .andExpect(jsonPath("$.data.token",is(notNullValue()))).
-                andReturn();
+                .andExpect(cookie().exists("wallaclaim"))
+                .andReturn();
 
         //Decode content to get token
-        String content = result.getResponse().getContentAsString();
-        SuccessResponse<LoginResponse> resp = mapper.readValue(content, new TypeReference<SuccessResponse<LoginResponse>>() {});
-        LoginResponse loginResponse = resp.getData();
-        String token = loginResponse.getToken();
+        String token = result.getResponse().getCookie("wallaclaim").getValue();
 
         //Decode token and check username
         Claims claims = Jwts.parser().setSigningKey("secretkey")
