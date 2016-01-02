@@ -94,6 +94,28 @@ public class URIAvailableRepositoryTest {
         assertEquals(test, other);
     }
 
+    @Test
+    public void testFindByDateLessThan() throws Exception {
+        // Saves the URIAvailable tests (one modified to be outdated)
+        test.setDate(0);
+        URIRepository.save(test);
+        URIRepository.save(test2);
+
+        // Sets the outdated interval to one hour
+        long interval = 3600*1000;
+        Date now = new Date();
+        now.setTime(now.getTime()-interval);
+        // Gets all URIAvailable's outdated (only one)
+        List<URIAvailable> aux = URIRepository.findByDateLessThan(now.getTime());
+
+        // Verifies the size of the list
+        assertEquals(aux.size(), 1);
+        URIAvailable other = aux.get(0);
+
+        // Verifies the content of the list is correct
+        assertEquals(test, other);
+    }
+
 
     @Test
     public void testCount() throws Exception {

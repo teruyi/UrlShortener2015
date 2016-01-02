@@ -1,6 +1,5 @@
 package urlshortener.bangladeshgreen.web;
 
-import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -20,7 +19,10 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ismaro3.
@@ -86,15 +88,23 @@ public class RedirectController {
             }
 
             URIavailability = availableRepository.findByTarget(shortURL.getTarget());
+            System.out.print(URIavailability.toString());
            if(!URIavailability.isAvailable()){
-                 // If the target URI is not available
-                 response.setStatus(HttpStatus.GONE.value());
-                 return "410";
-             }
+                // If the target URI is not available
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+                Date date = new Date(URIavailability.getDate());
+                model.put("target", shortURL.getTarget());
+                model.put("date", date.toString());
+                return "notAvailable";
+           }
 
              //Else: Correct, redirect
               //simulation
-        this.rabbitTemplate.convertSendAndReceive(queue2,"66.249.66.106"+","+shortURL.getHash());
+            long current = System.currentTimeMillis();
+            this.rabbitTemplate.convertAndSend(queue2,"66.249.66.106"+","+shortURL.getHash());
+            long current2 = System.currentTimeMillis();
+            current2 = (current2 - current);
+            System.out.println(current2);
             return createSuccessfulRedirectToResponse(shortURL, response);
 
 

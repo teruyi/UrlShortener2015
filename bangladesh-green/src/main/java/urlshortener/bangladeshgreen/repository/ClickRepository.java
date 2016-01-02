@@ -4,6 +4,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Component;
 import urlshortener.bangladeshgreen.domain.Click;
+import urlshortener.bangladeshgreen.domain.ClickAdds;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 
 import java.util.Date;
@@ -25,6 +26,5 @@ public interface ClickRepository extends MongoRepository<Click, String> {
 
 	@Query("{'ip' : ?0}")
 	public List<Click> findByIP(String ip);
-
 
 }

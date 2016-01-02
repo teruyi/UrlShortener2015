@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,6 +15,8 @@ import java.util.List;
  * It checks the URIs by inserting again the URIs in the queue.
  */
 public class PeriodicCheck {
+	// Interval that sets when a URI has to be checked again (1h)
+	private final long interval = 3600*1000;
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
@@ -24,7 +27,9 @@ public class PeriodicCheck {
 	// One hour of delay (for checking "all" URIs)
 	@Scheduled(fixedDelay = 3600000L)
 	public void send() {
-		List<URIAvailable> list = availableRepository.list();
+		Date now = new Date();
+		now.setTime(now.getTime()-interval);
+		List<URIAvailable> list = availableRepository.findByDateLessThan(now.getTime());
 		for(URIAvailable uri : list) {
 			this.rabbitTemplate.convertAndSend("availableQueue",uri.getTarget());
 		}

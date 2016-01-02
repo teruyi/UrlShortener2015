@@ -20,10 +20,6 @@ import java.util.concurrent.Semaphore;
 @Component
 public class Worker implements Runnable {
 
-    // Interval that sets when a URI has to be checked again (1h)
-    private final long interval = 3600*1000;
-
-
     @Autowired
     private URIAvailableRepository repository;
 
@@ -46,23 +42,12 @@ public class Worker implements Runnable {
         lock.release();
         long id =  Thread.currentThread().getId();
         System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id);
-        URIAvailable old = repository.findByTarget(parameter);
         Date now = new Date();
-        if(old == null) {
-            System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id + " - "
-                   + "URI not checked, checking now: " + parameter);
-            boolean check = checkURI(parameter);
-            URIAvailable checked = new URIAvailable(parameter, check, now.getTime());
-            repository.save(checked);
-        } else {
-            if(now.getTime()-old.getDate()>interval){
-                System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id + " - "
-                       + "URI checked long time ago, doing check again: " + parameter);
-                boolean check = checkURI(parameter);
-                URIAvailable checked = new URIAvailable(parameter, check, now.getTime());
-                repository.save(checked);
-            }
-        }
+        System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id + " - "
+               + "Time to check URI: " + parameter);
+        boolean check = checkURI(parameter);
+        URIAvailable checked = new URIAvailable(parameter, check, now.getTime());
+        repository.save(checked);
     }
 
     /**
