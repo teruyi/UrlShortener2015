@@ -10,7 +10,7 @@
  */
 angular
   .module('urlshortenerApp', [
-    'ngRoute','angular-jwt','ngStorage','ui.checkbox'
+    'ngRoute','angular-jwt','ngStorage','ui.checkbox','ngCookies'
   ])
   .config(function ($routeProvider,$httpProvider) {
 
@@ -59,6 +59,21 @@ angular
           resolve:{loggedIn:onlyNotLoggedIn} //Only for NOT logged-in users
       })
 
+      .when('/user/:username',{
+         templateUrl: 'views/user.html',
+         controller: 'UserController',
+         controllerAs: 'ctrl',
+           resolve:{loggedIn:onlyLoggedIn} //Only for logged-in users
+      })
+
+
+      .when('/bridge/:hash/:logout?',{
+         templateUrl: 'views/bridgeLogin.html',
+         controller: 'BridgeController',
+         controllerAs: 'ctrl'
+      })
+
+
       .otherwise({ //Default -> go to shorten page
         redirectTo: '/shorten'
       });
@@ -76,7 +91,7 @@ angular
                   return config;
               },
               'responseError': function (response) {
-                  if (response.status === 401) {
+                  if (response.status === 401 && $location.path().indexOf("bridge") == -1) {
                       $location.path('/login');
                   }
                   return $q.reject(response);

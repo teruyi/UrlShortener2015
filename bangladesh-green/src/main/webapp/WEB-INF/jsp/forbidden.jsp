@@ -36,9 +36,12 @@
 </div>
 
 <div class="container">
-  <img src="images/404.png" class="lockImage">
-  <p class="lockText">404: URL not found</p>
-  <p class="lockTextSecondary">We are sorry, but we don't have any information about this URL.</p>
+  <img src="images/lock.png" class="lockImage">
+  <p class="lockText">403: Not authorized</p>
+  <p class="lockTextSecondary">You are not in the list of authorized users.</p>
+  <br/>
+  <p class="lockTextSecondary">Try <a href="/bridge/${hash}/logout"><b>login</b></a> as another user.</p>
+
 </div>
 </body>
 </html>

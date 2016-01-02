@@ -285,3 +285,17 @@ html, body{
 .optionSet{
   margin-top:30px;
 }
+
+.profileText{
+  margin-top:20px !important;
+  border-width: 0px;
+}
+
+.loading{
+  position: absolute;
+  margin: auto;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

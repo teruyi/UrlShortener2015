@@ -3,7 +3,7 @@
 
 angular.module('urlshortenerApp')
 
-  .controller('RegisterController', function ($http,UserService,$location) {
+  .controller('RegisterController', function ($http,UserService,$location,$cookies) {
 
 
 
@@ -195,8 +195,10 @@ angular.module('urlshortenerApp')
                         self.resetUserErrors();     //Clear user errors
                         self.mode='login';          //Go to login mode
 
+                        self.token = $cookies.get("wallaclaim");
+                        console.log(self.token);
                         //Set received token
-                        UserService.setNewToken(message.data.data.token,self.rememberLogin);
+                        UserService.setNewToken($cookies.get("wallaclaim"),self.rememberLogin);
 
                         //Go to shorten
                         $location.path('/shorten');

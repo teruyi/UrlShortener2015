@@ -22,7 +22,7 @@ angular.module('urlshortenerApp')
 
 
                 scope.goToProfile = function(){
-                    alert("Not implemented!");
+                    $location.url('/user/' + UserService.username);
                 }
 
                 scope.logout = function(){

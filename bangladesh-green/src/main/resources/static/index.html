@@ -23,9 +23,9 @@
     <!-- Add your site or application content here -->
 <navigation-bar></navigation-bar>
 
-    
+
     <div ng-view="" style="height: 100%; width:100%;"></div>
-    
+
 
 
     <!-- build:js(.) scripts/vendor.js -->
@@ -42,6 +42,7 @@
     <script src="bower_components/angular-jwt/dist/angular-jwt.js"></script>
     <script src="bower_components/ngstorage/ngStorage.min.js"></script>
     <script src="bower_components/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -49,8 +50,9 @@
         <script src="scripts/app.js"></script>
         <script src="scripts/controllers/MainController.js"></script>
          <script src="scripts/controllers/RegisterController.js"></script>
-
-    <script src="scripts/services/UserService.js"></script>
+         <script src="scripts/controllers/UserController.js"></script>
+        <script src="scripts/controllers/BridgeController.js"></script>
+         <script src="scripts/services/UserService.js"></script>
 
     <script src="scripts/directives/NavBarDirective.js"></script>
         <!-- endbuild -->

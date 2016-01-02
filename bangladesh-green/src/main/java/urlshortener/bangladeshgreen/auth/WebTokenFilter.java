@@ -10,6 +10,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class WebTokenFilter extends GenericFilterBean {
 
         final HttpServletRequest request = (HttpServletRequest) req; //Request
         final HttpServletResponse response  = (HttpServletResponse) res; //Response
-        final String authHeader = request.getHeader("Authorization"); //Authorization header
+
 
 
 
@@ -63,9 +64,11 @@ public class WebTokenFilter extends GenericFilterBean {
         if(requiresAuthentication(request)){
 
             //Requires authentication
-            System.out.println("Requires authentication");
 
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+
+
+
+            if (getTokenFromCookies(request) == null) {
                 //No authentication in the request
                 sendErrorResponse(response,
                         HttpServletResponse.SC_UNAUTHORIZED,
@@ -74,7 +77,7 @@ public class WebTokenFilter extends GenericFilterBean {
 
             else{
                 //Authentication in the request
-                final String token = extractToken(authHeader);
+                final String token = getTokenFromCookies(request);
                 try {
                     //Parse claims from JWT
                     final Claims claims = Jwts.parser().setSigningKey(key)
@@ -103,23 +106,29 @@ public class WebTokenFilter extends GenericFilterBean {
 
             //Does not require authentication, but if a valid token is supplied, we pass it to the controller
             //(For example, for being able to handle authentication-required URLs)
-            if(authHeader!= null && authHeader.startsWith("Bearer ")) {
+            if(getTokenFromCookies(request) != null) {
                 //Authentication in the request
-                final String token = extractToken(authHeader);
+                final String token = getTokenFromCookies(request);
                 try {
                     //Parse claims from JWT
                     final Claims claims = Jwts.parser().setSigningKey(key)
                             .parseClaimsJws(token).getBody();
 
                     //Correct token -> User is logged-in
-                    request.setAttribute("claims", claims);
-
+                    req.setAttribute("claims", claims);
+                    System.out.println("dofilter WITH");
+                    chain.doFilter(req,res);
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                     //Nothing
                 }
             }
-            System.out.println("Does not require authentication");
-            chain.doFilter(req,res);
+            else{
+                System.out.println("dofilter WITHOUT");
+                chain.doFilter(request,response);
+            }
+
+
         }
 
     }
@@ -131,8 +140,6 @@ public class WebTokenFilter extends GenericFilterBean {
      */
     public boolean requiresAuthentication(HttpServletRequest request){
         String destinationURL = request.getRequestURI();
-        System.out.println("Checking for " + destinationURL);
-        System.out.println(request.getMethod());
 
 
 
@@ -141,11 +148,11 @@ public class WebTokenFilter extends GenericFilterBean {
             Pattern p = Pattern.compile(url.getUrl());
 
 
-            System.out.println(url.getUrl());
+
             Matcher m = p.matcher(destinationURL);
             if(m.matches()){ //A filter has been found for that URL
                 //Check method
-                System.out.println("Check");
+
                 if(url.hasMethod(request.getMethod())){
                     //It has a method that needs to be authenticated
                     return true;
@@ -171,6 +178,20 @@ public class WebTokenFilter extends GenericFilterBean {
         response.setStatus(code);
         response.setContentType("application/json");
         response.getOutputStream().println(mapper.writeValueAsString(errorResponse));
+
+    }
+
+    private String getTokenFromCookies(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if(cookies!=null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equalsIgnoreCase("wallaclaim")) {
+                    return c.getValue();
+                }
+
+            }
+        }
+        return null;
 
     }
 
