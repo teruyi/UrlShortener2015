@@ -6,35 +6,35 @@ package urlshortener.bangladeshgreen.domain;
  */
 public class ClickAdds {
 
-    private String nombre;
-    private int numero;
+    private String name;
+    private int number;
 
-    public ClickAdds(String nombre, int numero) {
-        this.nombre = nombre;
-        this.numero = numero;
+    public ClickAdds(String name, int number) {
+        this.name = name;
+        this.number = number;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setName(String nombre) {
+        this.name = name;
     }
 
-    public int getNumero() {
-        return numero;
+    public int getNumber() {
+        return number;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public void setNumber(int numero) {
+        this.number = number;
     }
 
     @Override
     public String toString() {
         return "ClickAdds{" +
-                "nombre='" + nombre + '\'' +
-                ", numero=" + numero +
+                "name='" + name + '\'' +
+                ", number=" + number +
                 '}';
     }
 
@@ -45,15 +45,15 @@ public class ClickAdds {
 
         ClickAdds clickPais = (ClickAdds) o;
 
-        if (numero != clickPais.numero) return false;
-        return !(nombre != null ? !nombre.equals(clickPais.nombre) : clickPais.nombre != null);
+        if (number != clickPais.number) return false;
+        return !(name != null ? !name.equals(clickPais.name) : clickPais.name != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = nombre != null ? nombre.hashCode() : 0;
-        result = 31 * result + numero;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + number;
         return result;
     }
 }

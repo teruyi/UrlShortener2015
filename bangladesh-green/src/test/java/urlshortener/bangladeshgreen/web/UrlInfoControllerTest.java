@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.web.fixture.URLLocationInfo;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -159,5 +160,42 @@ public class UrlInfoControllerTest {
                 .andDo(print())
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+	/*
+	Test that returns a Json ErrorResponse with 400 (Bad request) if parameter type value is undefined.
+	 */
+    public void thatReturnsJsonBadRequest() throws Exception {
+
+        when(clickRepository.findAll()).thenReturn(null);
+        //Test that 400 Bad request is returned (Bad Request)
+        mockMvc.perform(get("/info").header("Accept", "application/json")
+                .param("privateToken","incorrectToken")
+                .param("type","false"))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+	/*
+	Test that returns a Json Success Response with 200 (Ok request).
+	 */
+    public void thatReturnsJsonWithLocationInfo() throws Exception {
+
+        when(clickRepository.findAll()).thenReturn(URLLocationInfo.someLocationInfo());
+
+        //Test that 200 Ok request is returned (Ok Request)
+        mockMvc.perform(get("/info").header("Accept", "application/json")
+                .param("privateToken","incorrectToken")
+                .param("type","region")
+                .param("start","2015/12/31")
+                .param("end","2016/01/02"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("success"))
+                .andExpect(jsonPath("$.data").isArray());
+    }
+
+
 
 }

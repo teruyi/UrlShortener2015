@@ -109,42 +109,41 @@ public class UrlInfoController {
         }
     }
 
+    /*
+    Returns array of clickAdds. If id = null for all clicks else for id (hash) link
+     */
     @RequestMapping(value = "/info", method = RequestMethod.GET , produces ="application/json")
     public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
                                @RequestParam(value="type", required=false) String type,
                                @RequestParam(value="start", required=false) Date start,
                                @RequestParam(value="end", required=false) Date end,
+                               @RequestParam(value="id", required=false) String id,
                                HttpServletResponse response, HttpServletRequest request,
                                Map<String, Object> model) {
 
-        System.out.println(type);
-        System.out.println(start);
-        System.out.println(end);
         List <ClickAdds> list;
 
         if (type.compareTo("city")==0){
 
-            list = listByCity(start, end);
+            list = listByCity(start, end, id);
             logger.info("(/info) - (city) Ok request - list size: " + list.size());
 
         } else if (type.compareTo("region")==0){
 
-            list = listByRegion(start, end);
+            list = listByRegion(start, end, id);
             logger.info("(/info) - (region) Ok request - list size: " + list.size());
 
         } else if (type.compareTo("country")==0){
 
-            list = listByCountry(start, end);
+            list = listByCountry(start, end, id);
             logger.info("(/info) - (country) Ok request - list size: " + list.size());
 
         } else {
-
             logger.info("(/info) Bad request");
             ErrorResponse error = new ErrorResponse("Bad request");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 
         }
-
         SuccessResponse success = new SuccessResponse(list);
         response.setStatus(HttpStatus.OK.value());
         return new ResponseEntity<>(success, HttpStatus.OK);
@@ -152,15 +151,22 @@ public class UrlInfoController {
 
 
 
-    private List<ClickAdds> listByRegion(Date desde, Date hasta) {
-        List<Click> list = clickRepository.findAll();
+    private List<ClickAdds> listByRegion(Date desde, Date hasta, String id) {
+        List<Click> list;
+        if (id != null){
+            list = clickRepository.findByHash(id);
+        }
+        else{
+            list = clickRepository.findAll();
+        }
         List<ClickAdds> listt = new ArrayList<ClickAdds>();
 
         HashMap<String, Integer> names = new HashMap<String, Integer>();
         int indice = 0;
         for (Click a : list) {
             if(desde !=null  && hasta!= null) {
-                if (a.getDate().after(desde) && a.getDate().before(hasta)) {
+                if ((a.getDate().after(desde)|| a.getDate().compareTo(desde) == 0) && (a.getDate().before(hasta)
+                        || a.getDate().compareTo(hasta)==0)) {
 
                     if (names.containsKey(a.getRegionName())) {
                         names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
@@ -169,7 +175,7 @@ public class UrlInfoController {
                     }
                 }
             }else if (desde == null && hasta !=null){
-                if(a.getDate().before(hasta)){
+                if(a.getDate().before(hasta) || a.getDate().compareTo(hasta) == 0){
                     if (names.containsKey(a.getRegionName())) {
                         names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
                     } else {
@@ -178,7 +184,7 @@ public class UrlInfoController {
                 }
             }
             else if(desde !=null && hasta ==null){
-                if(a.getDate().after(desde)){
+                if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
                     if (names.containsKey(a.getRegionName())) {
                         names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
                     } else {
@@ -197,16 +203,22 @@ public class UrlInfoController {
         }
         return listt;
     }
-    private List<ClickAdds> listByCity(Date desde, Date hasta) {
-        List<Click> list = clickRepository.findAll();
+    private List<ClickAdds> listByCity(Date desde, Date hasta, String id) {
+        List<Click> list;
+        if (id != null){
+            list = clickRepository.findByHash(id);
+        }
+        else{
+            list = clickRepository.findAll();
+        }
         List<ClickAdds> listt = new ArrayList<ClickAdds>();
 
         HashMap<String, Integer> names = new HashMap<String, Integer>();
         int indice = 0;
         for (Click a : list) {
             if(desde !=null  && hasta!= null) {
-                if (a.getDate().after(desde) && a.getDate().before(hasta)) {
-
+                if ((a.getDate().after(desde)|| a.getDate().compareTo(desde) == 0) && (a.getDate().before(hasta)
+                        || a.getDate().compareTo(hasta)==0)) {
                     if (names.containsKey(a.getCity())) {
                         names.replace(a.getCity(), names.get(a.getCity()) + 1);
                     } else {
@@ -214,7 +226,7 @@ public class UrlInfoController {
                     }
                 }
             }else if (desde == null && hasta !=null){
-                if(a.getDate().before(hasta)){
+                if(a.getDate().before(hasta) || a.getDate().compareTo(hasta) == 0){
                     if (names.containsKey(a.getCity())) {
                         names.replace(a.getCity(), names.get(a.getCity()) + 1);
                     } else {
@@ -224,7 +236,7 @@ public class UrlInfoController {
             }
             else if(desde !=null && hasta ==null){
                 if(a.getDate().after(desde)){
-                    if (names.containsKey(a.getCity())) {
+                    if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
                         names.replace(a.getCity(), names.get(a.getCity()) + 1);
                     } else {
                         names.put(a.getCity(), 1);
@@ -241,16 +253,22 @@ public class UrlInfoController {
         }
         return listt;
     }
-    private List<ClickAdds> listByCountry(Date desde, Date hasta) {
-        List<Click> list = clickRepository.findAll();
+    private List<ClickAdds> listByCountry(Date desde, Date hasta, String id) {
+        List<Click> list;
+        if (id != null){
+            list = clickRepository.findByHash(id);
+        }
+        else{
+            list = clickRepository.findAll();
+        }
         List<ClickAdds> listt = new ArrayList<ClickAdds>();
 
         HashMap<String, Integer> names = new HashMap<String, Integer>();
         int indice = 0;
         for (Click a : list) {
             if(desde !=null  && hasta!= null) {
-                if (a.getDate().after(desde) && a.getDate().before(hasta)) {
-
+                if ((a.getDate().after(desde)|| a.getDate().compareTo(desde) == 0) && (a.getDate().before(hasta)
+                        || a.getDate().compareTo(hasta)==0)) {
                     if (names.containsKey(a.getCountry())) {
                         names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
                     } else {
@@ -258,7 +276,7 @@ public class UrlInfoController {
                     }
                 }
             }else if (desde == null && hasta !=null){
-                if(a.getDate().before(hasta)){
+                if(a.getDate().before(hasta) || a.getDate().compareTo(hasta) == 0){
                     if (names.containsKey(a.getCountry())) {
                         names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
                     } else {
@@ -267,7 +285,7 @@ public class UrlInfoController {
                 }
             }
             else if(desde !=null && hasta ==null){
-                if(a.getDate().after(desde)){
+                if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
                     if (names.containsKey(a.getCountry())) {
                         names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
                     } else {
