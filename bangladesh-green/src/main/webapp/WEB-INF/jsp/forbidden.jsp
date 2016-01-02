@@ -40,7 +40,7 @@
   <p class="lockText">403: Not authorized</p>
   <p class="lockTextSecondary">You are not in the list of authorized users.</p>
   <br/>
-  <p class="lockTextSecondary">Try <a href="/bridge/${hash}/logout"><b>login</b></a> as another user.</p>
+  <p class="lockTextSecondary">Try <a href="/#/bridge/${hash}/logout"><b>login</b></a> as another user.</p>
 
 </div>
 </body>
