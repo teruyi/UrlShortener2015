@@ -76,15 +76,13 @@ public class LoginController {
                 expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
-                LoginResponse loginResponse = new LoginResponse("OK");
-
                 Cookie cookie = new Cookie("wallaclaim",Jwts.builder().setSubject(login.getUsername())
                         .claim("roles", requestedUser.getRole()).setIssuedAt(new Date()).setExpiration(expirationDate)
                         .signWith(SignatureAlgorithm.HS256, key).compact());
 
                 response.addCookie(cookie);
                 return new ResponseEntity<>(
-                        new SuccessResponse<>(loginResponse),
+                        new SuccessResponse<>("OK"),
                         HttpStatus.OK);
 
             }
