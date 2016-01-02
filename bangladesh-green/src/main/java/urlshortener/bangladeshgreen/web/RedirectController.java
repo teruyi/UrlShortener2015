@@ -90,10 +90,13 @@ public class RedirectController {
             URIavailability = availableRepository.findByTarget(shortURL.getTarget());
             System.out.print(URIavailability.toString());
            if(!URIavailability.isAvailable()){
-                 // If the target URI is not available
-                 response.setStatus(HttpStatus.GONE.value());
-                 return "410";
-             }
+                // If the target URI is not available
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+                Date date = new Date(URIavailability.getDate());
+                model.put("target", shortURL.getTarget());
+                model.put("date", date.toString());
+                return "notAvailable";
+           }
 
              //Else: Correct, redirect
               //simulation

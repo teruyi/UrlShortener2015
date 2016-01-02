@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.*;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
@@ -234,6 +235,6 @@ public class RedirectControllerTest {
 
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
-				.andExpect(status().isGone());
+				.andExpect(status().isNotFound());
 	}
 }
