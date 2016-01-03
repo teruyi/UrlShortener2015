@@ -90,13 +90,6 @@ $httpProvider.defaults.withCredentials = true;
       //On every response, if STATUS CODE is 401 unauthorized (need authentication) redirects to login.
       $httpProvider.interceptors.push(['$q', '$location', '$localStorage', function ($q, $location, $localStorage) {
           return {
-              'request': function (config) {
-                  config.headers = config.headers || {};
-                  if ($localStorage.token) {
-                      config.headers.Authorization = 'Bearer ' + $localStorage.token;
-                  }
-                  return config;
-              },
               'responseError': function (response) {
                   if (response.status === 401 && $location.path().indexOf("bridge") == -1) {
                       $location.path('/login');
