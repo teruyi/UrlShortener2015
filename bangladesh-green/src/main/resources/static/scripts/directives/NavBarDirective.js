@@ -20,6 +20,10 @@ angular.module('urlshortenerApp')
                     return UserService.username;
                 }
 
+                scope.isAdmin = function(){
+                  return UserService.roles=="admin";
+                }
+
 
                 scope.goToProfile = function(){
                     $location.url('/user/' + UserService.username);
@@ -31,6 +35,7 @@ angular.module('urlshortenerApp')
                 }
 
                 scope.currentPath = function(){
+                  console.log($location.path());
                     return $location.path();
                 }
 

@@ -14,7 +14,7 @@ angular
   ])
   .config(function ($routeProvider,$httpProvider) {
 
-
+$httpProvider.defaults.withCredentials = true;
       //This function checks if the user is logged-in
       //and redirects to login if its not.
       var onlyLoggedIn = function ($location,$q,UserService) {
@@ -66,6 +66,13 @@ angular
            resolve:{loggedIn:onlyLoggedIn} //Only for logged-in users
       })
 
+
+      .when('/admin', {
+        templateUrl: 'views/admin.html',
+        controller: 'AdminController',
+        controllerAs: 'ctrl',
+          resolve:{loggedIn:onlyLoggedIn} //Only for logged-in users
+      })
 
       .when('/bridge/:hash/:logout?',{
          templateUrl: 'views/bridgeLogin.html',
