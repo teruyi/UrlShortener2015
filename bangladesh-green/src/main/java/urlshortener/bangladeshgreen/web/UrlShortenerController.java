@@ -115,12 +115,11 @@ public class UrlShortenerController {
 
 		//Hash is made from URL + username of creator + {true|false} (isPrivate)
 		if (urlValidator.isValid(url)) {
-			String id = Hashing.murmur3_32()
-					.hashString(url + creator + isPrivate, StandardCharsets.UTF_8).toString();
 
-			if(authorizedUsers!= null && authorizedUsers.size() >0){
-				id+="_";
-			}
+			String baseName = url + creator + isPrivate + (expirationSeconds!=null) + (authorizedUsers!=null && authorizedUsers.size()>0);
+			String id = Hashing.murmur3_32()
+					.hashString(baseName, StandardCharsets.UTF_8).toString();
+
 
 			// Check if the URI is available and safe
 			long current = System.currentTimeMillis();

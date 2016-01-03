@@ -48,40 +48,85 @@ public class RedirectController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*[^_]$}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
                              Map<String, Object> model) {
 
 
-        final Claims claims = (Claims) request.getAttribute("claims");
-        System.out.println("Claims: " + claims);
+        String userName = null; //Currently logged-in user username
+        boolean authenticated = false;
 
-        logger.info("Requested redirection with hash " + id + " - privateToken=" + privateToken);
+        //Get authentication information if present
+        final Claims claims = (Claims) request.getAttribute("claims");
+        if(claims!=null){
+            userName = claims.getSubject();
+            authenticated = true;
+        }
+
 
         URIAvailable URIavailability = null;
         ShortURL shortURL = shortURLRepository.findByHash(id);
 
 
-            if(shortURL == null){
-               //Is null, not found
-               response.setStatus(HttpStatus.NOT_FOUND.value());
-               return "404";
-            }
 
-            //Check if link is expired
-            boolean hasExpired = hasExpired(shortURL);
+        if(shortURL == null){
+            //Is null, not found
+            logger.info("Requested non-existent hash " + id);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            return "404";
+        }
 
-            //Check if private token is required
-            boolean isPrivate = shortURL.isPrivateURI();
+        //Check if link is expired
+        boolean hasExpired = hasExpired(shortURL);
 
+        //Check if private token is required
+        boolean isPrivate = shortURL.isPrivateURI();
+
+        //Check if the link is user-protected
+        boolean isUserProtected = shortURL.getAuthorizedUsers()!=null && shortURL.getAuthorizedUsers().size()>0;
+
+
+        logger.info("Requested redirection with hash " + id +
+                " (private="+ isPrivate +
+                ", hasExpiration="+ (shortURL.getExpirationSeconds()!=null)+
+                ", isUserProtected=" + isUserProtected + ") - (privateToken=" + privateToken + ", hasExpired=" + hasExpired + " ,currentUser=" + userName + ")");
+
+
+
+        //FIRST CHECK: If expired, redirect to expired.jsp
             if(hasExpired){
                 //Has expired
                 response.setStatus(HttpStatus.GONE.value());
                 return "expired";
             }
 
+            //SECOND CHECK: If user protected, check if user is authenticated and has permissions.
+            if (isUserProtected) {
+                if(!authenticated){
+                    //NOT AUTHENTICATED: Send to AngularJS login bridge
+                    return createLoginRedirect(id,request,response);
+                }
+                else{
+                    //AUTHENTICATED: Check if it is not authorized
+
+                    //todo: Que funcione, ahora esta fijo
+                    List<String> authorizedUsers = new ArrayList<String>();
+                    authorizedUsers.add("ismaro3");
+
+                    if(userName==null || !authorizedUsers.contains(userName)){
+                        //Not authorized -> send to forbidden page
+                        response.setStatus(HttpStatus.FORBIDDEN.value());
+                        model.put("hash",id);
+                        return "forbidden";
+                    }
+
+                }
+            }
+
+
+            //THIRD CHECK: If it requires token and is not proviced, redirect to "privateURL.jsp".
             if(isPrivate && (privateToken == null || !shortURL.getPrivateToken().equals(privateToken))){
                 //Is private and no correct token has been supplied
                 response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -89,95 +134,32 @@ public class RedirectController {
                 return "privateURL";
             }
 
+
+            //FORTH CHECK: If the URI is not available (since last check), go to "notAvailable.jsp".
             URIavailability = availableRepository.findByTarget(shortURL.getTarget());
             System.out.print(URIavailability.toString());
-           if(!URIavailability.isAvailable()){
+             if(!URIavailability.isAvailable()){
                 // If the target URI is not available
                 response.setStatus(HttpStatus.NOT_FOUND.value());
                 Date date = new Date(URIavailability.getDate());
                 model.put("target", shortURL.getTarget());
                 model.put("date", date.toString());
                 return "notAvailable";
-           }
+             }
 
-             //Else: Correct, redirect
-              //simulation
-            long current = System.currentTimeMillis();
+
+            //ALL RIGHT, proceed to redirect
+
+            //Add IP and hash information
             this.rabbitTemplate.convertAndSend(queue2,"66.249.66.106"+","+shortURL.getHash());
-            long current2 = System.currentTimeMillis();
-            current2 = (current2 - current);
-            System.out.println(current2);
+
+            //Redirect
             return createSuccessfulRedirectToResponse(shortURL, response);
 
 
     }
 
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*_}", method = RequestMethod.GET)
-    public Object redirectToWithUserList(@PathVariable String id,
-                             @RequestParam(value="privateToken", required=false) String privateToken,
-                             HttpServletResponse response, HttpServletRequest request,
-                             Map<String, Object> model) {
-
-
-
-        boolean authenticated = false;
-        String userName = null;
-
-        final Claims claims = (Claims) request.getAttribute("claims");
-       //
-        if(claims!=null){
-            System.out.println("Claims: " + claims);
-            userName = claims.getSubject();
-            authenticated = true;
-        }
-
-
-        logger.info("Requested USER PROTECTED redirection with hash " + id + " - privateToken=" + privateToken+ " -loggedUser: " + userName);
-
-
-        ShortURL shortURL = shortURLRepository.findByHash(id);
-        System.out.println(shortURL);
-
-        if(shortURL == null){
-            //Is null, not found
-            response.setStatus(HttpStatus.NOT_FOUND.value());
-            return "404";
-        }
-        else{
-            if(!authenticated){
-                //NOT AUTHENTICATED: Send to AngularJS login bridge
-                System.out.println("INFO: NOT AUTHENTICATED, TO FRONTEND");
-                return createLoginRedirect(id,request,response);
-            }
-            else{
-                //AUTHENTICATED: Check if authorized
-                System.out.println("INFO: AUTHENTICATED, CHECK IF AUTHORIZED");
-
-
-                //todo: Que funcione, ahora esta fijo
-                List<String> authorizedUsers = new ArrayList<String>();
-                authorizedUsers.add("ismaro3");
-
-                if(userName!=null && authorizedUsers.contains(userName)){
-                    System.out.println("INFO: AUTHENTICATED, AUTHORIZED");
-                    //Authorized, can proceed to next step
-                    return redirectTo(id,privateToken,response,request,model);
-                }
-                else{
-                    System.out.println("INFO: AUTHENTICATED, NOT AUTHORIZED");
-                    response.setStatus(HttpStatus.FORBIDDEN.value());
-                    model.put("hash",id);
-                    //Tengo que mandarle al AngularJS... el que se encarga
-                    return "forbidden";
-                }
-            }
-
-        }
-
-
-
-    }
 
     /**
      * Returns true if link has expired.

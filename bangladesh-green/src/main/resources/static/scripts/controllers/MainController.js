@@ -71,6 +71,11 @@ self.selectedItem = null;
         self.url.authorizedUsers = undefined;
       }
 
+      //Add http if not present
+      if(self.url.target.indexOf("http://")!=0 && self.url.target.indexOf("https://")!=0){
+        self.url.target = "http://" + self.url.target;
+      }
+
     	$http.post('http://localhost:8080/link', self.url)
     	.then(function(message){
 			//Success

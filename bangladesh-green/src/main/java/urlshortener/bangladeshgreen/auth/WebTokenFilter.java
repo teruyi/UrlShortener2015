@@ -60,11 +60,8 @@ public class WebTokenFilter extends GenericFilterBean {
 
 
 
-
+        //Requires authentication
         if(requiresAuthentication(request)){
-
-            //Requires authentication
-
 
 
 
@@ -116,7 +113,7 @@ public class WebTokenFilter extends GenericFilterBean {
 
                     //Correct token -> User is logged-in
                     req.setAttribute("claims", claims);
-                    System.out.println("dofilter WITH");
+
                     chain.doFilter(req,res);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -124,7 +121,7 @@ public class WebTokenFilter extends GenericFilterBean {
                 }
             }
             else{
-                System.out.println("dofilter WITHOUT");
+
                 chain.doFilter(request,response);
             }
 

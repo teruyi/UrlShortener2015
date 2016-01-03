@@ -14,7 +14,7 @@ angular
   ])
   .config(function ($routeProvider,$httpProvider) {
 
-
+$httpProvider.defaults.withCredentials = true;
       //This function checks if the user is logged-in
       //and redirects to login if its not.
       var onlyLoggedIn = function ($location,$q,UserService) {
@@ -67,6 +67,13 @@ angular
       })
 
 
+      .when('/admin', {
+        templateUrl: 'views/admin.html',
+        controller: 'AdminController',
+        controllerAs: 'ctrl',
+          resolve:{loggedIn:onlyLoggedIn} //Only for logged-in users
+      })
+
       .when('/bridge/:hash/:logout?',{
          templateUrl: 'views/bridgeLogin.html',
          controller: 'BridgeController',
@@ -83,13 +90,6 @@ angular
       //On every response, if STATUS CODE is 401 unauthorized (need authentication) redirects to login.
       $httpProvider.interceptors.push(['$q', '$location', '$localStorage', function ($q, $location, $localStorage) {
           return {
-              'request': function (config) {
-                  config.headers = config.headers || {};
-                  if ($localStorage.token) {
-                      config.headers.Authorization = 'Bearer ' + $localStorage.token;
-                  }
-                  return config;
-              },
               'responseError': function (response) {
                   if (response.status === 401 && $location.path().indexOf("bridge") == -1) {
                       $location.path('/login');
