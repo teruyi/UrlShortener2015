@@ -21,6 +21,8 @@ public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 	public ShortURL findByTarget(String target);
 	@Query("{}")
 	public List<ShortURL> list();
+	@Query("{'creator' : ?0}")
+	public List<ShortURL> findByCreator(String creator);
 
 
 
