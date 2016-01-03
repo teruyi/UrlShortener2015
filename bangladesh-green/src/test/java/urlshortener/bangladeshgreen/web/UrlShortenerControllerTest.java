@@ -100,8 +100,10 @@ public class UrlShortenerControllerTest {
 		String json = mapper.writeValueAsString(shortURL);
 
 
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseName = "http://www.google.com/" + "user" + false + false + false;
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString();
+				.hashString(baseName, StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
@@ -143,9 +145,11 @@ public class UrlShortenerControllerTest {
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(shortURL);
 
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseName = "http://www.google.com/" + "user" + false + true + false;
 
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString();
+				.hashString(baseName, StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
@@ -191,9 +195,11 @@ public class UrlShortenerControllerTest {
 		String json = mapper.writeValueAsString(shortURL);
 
 
-		//Ends with '*' because it has a user list and needs authentication
+
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseName = "http://www.google.com/" + "user" + false + false + true;
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.google.com/" + "user" + false, StandardCharsets.UTF_8).toString()+"_";
+				.hashString(baseName, StandardCharsets.UTF_8).toString();
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
@@ -238,8 +244,11 @@ public class UrlShortenerControllerTest {
 		ObjectMapper mapper = new ObjectMapper();
 		String json = mapper.writeValueAsString(shortURL);
 
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseName = "http://www.welikewebengineering-eina.com/" + "user" + false + false + false;
+
 		String hashToBeGenerated = Hashing.murmur3_32()
-				.hashString("http://www.welikewebengineering-eina.com/" + "user" + false,
+				.hashString(baseName,
 						StandardCharsets.UTF_8).toString();
 
 		//Do the post request
@@ -355,11 +364,15 @@ public class UrlShortenerControllerTest {
 		String json = mapper.writeValueAsString(shortURL);
 
 
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseNameUser1 = "http://www.google.com/" + "user1" + false + false + false;
 		String hashToBeGeneratedUser1 = Hashing.murmur3_32()
-				.hashString("http://www.google.com/"+"user1"+false, StandardCharsets.UTF_8).toString();
+				.hashString(baseNameUser1, StandardCharsets.UTF_8).toString();
 
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseNameUser2 = "http://www.google.com/" + "user2" + false + false + false;
 		String hashToBeGeneratedUser2 = Hashing.murmur3_32()
-				.hashString("http://www.google.com/"+"user2"+false, StandardCharsets.UTF_8).toString();
+				.hashString(baseNameUser2, StandardCharsets.UTF_8).toString();
 
 		//Do the first request (user1)
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
@@ -410,7 +423,7 @@ public class UrlShortenerControllerTest {
 	 * Checks that, if the same users creates two shortened links with the same target,
 	 * but one is private and another is public, different hashes are generated.
 	 */
-	public void thatShortenerCreatesDiferentURLifPrivateAndPublic() throws Exception{
+	public void thatShortenerCreatesDifferentURLifDifferentModes() throws Exception{
 
 		configureTransparentSave();
 
@@ -422,11 +435,18 @@ public class UrlShortenerControllerTest {
 		ObjectMapper mapper = new ObjectMapper();
 
 
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseNamePrivate = "http://www.google.com/" + "user" + true + false + false;
+
 		String hashToBeGeneratedPrivate = Hashing.murmur3_32()
-				.hashString("http://www.google.com/"+"user"+true, StandardCharsets.UTF_8).toString();
+				.hashString(baseNamePrivate, StandardCharsets.UTF_8).toString();
+
+
+		//Name: URL + user + hasPrivateToken + hasExpirationDate + isUserRestricted
+		String baseNamePublic = "http://www.google.com/" + "user" + false + false + false;
 
 		String hashToBeGeneratedPublic = Hashing.murmur3_32()
-				.hashString("http://www.google.com/"+"user"+false, StandardCharsets.UTF_8).toString();
+				.hashString(baseNamePublic, StandardCharsets.UTF_8).toString();
 
 
 
