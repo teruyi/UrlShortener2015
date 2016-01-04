@@ -3,7 +3,9 @@ package urlshortener.bangladeshgreen.web.fixture;
 
 import urlshortener.bangladeshgreen.domain.ShortURL;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ShortURLFixture {
 
@@ -25,5 +27,13 @@ public class ShortURLFixture {
 
 	public static ShortURL someUrlWithExpirationDateAndExpired() {
 		return new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(System.currentTimeMillis() - 10000),"0.0.0.0",false,null,(long) 1,null);
+	}
+
+	public static List<ShortURL> someUrlList(int size){
+		List<ShortURL> list = new ArrayList<ShortURL>();
+		for(int i = 0; i < size; i++){
+			list.add(someUrl());
+		}
+	return list;
 	}
 }

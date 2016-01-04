@@ -118,7 +118,7 @@ public class ShortURL {
         return authorizedUsers;
     }
 
-    public void setAuthorizedUsers(ArrayList<String> authorizedUsers) {
+    public void setAuthorizedUsers(List<String> authorizedUsers) {
         this.authorizedUsers = authorizedUsers;
     }
 

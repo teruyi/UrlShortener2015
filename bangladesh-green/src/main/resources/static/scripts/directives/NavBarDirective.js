@@ -35,7 +35,6 @@ angular.module('urlshortenerApp')
                 }
 
                 scope.currentPath = function(){
-                  console.log($location.path());
                     return $location.path();
                 }
 

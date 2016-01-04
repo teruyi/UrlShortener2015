@@ -117,6 +117,7 @@ public class WebTokenFilter extends GenericFilterBean {
                     chain.doFilter(req,res);
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    chain.doFilter(req,res);
                     //Nothing
                 }
             }

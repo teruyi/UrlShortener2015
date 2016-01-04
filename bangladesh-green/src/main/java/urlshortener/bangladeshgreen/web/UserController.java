@@ -5,13 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.*;
+import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.UserRepository;
 import urlshortener.bangladeshgreen.secure.Hash;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,6 +27,9 @@ public class UserController {
 
     @Autowired
     protected UserRepository userRepository;
+
+    @Autowired
+    protected ShortURLRepository shortURLRepository;
 
     public UserController() {
 
@@ -260,8 +267,60 @@ public class UserController {
 
 
 
+    @RequestMapping(value="/{username}/links",method = RequestMethod.GET)
+    /*
+    Retrieve links for a certain user.
+    Only can be retrieved by the same user, or an admin user.
+     */
+    public ResponseEntity<? extends JsonResponse> getUserLinks(
+            @PathVariable String username,HttpServletRequest request,
+            @RequestParam(value="start", required=false) Integer start,
+            @RequestParam(value="end", required=false) Integer end
+    ) throws ServletException {
 
 
+        final Claims claims = (Claims) request.getAttribute("claims");
+        String loggedUser = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+
+
+        if(loggedUser.equalsIgnoreCase(username) || loggedRoles.equalsIgnoreCase("admin") ){
+            //Has permissions to view links
+            List<ShortURL> shortURLlist = shortURLRepository.findByCreator(username);
+
+            int start_index = 0;
+            int end_index = shortURLlist.size();
+
+            if(start!=null){
+                start_index = start;
+
+            }
+            if(end!=null){
+                end_index = end +1;
+                if(end_index > shortURLlist.size()){
+                    end_index = shortURLlist.size();
+                }
+            }
+
+            if(start_index > shortURLlist.size()-1){
+                shortURLlist = new ArrayList<ShortURL>();
+            }
+            else{
+                shortURLlist = shortURLlist.subList(start_index,end_index);
+            }
+
+
+
+            SuccessResponse<List<ShortURL>> successResponse = new SuccessResponse<>(shortURLlist);
+            return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.OK);
+        }
+        else{
+            //Not authorized
+            ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
+
+    }
     /**
      * Checks this object for empty or null fields.
      * @return String with the field empty or null, otherwise null.

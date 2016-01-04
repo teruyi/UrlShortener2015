@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.User;
+import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrlList;
 import static urlshortener.bangladeshgreen.web.fixture.UserFixture.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -46,6 +48,9 @@ public class UserControllerTest{
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ShortURLRepository shortURLRepository;
 
     @Before
     public void setUp() throws Exception {
@@ -496,6 +501,54 @@ public class UserControllerTest{
 
     }
 
+
+    @Test
+    /**
+     * Test that a user can view its link list
+     */
+    public void testAuthorizedUserLinkList() throws Exception{
+
+        User someUser = someUser();
+        when(shortURLRepository.findByCreator("user")).thenReturn(someUrlList(10));
+
+        //Test redirection
+        mockMvc.perform(get("/user/{username}/links", "user").header("Accept", "application/json")
+                //Modify the request object to include a custom Claims object. (testUser)
+                .with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("user","user"));
+                    return request;
+                }))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status",is("success")))
+                .andExpect(jsonPath("$.data",hasSize(10)));
+
+
+    }
+
+    @Test
+    /**
+     * Test that a user can not view link list of another user.
+     */
+    public void testUnauthorizedUserLinkList() throws Exception{
+
+        User someUser = someUser();
+        when(shortURLRepository.findByCreator("user")).thenReturn(someUrlList(10));
+
+        //Test redirection
+        mockMvc.perform(get("/user/{username}/links", "user").header("Accept", "application/json")
+                //Modify the request object to include a custom Claims object. (testUser)
+                .with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("anotherUser","user"));
+                    return request;
+                }))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status",is("error")))
+                .andExpect(jsonPath("$.message",is("Permission denied")));
+
+
+    }
 
 
     /*
