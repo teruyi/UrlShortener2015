@@ -7,7 +7,7 @@
             <div class="collapse navbar-collapse" id="js-navbar-collapse" ng-if="currentPath()!='/login'">
                 <ul class="nav navbar-nav">
                     <li ng-class="{'active':currentPath().indexOf('shorten')>0}"><a href="#/">Home</a></li>
-                    <li ng-if="isAdmin" ng-class="{'active':currentPath()==='/admin'}"><a href="#/admin">Admin panel</a></li>
+                    <li ng-if="isAdmin()" ng-class="{'active':currentPath()==='/admin'}"><a href="#/admin">Admin panel</a></li>
 
                 </ul>
                 <ul class="nav navbar-nav navbar-right" ng-if="logged()">

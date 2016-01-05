@@ -89,13 +89,22 @@ $httpProvider.defaults.withCredentials = true;
       //On every request, it sends authorization token (if present).
       //On every response, if STATUS CODE is 401 unauthorized (need authentication) redirects to login.
       $httpProvider.interceptors.push(['$q', '$location', '$localStorage', function ($q, $location, $localStorage) {
-          return {
-              'responseError': function (response) {
-                  if (response.status === 401 && $location.path().indexOf("bridge") == -1) {
-                      $location.path('/login');
-                  }
-                  return $q.reject(response);
-              }
-          };
+        return {
+        response: function(response){
+          console.log(response);
+            if (response.status === 401 && $location.path().indexOf("bridge") == -1) {
+                $location.path('/login');
+            }
+            return response || $q.when(response);
+        },
+        responseError: function(rejection) {
+          console.log(rejection);
+            if (rejection.status === 401 && $location.path().indexOf("bridge") == -1) {
+              $location.path('/login');
+            }
+            return $q.reject(rejection);
+        }
+    };
+
       }]);
   });

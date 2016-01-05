@@ -112,8 +112,8 @@ public class RedirectController {
                     //AUTHENTICATED: Check if it is not authorized
 
                     //todo: Que funcione, ahora esta fijo
-                    List<String> authorizedUsers = new ArrayList<String>();
-                    authorizedUsers.add("ismaro3");
+                    List<String> authorizedUsers = shortURL.getAuthorizedUsers();
+                    //authorizedUsers.add("ismaro3");
 
                     if(userName==null || !authorizedUsers.contains(userName)){
                         //Not authorized -> send to forbidden page
