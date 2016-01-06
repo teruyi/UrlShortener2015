@@ -295,6 +295,7 @@ public class UserController {
                 start_index = start;
 
             }
+
             if(end!=null){
                 end_index = end +1;
                 if(end_index > shortURLlist.size()){
@@ -302,7 +303,8 @@ public class UserController {
                 }
             }
 
-            if(start_index > shortURLlist.size()-1){
+
+            if(start_index > (end_index-1)){
                 shortURLlist = new ArrayList<ShortURL>();
             }
             else{

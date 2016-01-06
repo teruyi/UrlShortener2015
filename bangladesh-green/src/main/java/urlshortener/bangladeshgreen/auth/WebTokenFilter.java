@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.web.filter.GenericFilterBean;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,8 +55,6 @@ public class WebTokenFilter extends GenericFilterBean {
         final HttpServletResponse response  = (HttpServletResponse) res; //Response
 
 
-
-
         //Requires authentication
         if(requiresAuthentication(request)){
 
@@ -67,8 +62,7 @@ public class WebTokenFilter extends GenericFilterBean {
 
             if (getTokenFromCookies(request) == null) {
                 //No authentication in the request
-                sendErrorResponse(response,
-                        HttpServletResponse.SC_UNAUTHORIZED,
+                sendErrorResponse(request,response,
                         "Authorization error: No token is supplied. Please obtain one from /login.");
             }
 
@@ -86,13 +80,11 @@ public class WebTokenFilter extends GenericFilterBean {
 
                 }
                 catch(ExpiredJwtException expiredException){
-                    sendErrorResponse(response,
-                            HttpServletResponse.SC_UNAUTHORIZED,
+                    sendErrorResponse(request,response,
                             "Authorization error: " + expiredException.getMessage());
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
-                    sendErrorResponse(response,
-                            HttpServletResponse.SC_UNAUTHORIZED,
+                    sendErrorResponse(request,response,
                             "Authorization error: Invalid token format. Please obtain a new token from /login");
                 }
 
@@ -141,6 +133,7 @@ public class WebTokenFilter extends GenericFilterBean {
 
 
 
+
         //Check every URL to protect
         for(URLProtection url: toProtect){
             Pattern p = Pattern.compile(url.getUrl());
@@ -153,9 +146,11 @@ public class WebTokenFilter extends GenericFilterBean {
 
                 if(url.hasMethod(request.getMethod())){
                     //It has a method that needs to be authenticated
+
                     return true;
                 }
             }
+
         }
         return false;
     }
@@ -166,16 +161,33 @@ public class WebTokenFilter extends GenericFilterBean {
     }
     /**
      * Writes to the response an error message.
+     * If accept header contains "html", a forward to 401.jsp is made.
+     * Else, JSON is returned.
      */
-    private void sendErrorResponse(HttpServletResponse response,int code,String message) throws IOException{
+    private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response,String message) throws IOException{
 
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setMessage(message);
-        ObjectMapper mapper = new ObjectMapper();
 
-        response.setStatus(code);
-        response.setContentType("application/json");
-        response.getOutputStream().println(mapper.writeValueAsString(errorResponse));
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        if(request.getHeader("Accept")!=null && request.getHeader("Accept").contains("html")){
+            RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/jsp/401.jsp");
+            try {
+                dispatcher.forward(request,response);
+            } catch (ServletException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setMessage(message);
+            ObjectMapper mapper = new ObjectMapper();
+
+
+            response.setContentType("application/json");
+            response.getOutputStream().println(mapper.writeValueAsString(errorResponse));
+        }
+
+
 
     }
 
