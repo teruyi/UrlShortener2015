@@ -22,7 +22,6 @@ import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -179,23 +178,6 @@ public class UrlInfoController {
             return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
         }
 
-        //todo: QUITAR ESTA CHAPUZA, HACER Q BASE DE DATOS PUEDA COGER 'DESDE', 'HASTA' Y 'TODO'.
-        try {
-            if (start == null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-                String dateInString = "1970/01/01";
-                start = sdf.parse(dateInString);
-            }
-            if (end == null) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-                String dateInString = "9999/12/31";
-                end = sdf.parse(dateInString);
-            }
-        }
-        catch(Exception ex){
-            ex.printStackTrace();
-        }
-
 
         if (type.compareTo("city")==0){
             list = listByCity(start, end, id);
@@ -263,6 +245,12 @@ public class UrlInfoController {
                         names.put(a.getRegionName(), 1);
                     }
                 }
+            }else if(desde == null && hasta == null){
+                if (names.containsKey(a.getRegionName())) {
+                    names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
+                } else {
+                    names.put(a.getRegionName(), 1);
+                }
             }
             else{return null;}
         }
@@ -314,7 +302,14 @@ public class UrlInfoController {
                         names.put(a.getCity(), 1);
                     }
                 }
-            }else{return null;}
+            }else if(desde == null && hasta == null){
+                if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
+                    names.replace(a.getCity(), names.get(a.getCity()) + 1);
+                } else {
+                    names.put(a.getCity(), 1);
+                }
+            }
+            else{return null;}
         }
         Set keys = names.keySet();
         Iterator iterator=keys.iterator();
@@ -364,7 +359,14 @@ public class UrlInfoController {
                         names.put(a.getCountry(), 1);
                     }
                 }
-            }else{return null;}
+            } else if(desde == null && hasta == null){
+                if (names.containsKey(a.getCountry())) {
+                    names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
+                } else {
+                    names.put(a.getCountry(), 1);
+                }
+            }
+            else{return null;}
         }
         Set keys = names.keySet();
         Iterator iterator=keys.iterator();
