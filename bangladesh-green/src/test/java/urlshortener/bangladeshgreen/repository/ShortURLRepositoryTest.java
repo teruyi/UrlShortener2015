@@ -49,6 +49,24 @@ public class ShortURLRepositoryTest {
 
     }
 
+
+    @Test
+    public void testShortURLByCreator() throws Exception {
+
+        //First, insert some links
+        shortURLRepository.save(test);
+        shortURLRepository.save(test2);
+
+        List<ShortURL> list = shortURLRepository.findByCreator("randomUser");
+
+
+        assertEquals(list.size(),2);
+
+
+
+    }
+
+
     @Test
     //Tests that a ShortURL with the same hash is not inserted
     public void testRepeatedSave() throws Exception {

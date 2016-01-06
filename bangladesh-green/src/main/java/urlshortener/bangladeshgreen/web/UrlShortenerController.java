@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
@@ -71,9 +68,7 @@ public class UrlShortenerController {
 		final Claims claims = (Claims) request.getAttribute("claims");
 		userName = claims.getSubject();
 
-		System.out.println("CLAIMS: " + request.getAttribute("claims"));
 
-		System.out.println("CUENTA: " + shortURL.getAuthorizedUsers());
 
 		ShortURL su = createAndSaveIfValid(shortURL.getTarget(), userName, extractIP(request),shortURL.isPrivateURI(), shortURL.getExpirationSeconds(),shortURL.getAuthorizedUsers());
 
@@ -93,6 +88,7 @@ public class UrlShortenerController {
 
 
 	}
+
 
 
 	protected String extractIP(HttpServletRequest request) {
@@ -156,7 +152,6 @@ public class UrlShortenerController {
 		}
 
 	}
-
 
 
 
