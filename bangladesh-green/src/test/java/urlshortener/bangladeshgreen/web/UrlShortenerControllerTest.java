@@ -519,7 +519,7 @@ public class UrlShortenerControllerTest {
 
 		//Do the post request
 		mockMvc.perform(post("/link").contentType("application/json").content(json)
-				//Modify the request object to include a custom Claims object. (testUser)
+				//Modify the request object to include a custom Claims object.
 				.with(request -> {
                     request.setAttribute("claims",createTestUserClaims("user"));
                     return request;

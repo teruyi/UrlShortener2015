@@ -48,12 +48,23 @@ public class Application extends SpringBootServletInitializer {
 		userURL.addMethod("GET");
 		userURL.addMethod("DELETE");
 		userURL.addMethod("PUT");
-
-		//Protect redirection to "user-protected" links
-
-
 		authenticationFilter.addUrlToProtect(userURL);
+
+		//Protect GET from aggregated link information
+		URLProtection aggregatedInfoURL = new URLProtection("/info.*");
+		aggregatedInfoURL.addMethod("GET");
+		authenticationFilter.addUrlToProtect(aggregatedInfoURL);
+
+
+		//Protect GET from simple link information
+		URLProtection infoURL = new URLProtection("/.*\\+");
+		infoURL.addMethod("GET");
+		authenticationFilter.addUrlToProtect(infoURL);
+
+
+
 		registrationBean.setFilter(authenticationFilter);
+
 		return registrationBean;
 	}
 

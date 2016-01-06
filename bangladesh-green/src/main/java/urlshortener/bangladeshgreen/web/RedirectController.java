@@ -48,7 +48,7 @@ public class RedirectController {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
-    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|expired).*}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|401|expired).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
                              @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
@@ -151,7 +151,7 @@ public class RedirectController {
             //ALL RIGHT, proceed to redirect
 
             //Add IP and hash information
-            this.rabbitTemplate.convertAndSend(queue2,"66.249.66.106"+","+shortURL.getHash());
+            this.rabbitTemplate.convertAndSend(queue2,"88.21.166.5"+","+shortURL.getHash());
 
             //Redirect
             return createSuccessfulRedirectToResponse(shortURL, response);

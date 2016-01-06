@@ -1,5 +1,8 @@
 package urlshortener.bangladeshgreen.web;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +16,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.web.fixture.URLLocationInfo;
+
+import java.util.Date;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -56,7 +61,10 @@ public class UrlInfoControllerTest {
 
 
         //Test redirection
-        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json"))
+        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("randomUser"));
+            return request;
+        }))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -76,7 +84,10 @@ public class UrlInfoControllerTest {
         //Mock URLRepository to return null -> Not found
         when(shortURLRepository.findByHash("someKey")).thenReturn(null);
 
-        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json"))
+        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("randomUser"));
+            return request;
+        }))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -84,26 +95,6 @@ public class UrlInfoControllerTest {
                 .andExpect(jsonPath("$.message").value("URL not found"));
     }
 
-    @Test
-	/*
-	Test that REDIRECT over a PRIVATE InfoLink gives error 403 if key exists
-	and Private Token IS NOT CORRECT.
-	 */
-    public void thatReturnsJsonPrivateTokenIncorrect()
-            throws Exception {
-
-        //Mock URLrepository response to a private URL.
-        when(shortURLRepository.findByHash("someKey")).thenReturn(somePrivateUrl());
-
-        //Test that 401 Unauthorized is returned (Bad Private token)
-        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json")
-                .param("privateToken","incorrectToken"))
-                .andDo(print())
-                .andExpect(status().isForbidden())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value("error"))
-                .andExpect(jsonPath("$.message").value("This link is private"));
-    }
 
 
     @Test
@@ -118,7 +109,11 @@ public class UrlInfoControllerTest {
         when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlm());
 
         //Test redirection
-        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html"))
+        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")//Modify the request object to include a custom Claims object.
+                .with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("randomUser"));
+                    return request;
+                }))
                 .andDo(print())
                 .andExpect(status().isSeeOther())
                 .andExpect(forwardedUrl("info"))
@@ -138,28 +133,16 @@ public class UrlInfoControllerTest {
         //Mock URLRepository to return null -> Not found
         when(shortURLRepository.findByHash("someKey")).thenReturn(null);
 
-        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html"))
+        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")
+                .with(request -> {
+                    request.setAttribute("claims",createTestUserClaims("randomUser"));
+                    return request;
+                }))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-	/*
-	Test that REDIRECT over a PRIVATE InfoLink gives error 403 if key exists
-	and Private Token IS NOT CORRECT.
-	 */
-    public void thatRedirectToPrivateInfoReturnsTemporaryRedirectIfKeyExistsAndPrivateTokenIncorrect()
-            throws Exception {
 
-        //Mock URLrepository response to a private URL.
-        when(shortURLRepository.findByHash("someKey")).thenReturn(somePrivateUrl());
-
-        //Test that 401 Unauthorized is returned (Bad Private token)
-        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")
-                .param("privateToken","incorrectToken"))
-                .andDo(print())
-                .andExpect(status().isForbidden());
-    }
 
     @Test
 	/*
@@ -169,7 +152,10 @@ public class UrlInfoControllerTest {
 
         when(clickRepository.findAll()).thenReturn(null);
         //Test that 400 Bad request is returned (Bad Request)
-        mockMvc.perform(get("/info").header("Accept", "application/json")
+        mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("admin"));
+            return request;
+        })
                 .param("privateToken","incorrectToken")
                 .param("type","false"))
                 .andDo(print())
@@ -185,7 +171,10 @@ public class UrlInfoControllerTest {
         when(clickRepository.findAll()).thenReturn(URLLocationInfo.someLocationInfo());
 
         //Test that 200 Ok request is returned (Ok Request)
-        mockMvc.perform(get("/info").header("Accept", "application/json")
+        mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("admin"));
+            return request;
+        })
                 .param("privateToken","incorrectToken")
                 .param("type","region")
                 .param("start","2015/12/31")
@@ -194,6 +183,20 @@ public class UrlInfoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"))
                 .andExpect(jsonPath("$.data").isArray());
+    }
+
+    /*
+	Returns a valid Claim of user testUser and roles: user with key "secretKey".
+	Used for mocking it into the controller and simulate a logged-in user.
+	 */
+    private Claims createTestUserClaims(String username){
+
+        String claims =  Jwts.builder().setSubject(username)
+                .claim("roles", "user").setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS256, "secretkey").compact();
+
+        return Jwts.parser().setSigningKey("secretkey")
+                .parseClaimsJws(claims).getBody();
     }
 
 

@@ -10,7 +10,7 @@
  */
 angular
   .module('urlshortenerApp', [
-    'ngRoute','angular-jwt','ngStorage','ui.checkbox','ngCookies'
+    'ngRoute','angular-jwt','ngStorage','ui.checkbox','ngCookies','chart.js'
   ])
   .config(function ($routeProvider,$httpProvider) {
 
@@ -70,6 +70,13 @@ $httpProvider.defaults.withCredentials = true;
       .when('/admin', {
         templateUrl: 'views/admin.html',
         controller: 'AdminController',
+        controllerAs: 'ctrl',
+          resolve:{loggedIn:onlyLoggedIn} //Only for logged-in users
+      })
+
+      .when('/stats/:hash?', {
+        templateUrl: 'views/stats.html',
+        controller: 'StatsController',
         controllerAs: 'ctrl',
           resolve:{loggedIn:onlyLoggedIn} //Only for logged-in users
       })
