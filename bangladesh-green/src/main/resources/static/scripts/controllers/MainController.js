@@ -76,7 +76,7 @@ self.selectedItem = null;
         self.url.target = "http://" + self.url.target;
       }
 
-    	$http.post('http://localhost:8080/link', self.url)
+    	$http.post('/link', self.url)
     	.then(function(message){
 			//Success
 			self.result = message.data;

@@ -151,7 +151,7 @@ public class RedirectController {
             //ALL RIGHT, proceed to redirect
 
             //Add IP and hash information
-            this.rabbitTemplate.convertAndSend(queue2,"88.21.166.5"+","+shortURL.getHash());
+            this.rabbitTemplate.convertAndSend(queue2,extractIP(request)+","+shortURL.getHash());
 
             //Redirect
             return createSuccessfulRedirectToResponse(shortURL, response);

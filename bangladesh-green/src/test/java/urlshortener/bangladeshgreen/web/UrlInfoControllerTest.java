@@ -146,7 +146,26 @@ public class UrlInfoControllerTest {
 
     @Test
 	/*
-	Test that returns a Json ErrorResponse with 400 (Bad request) if parameter type value is undefined.
+	Test that "+" simple info returns unauthorized if logged user is not the creator of the link or admin
+	 */
+    public void thatSimpleInfoReturnsUnauthorizedIfAnotherUser() throws Exception {
+
+        when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlm());
+
+        //Test that 200 Ok request is returned (Ok Request)
+        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("anotherUser"));
+            return request;
+        })
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value("error"));
+    }
+
+    @Test
+	/*
+	Test that returns a Json ErrorResponse with 400 (Bad request) if parameter type is undefined.
 	 */
     public void thatReturnsJsonBadRequest() throws Exception {
 
@@ -183,6 +202,29 @@ public class UrlInfoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"))
                 .andExpect(jsonPath("$.data").isArray());
+    }
+
+
+    @Test
+	/*
+	Test that complex info "/info" returns unauthorized if logged user is not the creator of the link or admin
+	 */
+    public void thatComplexInfoReturnsUnauthorizedIfAnotherUser() throws Exception {
+
+        when(clickRepository.findAll()).thenReturn(URLLocationInfo.someLocationInfo());
+
+        //Test that 200 Ok request is returned (Ok Request)
+        mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("anotherUser"));
+            return request;
+        })
+                .param("privateToken","incorrectToken")
+                .param("type","region")
+                .param("start","2015/12/31")
+                .param("end","2016/01/02"))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value("error"));
     }
 
     /*
