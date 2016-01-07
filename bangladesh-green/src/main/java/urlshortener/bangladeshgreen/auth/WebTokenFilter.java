@@ -132,8 +132,6 @@ public class WebTokenFilter extends GenericFilterBean {
         String destinationURL = request.getRequestURI();
 
 
-
-
         //Check every URL to protect
         for(URLProtection url: toProtect){
             Pattern p = Pattern.compile(url.getUrl());

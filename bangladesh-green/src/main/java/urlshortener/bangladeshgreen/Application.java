@@ -99,7 +99,6 @@ public class Application extends SpringBootServletInitializer {
 		connector.setPort(8080);
 		connector.setSecure(true);
 		connector.setRedirectPort(8443);
-
 		return connector;
 	}
 

@@ -72,7 +72,7 @@ public class LoginController {
 
                 //Expiration time of token
                 Date expirationDate = new Date();
-                long expirationTimeInSeconds = 360000;
+                long expirationTimeInSeconds = 36000;
                 expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
