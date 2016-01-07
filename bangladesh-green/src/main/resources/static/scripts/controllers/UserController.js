@@ -34,9 +34,9 @@ angular.module('urlshortenerApp')
       self.loadInfo = function(){
 
 
-        
+
         //Get from server
-        $http.get('http://localhost:8080/user/' + self.username).
+        $http.get('/user/' + self.username).
          success(function(data, status, headers, config) {
            //Success
            //We display info
@@ -67,7 +67,7 @@ angular.module('urlshortenerApp')
 
       self.loadLinks = function(){
         //Get from server
-        $http.get('http://localhost:8080/user/' + self.username + "/links?start="+self.listStart+"&end=" + self.listEnd).
+        $http.get('/user/' + self.username + "/links?start="+self.listStart+"&end=" + self.listEnd).
          success(function(data, status, headers, config) {
            //Success
            //We display info
@@ -139,7 +139,7 @@ angular.module('urlshortenerApp')
 
         if (confirm('Are you sure you want to delete this account? This can not be undone!')) {
 
-          $http.delete('http://localhost:8080/user/' + self.username).
+          $http.delete('/user/' + self.username).
            success(function(data, status, headers, config) {
 
             //If admin, go back
@@ -190,7 +190,7 @@ angular.module('urlshortenerApp')
           self.alert.message="Both passwords must match";
         }
         else{
-        $http.put('http://localhost:8080/user/' + self.username, self.user)
+        $http.put('/user/' + self.username, self.user)
         .then(function(message){
             //Success
             self.alert.type = "success";

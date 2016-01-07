@@ -81,7 +81,7 @@ angular.module('urlshortenerApp')
 
             //Only if data can be valid
             if(self.loginUserDataIsValid()){
-                $http.post('http://localhost:8080/login', self.loginUser)
+                $http.post('/login', self.loginUser)
                     .then(function(message){
 
 

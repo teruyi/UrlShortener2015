@@ -16,7 +16,7 @@ angular.module('urlshortenerApp')
       self.loadUserList = function(){
 
         //Get from server the complete user list
-        $http.get('http://localhost:8080/user').
+        $http.get('/user').
          success(function(data, status, headers, config) {
            //Success
            //We display info

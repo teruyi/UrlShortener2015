@@ -152,7 +152,7 @@ angular.module('urlshortenerApp')
 
         //Only if data can be valid
         if(self.newUserDataIsValid()){
-            $http.post('http://localhost:8080/user', self.newUser)
+            $http.post('/user', self.newUser)
             .then(function(message){
                 //Success
                 self.alert.type = "success";
@@ -193,7 +193,7 @@ angular.module('urlshortenerApp')
 
             //Only if data can be valid
             if(self.loginUserDataIsValid()){
-                $http.post('http://localhost:8080/login', self.loginUser)
+                $http.post('/login', self.loginUser)
                     .then(function(message){
 
                         self.loginUser = {};          //Clear new user
