@@ -306,7 +306,7 @@ public class UrlInfoController {
                     }
                 }
             }else if(desde == null && hasta == null){
-                if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
+                if(names.containsKey(a.getCity())){
                     names.replace(a.getCity(), names.get(a.getCity()) + 1);
                 } else {
                     names.put(a.getCity(), 1);
