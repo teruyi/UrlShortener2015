@@ -169,7 +169,7 @@ public class UrlInfoController {
         }
 
         //If global and not admin -> Forbidden
-        if(id ==null &&  !userName.equalsIgnoreCase("admin")){
+        if(id ==null &&  !loggedRoles.equalsIgnoreCase("admin")){
             //Not authorized
             ErrorResponse errorResponse = new ErrorResponse("Permission denied");
             return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
