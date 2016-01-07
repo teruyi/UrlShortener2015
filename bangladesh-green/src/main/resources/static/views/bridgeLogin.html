@@ -1,0 +1,60 @@
+<div class=" loginBackground" ng-if="ctrl.visible">
+  <div class="wrapper login-background">
+    <div class="outer">
+      <div class="middle">
+        <div class="inner">
+
+<div ng-if="ctrl.alert.type=='error'" class="alert alert-danger" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
+<div ng-if="ctrl.alert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
+      <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+
+        <div class="panel panel-login">
+          <div class="panel-heading">
+            <b style="font-size:150%;"><i class="glyphicon glyphicon-user"></i></b><b style="font-size:120%;"><br/>This redirection requires you to log-in</b>
+            <hr>
+          </div>
+
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-lg-12">
+                <form  ng-if="ctrl.mode=='login'" id="login-form"  role="form">
+                  <div class="form-group">
+                    <input type="text" name="username" id="username-login" tabindex="1" class="form-control" placeholder="Username" ng-model="ctrl.loginUser.username"
+                           value="" ng-class="{'incorrect-field':ctrl.userErrors.username.error}">
+                    <p ng-if="ctrl.userErrors.username.error">{{ctrl.userErrors.username.message}}</p>
+                  </div>
+                  <div class="form-group">
+                    <input type="password" name="password" id="password-login" tabindex="2" class="form-control" placeholder="Password" ng-model="ctrl.loginUser.password"
+                           ng-class="{'incorrect-field':ctrl.userErrors.password.error}">
+                    <p ng-if="ctrl.userErrors.password.error">{{ctrl.userErrors.password.message}}</p>
+                  </div>
+                  <checkbox
+                          ng-model="ctrl.rememberLogin"
+                  ></checkbox>
+                  <span>   Remember me</span>
+                  <br/><br/>
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-sm-6 col-sm-offset-3">
+                        <input type="submit" name="login-submit" id="login-submit" tabindex="4" class="form-control btn btn-login" value="Log In" ng-click="ctrl.doLogin()">
+                      </div>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="!ctrl.visible">
+<img src="images/loading.gif"  class="loading">
+
+  </div>
