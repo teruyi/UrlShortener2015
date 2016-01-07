@@ -47,7 +47,7 @@ angular.module('urlshortenerApp')
            parameters += '&id=' + self.hash;
          }
 
-         $http.get('http://localhost:8080/info?' + parameters).
+         $http.get('/info?' + parameters).
           success(function(data, status, headers, config) {
             //Success
             //We display info
