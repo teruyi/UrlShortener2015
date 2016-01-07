@@ -62,7 +62,7 @@ public class UrlInfoControllerTest {
 
         //Test redirection
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("randomUser"));
+            request.setAttribute("claims",createTestUserClaims("randomUser","user"));
             return request;
         }))
                 .andDo(print())
@@ -85,7 +85,7 @@ public class UrlInfoControllerTest {
         when(shortURLRepository.findByHash("someKey")).thenReturn(null);
 
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("randomUser"));
+            request.setAttribute("claims",createTestUserClaims("randomUser","user"));
             return request;
         }))
                 .andDo(print())
@@ -111,7 +111,7 @@ public class UrlInfoControllerTest {
         //Test redirection
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")//Modify the request object to include a custom Claims object.
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("randomUser"));
+                    request.setAttribute("claims",createTestUserClaims("randomUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -135,7 +135,7 @@ public class UrlInfoControllerTest {
 
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("randomUser"));
+                    request.setAttribute("claims",createTestUserClaims("randomUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -154,7 +154,7 @@ public class UrlInfoControllerTest {
 
         //Test that 200 Ok request is returned (Ok Request)
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("anotherUser"));
+            request.setAttribute("claims",createTestUserClaims("user2","user"));
             return request;
         })
         )
@@ -172,7 +172,7 @@ public class UrlInfoControllerTest {
         when(clickRepository.findAll()).thenReturn(null);
         //Test that 400 Bad request is returned (Bad Request)
         mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("admin"));
+            request.setAttribute("claims",createTestUserClaims("admin","admin"));
             return request;
         })
                 .param("privateToken","incorrectToken")
@@ -191,7 +191,7 @@ public class UrlInfoControllerTest {
 
         //Test that 200 Ok request is returned (Ok Request)
         mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("admin"));
+            request.setAttribute("claims",createTestUserClaims("admin","admin"));
             return request;
         })
                 .param("privateToken","incorrectToken")
@@ -215,7 +215,7 @@ public class UrlInfoControllerTest {
 
         //Test that 200 Ok request is returned (Ok Request)
         mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("anotherUser"));
+            request.setAttribute("claims",createTestUserClaims("anotherUser","user"));
             return request;
         })
                 .param("privateToken","incorrectToken")
@@ -231,10 +231,10 @@ public class UrlInfoControllerTest {
 	Returns a valid Claim of user testUser and roles: user with key "secretKey".
 	Used for mocking it into the controller and simulate a logged-in user.
 	 */
-    private Claims createTestUserClaims(String username){
+    private Claims createTestUserClaims(String username, String roles){
 
         String claims =  Jwts.builder().setSubject(username)
-                .claim("roles", "user").setIssuedAt(new Date())
+                .claim("roles", roles).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, "secretkey").compact();
 
         return Jwts.parser().setSigningKey("secretkey")

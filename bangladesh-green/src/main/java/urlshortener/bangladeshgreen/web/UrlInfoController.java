@@ -64,7 +64,7 @@ public class UrlInfoController {
 
         if (l != null) {
 
-            if(userName.equalsIgnoreCase(l.getCreator()) ||  !loggedRoles.equalsIgnoreCase("admin")){
+            if(userName.equalsIgnoreCase(l.getCreator()) ||  loggedRoles.equalsIgnoreCase("admin")){
                 response.setStatus(HttpStatus.SEE_OTHER.value());
                 model.put("url",l.getUri());
                 model.put("target",l.getTarget());
@@ -109,7 +109,7 @@ public class UrlInfoController {
 
         if (l != null) {
 
-            if(userName.equalsIgnoreCase(l.getCreator()) ||  !loggedRoles.equalsIgnoreCase("admin")) {
+            if(userName.equalsIgnoreCase(l.getCreator()) ||  loggedRoles.equalsIgnoreCase("admin")) {
                 InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), count);
                 SuccessResponse success = new SuccessResponse(info);
                 response.setStatus(HttpStatus.OK.value());
