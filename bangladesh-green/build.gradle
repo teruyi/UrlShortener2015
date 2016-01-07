@@ -40,6 +40,9 @@ dependencies {
     compile 'org.apache.tomcat.embed:tomcat-embed-jasper:8.0.28'
     compile 'com.google.code.gson:gson:2.5'
 
+    // For Java Mail
+    compile 'com.sun.mail:javax.mail:1.5.5'
+
     // Testing framework
     testCompile 'junit:junit:4.12'
     testCompile 'org.springframework.boot:spring-boot-starter-test'
