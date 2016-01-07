@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Bean;
 import urlshortener.bangladeshgreen.auth.URLProtection;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 
+@SpringBootApplication
+//Wallateam
 public class Application extends SpringBootServletInitializer {
 
 	@Value("${token.secret_key}")
