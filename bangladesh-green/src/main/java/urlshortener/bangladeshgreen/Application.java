@@ -23,6 +23,15 @@ public class Application extends SpringBootServletInitializer {
 	@Value("${token.secret_key}")
 	private String key;
 
+
+	@Value("${app.http_port}")
+	private int http_port;
+
+	@Value("${server.port}")
+	private int https_port;
+
+
+
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
 	}
@@ -96,9 +105,9 @@ public class Application extends SpringBootServletInitializer {
 	private Connector initiateHttpConnector() {
 		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 		connector.setScheme("http");
-		connector.setPort(8080);
-		connector.setSecure(true);
-		connector.setRedirectPort(8443);
+		connector.setPort(http_port);
+		connector.setSecure(false);
+		connector.setRedirectPort(https_port);
 		return connector;
 	}
 
