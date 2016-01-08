@@ -11,9 +11,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import urlshortener.bangladeshgreen.domain.URISafe;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
+import urlshortener.bangladeshgreen.repository.URISafeRepository;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,6 +26,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.*;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
+import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
+import static urlshortener.bangladeshgreen.web.fixture.URISafeFixture.someNotSafe;
+import static urlshortener.bangladeshgreen.web.fixture.URISafeFixture.someSafe;
+import static urlshortener.bangladeshgreen.web.fixture.URISafeFixture.someOutdated;
 
 /**
  * Tests for UrlShortenerController, testing both REDIRECT functionality
@@ -45,6 +51,9 @@ public class RedirectControllerTest {
 
 	@Mock
 	private RabbitTemplate rabbitTemplate;
+
+	@Mock
+	private URISafeRepository safeRepository;
 
 	@InjectMocks
 	private RedirectController redirectController;
@@ -71,7 +80,8 @@ public class RedirectControllerTest {
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
 
-		//Test redirection
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isTemporaryRedirect())
 				.andExpect(redirectedUrl("http://www.google.es"));
@@ -91,7 +101,8 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
@@ -112,7 +123,8 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
@@ -134,7 +146,8 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")
 				.param("privateToken","privateToken"))
@@ -156,6 +169,8 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 
 		//Test that 401 Unauthorized is returned (Bad Private token)
 		mockMvc.perform(get("/{id}", "someKey")
@@ -177,7 +192,8 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 		//Test that 401 Unauthorized is returned (Bad Private token)
 		mockMvc.perform(get("/{id}", "someKey"))
 				.andDo(print())
@@ -196,7 +212,9 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
+		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isNotFound());
 	}
@@ -213,7 +231,8 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isTemporaryRedirect())
@@ -232,9 +251,46 @@ public class RedirectControllerTest {
 
 		// Mock URLAvailableRepository to checked URI.
 		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someNotAvailable());
-
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
 		//Test redirection
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	/*
+	* Test that not redirect over a not secure URI.
+	*
+	 */
+	public void thatNoRedirectToNoSafeURI()
+	throws Exception{
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrl());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someNotSafe());
+		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().is5xxServerError());
+	}
+	@Test
+	/*
+	* Test that redirect secure URI.
+	*
+	 */
+	public void thatRedirectToSafeURI()
+			throws Exception{
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrl());
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
+		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().isTemporaryRedirect())
+				.andExpect(redirectedUrl("http://www.google.es"));
 	}
 }

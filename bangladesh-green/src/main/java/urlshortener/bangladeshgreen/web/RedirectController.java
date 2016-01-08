@@ -279,7 +279,7 @@ public class RedirectController {
             System.out.print(URIsafe.toString());
             if(!URIsafe.isSafe()){
                 // If the target URI is not available
-                response.setStatus(HttpStatus.NOT_FOUND.value());
+                response.setStatus(HttpStatus.BAD_GATEWAY.value());
                 Date date = new Date(URIsafe.getDate());
                 model.put("target", shortURL.getTarget());
                 model.put("date", date.toString());
