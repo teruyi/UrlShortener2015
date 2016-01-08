@@ -38,6 +38,8 @@ public class UserController {
     @Autowired
     protected Email email;
 
+    protected boolean send = true;
+
     public UserController() {
 
     }
@@ -88,11 +90,13 @@ public class UserController {
                 // User registered successfully
                 reg.setPassword(null);
 
-                // Sends the validation email
-                URI contextUrl = URI.create(request.getRequestURL().toString()).resolve(request.getContextPath());
-                email.setDestination(reg.getEmail());
-                email.sendValidation("Activate your new account on WallaLinks",
-                        "WallaLinks email user validation service",  contextUrl + "validation?token=" + token);
+                // Sends the validation email (if set)
+                if (send){
+                    URI contextUrl = URI.create(request.getRequestURL().toString()).resolve(request.getContextPath());
+                    email.setDestination(reg.getEmail());
+                    email.sendValidation("Activate your new account on WallaLinks",
+                            "WallaLinks email user validation service", contextUrl + "validation?token=" + token);
+                }
 
                 SuccessResponse<User> successResponse = new SuccessResponse<>(reg);
                 return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.CREATED);
@@ -340,6 +344,7 @@ public class UserController {
         }
 
     }
+
     /**
      * Checks this object for empty or null fields.
      * @return String with the field empty or null, otherwise null.
@@ -356,5 +361,13 @@ public class UserController {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Sets if the controller sends an email or not.
+     * @param send is the condition named.
+     */
+    public void sendEmails(boolean send){
+        this.send = send;
     }
 }

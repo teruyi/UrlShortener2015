@@ -53,6 +53,7 @@ public class ValidationController {
                 // Saves the new state of user
                 userRepository.save(searched);
                 // Response successful request
+                response.setStatus(HttpStatus.ACCEPTED.value());
                 URI contextUrl = URI.create(request.getRequestURL().toString()).resolve(request.getContextPath());
                 model.put("url",contextUrl);
                 model.put("user",searched.getUsername());
