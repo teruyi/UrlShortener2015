@@ -41,6 +41,7 @@ public class UrlShortenerController {
 	private String GOOGLE_KEY;
 
 	private static final String availableQueue = "availableQueue";
+	private static final String safeQueue = "safeQueue";
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
 
@@ -123,7 +124,13 @@ public class UrlShortenerController {
 			long current2 = System.currentTimeMillis();
 			current2 = (current2 - current);
 			System.out.println(current2);
-			boolean safe = checkSafeURI(url);
+
+			long current3 = System.currentTimeMillis();
+			rabbitTemplate.convertAndSend(safeQueue,url);
+			long current4 = System.currentTimeMillis();
+			current3 = (current3 - current4);
+			System.out.println(current3);
+
 
 			//If private, create token
 			String privateToken = null;
@@ -141,12 +148,9 @@ public class UrlShortenerController {
 
 
 			// If it's available, save the shortUrl and return it
-			if (safe){
+
 				return shortURLRepository.save(su);
-			} else {
-				//todo: Maybe an exception in order to diferentiate.
-				return null;
-			}
+
 		} else {
 			return null;
 		}
@@ -155,31 +159,6 @@ public class UrlShortenerController {
 
 
 
-	protected boolean checkSafeURI(String URI){
-		try{
 
-
-		URL google = new
-				URL("https://sb-ssl.google.com/safebrowsing/api/lookup?client=api&key="+GOOGLE_KEY+"&appver=1.5.2&pver=3.1&url="+URI);
-		HttpURLConnection connection = (HttpURLConnection)google.openConnection();
-		connection.setRequestMethod("GET");
-
-		// Sets default timeout to 3 seconds
-		connection.setConnectTimeout(3000);
-		// Connects to the URI to check.
-		connection.connect();
-
-			Integer code2 = new Integer(connection.getResponseCode());
-			String respuesta = new String(connection.getResponseMessage());
-
-			if (code2.toString().compareTo("204")== 0){
-				return true;
-			} else { return false;}
-		}
-		catch(IOException ex){
-			ex.printStackTrace();
-			return false;
-		}
-	}
 
 }
