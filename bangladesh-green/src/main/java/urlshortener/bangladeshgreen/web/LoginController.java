@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 import java.util.*;
 
 /**
@@ -67,12 +68,12 @@ public class LoginController {
             // Convert password to hash for comparing
             String password = Hash.makeHash(login.getPassword());
             // Compares the requested user and both password hashes
-            if(requestedUser!=null && requestedUser.getPassword().equals(password)){
+            if(requestedUser!=null && requestedUser.getPassword().equals(password) && requestedUser.isValidated()){
                 //User exists and password is correct
 
                 //Expiration time of token
                 Date expirationDate = new Date();
-                long expirationTimeInSeconds = 36000;
+                long expirationTimeInSeconds = 36000000;
                 expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
@@ -85,6 +86,10 @@ public class LoginController {
                         new SuccessResponse<>("OK"),
                         HttpStatus.OK);
 
+            } else if(requestedUser!=null && !requestedUser.isValidated()){
+                //User or password incorrect
+                ErrorResponse errorResponse = new ErrorResponse("The account has not been validated yet...");
+                return new ResponseEntity<>(errorResponse,HttpStatus.UNAUTHORIZED);
             }
             else{
                 //User or password incorrect

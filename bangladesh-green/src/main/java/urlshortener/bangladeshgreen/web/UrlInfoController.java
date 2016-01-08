@@ -59,12 +59,12 @@ public class UrlInfoController {
         //Get authentication information
         final Claims claims = (Claims) request.getAttribute("claims");
         userName = claims.getSubject();
-
+        String loggedRoles = (String) claims.get("roles");
 
 
         if (l != null) {
 
-            if(userName.equalsIgnoreCase(l.getCreator()) || userName.equalsIgnoreCase("admin")){
+            if(userName.equalsIgnoreCase(l.getCreator()) ||  loggedRoles.equalsIgnoreCase("admin")){
                 response.setStatus(HttpStatus.SEE_OTHER.value());
                 model.put("url",l.getUri());
                 model.put("target",l.getTarget());
@@ -99,6 +99,7 @@ public class UrlInfoController {
         //Get authentication information
         final Claims claims = (Claims) request.getAttribute("claims");
         userName = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
 
 
         ShortURL l = shortURLRepository.findByHash(id);
@@ -108,7 +109,7 @@ public class UrlInfoController {
 
         if (l != null) {
 
-            if(userName.equalsIgnoreCase(l.getCreator()) || userName.equalsIgnoreCase("admin")) {
+            if(userName.equalsIgnoreCase(l.getCreator()) ||  loggedRoles.equalsIgnoreCase("admin")) {
                 InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), count);
                 SuccessResponse success = new SuccessResponse(info);
                 response.setStatus(HttpStatus.OK.value());
@@ -145,9 +146,11 @@ public class UrlInfoController {
 
         String userName = null; //Currently logged-in user username
 
+
         //Get authentication information
         final Claims claims = (Claims) request.getAttribute("claims");
         userName = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
 
 
         List <ClickAdds> list;
@@ -165,14 +168,14 @@ public class UrlInfoController {
         }
 
         //If global and not admin -> Forbidden
-        if(id ==null &&  !userName.equalsIgnoreCase("admin")){
+        if(id ==null &&  !loggedRoles.equalsIgnoreCase("admin")){
             //Not authorized
             ErrorResponse errorResponse = new ErrorResponse("Permission denied");
             return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
         }
 
         //If not global and not creator nor admin -> Forbidden
-        if(id !=null && !userName.equalsIgnoreCase(l.getCreator()) && !userName.equalsIgnoreCase("admin")){
+        if(id !=null && !userName.equalsIgnoreCase(l.getCreator()) && !loggedRoles.equalsIgnoreCase("admin")){
             //Not authorized
             ErrorResponse errorResponse = new ErrorResponse("Permission denied");
             return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
@@ -303,7 +306,7 @@ public class UrlInfoController {
                     }
                 }
             }else if(desde == null && hasta == null){
-                if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
+                if(names.containsKey(a.getCity())){
                     names.replace(a.getCity(), names.get(a.getCity()) + 1);
                 } else {
                     names.put(a.getCity(), 1);

@@ -62,7 +62,7 @@ public class UrlInfoControllerTest {
 
         //Test redirection
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("randomUser"));
+            request.setAttribute("claims",createTestUserClaims("randomUser","user"));
             return request;
         }))
                 .andDo(print())
@@ -85,7 +85,7 @@ public class UrlInfoControllerTest {
         when(shortURLRepository.findByHash("someKey")).thenReturn(null);
 
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("randomUser"));
+            request.setAttribute("claims",createTestUserClaims("randomUser","user"));
             return request;
         }))
                 .andDo(print())
@@ -111,7 +111,7 @@ public class UrlInfoControllerTest {
         //Test redirection
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")//Modify the request object to include a custom Claims object.
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("randomUser"));
+                    request.setAttribute("claims",createTestUserClaims("randomUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -135,7 +135,7 @@ public class UrlInfoControllerTest {
 
         mockMvc.perform(get("/{id}", "someKey+").header("Accept", "text/html")
                 .with(request -> {
-                    request.setAttribute("claims",createTestUserClaims("randomUser"));
+                    request.setAttribute("claims",createTestUserClaims("randomUser","user"));
                     return request;
                 }))
                 .andDo(print())
@@ -146,14 +146,33 @@ public class UrlInfoControllerTest {
 
     @Test
 	/*
-	Test that returns a Json ErrorResponse with 400 (Bad request) if parameter type value is undefined.
+	Test that "+" simple info returns unauthorized if logged user is not the creator of the link or admin
+	 */
+    public void thatSimpleInfoReturnsUnauthorizedIfAnotherUser() throws Exception {
+
+        when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlm());
+
+        //Test that 200 Ok request is returned (Ok Request)
+        mockMvc.perform(get("/{id}", "someKey+").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("user2","user"));
+            return request;
+        })
+        )
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value("error"));
+    }
+
+    @Test
+	/*
+	Test that returns a Json ErrorResponse with 400 (Bad request) if parameter type is undefined.
 	 */
     public void thatReturnsJsonBadRequest() throws Exception {
 
         when(clickRepository.findAll()).thenReturn(null);
         //Test that 400 Bad request is returned (Bad Request)
         mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("admin"));
+            request.setAttribute("claims",createTestUserClaims("admin","admin"));
             return request;
         })
                 .param("privateToken","incorrectToken")
@@ -172,7 +191,7 @@ public class UrlInfoControllerTest {
 
         //Test that 200 Ok request is returned (Ok Request)
         mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
-            request.setAttribute("claims",createTestUserClaims("admin"));
+            request.setAttribute("claims",createTestUserClaims("admin","admin"));
             return request;
         })
                 .param("privateToken","incorrectToken")
@@ -185,14 +204,37 @@ public class UrlInfoControllerTest {
                 .andExpect(jsonPath("$.data").isArray());
     }
 
+
+    @Test
+	/*
+	Test that complex info "/info" returns unauthorized if logged user is not the creator of the link or admin
+	 */
+    public void thatComplexInfoReturnsUnauthorizedIfAnotherUser() throws Exception {
+
+        when(clickRepository.findAll()).thenReturn(URLLocationInfo.someLocationInfo());
+
+        //Test that 200 Ok request is returned (Ok Request)
+        mockMvc.perform(get("/info").header("Accept", "application/json").with(request -> {
+            request.setAttribute("claims",createTestUserClaims("anotherUser","user"));
+            return request;
+        })
+                .param("privateToken","incorrectToken")
+                .param("type","region")
+                .param("start","2015/12/31")
+                .param("end","2016/01/02"))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value("error"));
+    }
+
     /*
 	Returns a valid Claim of user testUser and roles: user with key "secretKey".
 	Used for mocking it into the controller and simulate a logged-in user.
 	 */
-    private Claims createTestUserClaims(String username){
+    private Claims createTestUserClaims(String username, String roles){
 
         String claims =  Jwts.builder().setSubject(username)
-                .claim("roles", "user").setIssuedAt(new Date())
+                .claim("roles", roles).setIssuedAt(new Date())
                 .signWith(SignatureAlgorithm.HS256, "secretkey").compact();
 
         return Jwts.parser().setSigningKey("secretkey")

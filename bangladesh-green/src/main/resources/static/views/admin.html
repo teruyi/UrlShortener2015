@@ -1,0 +1,60 @@
+
+
+    <div class="row">
+        <div class="col-lg-10" >
+          <h3 style="text-align: center;">User list ({{ctrl.userList.length}} total)</h3>
+          <div ng-if="ctrl.userListAlert.type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.userListAlert.title}}:</b>   {{ctrl.userListAlert.message}}</div>
+          <div ng-if="ctrl.userListAlert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.userListAlert.title}}:</b>   {{ctrl.userListAlert.message}}</div>
+            <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix">
+                    <div class="table-responsive">
+                        <table class="table user-list">
+                            <thead>
+                                <tr>
+                                <th><span>User</span></th>
+                                <th><span>Mail</span></th>
+                                <th><span>Role</span></th>
+
+                                </tr>
+
+                            </thead>
+                            <thead>
+                                <tr>
+                                <th><input ng-model="ctrl.userFilter.username" placeholder="Filter by username"></input></th>
+                                <th><input ng-model="ctrl.userFilter.email" placeholder="Filter by mail"></input></th>
+                                <th><input ng-model="ctrl.userFilter.role" placeholder="Filter by role"></input></th>
+
+                                </tr>
+
+                            </thead>
+                            <tbody>
+                                <tr div ng-repeat="user in ctrl.userList | filter:ctrl.userFilter | orderBy:'username'" >
+                                    <td>
+                                      <!--  <img src="http://bootdey.com/img/Content/user_1.jpg" alt="">-->
+                                        <a  ng-click="ctrl.goToProfile(user.username)" class="user-link">{{user.username}}</a>
+
+                                    </td>
+                                    <td>
+                                        {{user.email}}
+                                    </td>
+                                    <td><span class="label label-success" ng-if="user.role=='user'">{{user.role}}</span>
+                                    <span class="label label-warning" ng-if="user.role=='admin'">{{user.role}}</span></td>
+
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2" >
+          <h3 style="text-align: center;">Actions</h3>
+
+            <div class="main-box no-header clearfix">
+                <div class="main-box-body clearfix" style="padding:5px;">
+                  <button ng-click="ctrl.goToStats()" href="" class="btn btn-success btn-block"> <i class="glyphicon glyphicon-stats" style="font-size:120%;" ></i> Global link stats</button>
+                </div>
+            </div>
+        </div>
+    </div>

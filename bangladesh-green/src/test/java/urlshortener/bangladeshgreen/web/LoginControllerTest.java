@@ -1,6 +1,5 @@
 package urlshortener.bangladeshgreen.web;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,23 +14,18 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.domain.messages.LoginRequest;
-import urlshortener.bangladeshgreen.domain.messages.LoginResponse;
-import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
 import urlshortener.bangladeshgreen.repository.UserRepository;
 
-import javax.servlet.http.Cookie;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.isNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static urlshortener.bangladeshgreen.web.fixture.UserFixture.someUser;
+import static urlshortener.bangladeshgreen.web.fixture.UserFixture.*;
 
 /**
  * Test that login controller works.
@@ -176,6 +170,29 @@ public class LoginControllerTest {
     }
 
 
+    @Test
+	/*
+	Test that login with a correct user but not validated returns 401.
+	 */
+    public void thatLogin401ifUserNotValidated()
+            throws Exception {
 
+        //Mock URLrepository response to someUrl.
+        when(userRepository.findByUsername("user")).thenReturn(someNotValidatedUser());
+
+        LoginRequest request = new LoginRequest();
+        request.setUsername("user");
+        request.setPassword("password");
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(request);
+
+        //Do the post request
+        mockMvc.perform(post("/login").contentType("application/json").content(json))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status",is("error")))
+                .andExpect(jsonPath("$.message",is("The account has not been validated yet...")));
+    }
 
 }

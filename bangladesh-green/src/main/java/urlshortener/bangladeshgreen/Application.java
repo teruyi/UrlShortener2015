@@ -16,12 +16,23 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import urlshortener.bangladeshgreen.auth.URLProtection;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
+import urlshortener.bangladeshgreen.secure.Email;
 
 @SpringBootApplication
+//Wallateam
 public class Application extends SpringBootServletInitializer {
 
 	@Value("${token.secret_key}")
 	private String key;
+
+
+	@Value("${app.http_port}")
+	private int http_port;
+
+	@Value("${server.port}")
+	private int https_port;
+
+
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
@@ -90,15 +101,23 @@ public class Application extends SpringBootServletInitializer {
 		return tomcat;
 	}
 
+	@Bean
+	/**
+	 * This bean is used for sending emails (for various purposes).
+	 */
+	public Email emailService(){
+		return new Email();
+	}
+
 	/*
 	This method inititates an additional Tomcat connector on port 8080 to redirect to HTTPS 8443 port.
 	 */
 	private Connector initiateHttpConnector() {
 		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 		connector.setScheme("http");
-		connector.setPort(8080);
-		connector.setSecure(true);
-		connector.setRedirectPort(8443);
+		connector.setPort(http_port);
+		connector.setSecure(false);
+		connector.setRedirectPort(https_port);
 		return connector;
 	}
 
