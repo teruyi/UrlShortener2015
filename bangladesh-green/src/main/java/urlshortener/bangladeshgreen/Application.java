@@ -16,6 +16,7 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import urlshortener.bangladeshgreen.auth.URLProtection;
 import urlshortener.bangladeshgreen.auth.WebTokenFilter;
+import urlshortener.bangladeshgreen.secure.Email;
 
 @SpringBootApplication
 //Wallateam
@@ -98,6 +99,14 @@ public class Application extends SpringBootServletInitializer {
 
 		tomcat.addAdditionalTomcatConnectors(initiateHttpConnector());
 		return tomcat;
+	}
+
+	@Bean
+	/**
+	 * This bean is used for sending emails (for various purposes).
+	 */
+	public Email emailService(){
+		return new Email();
 	}
 
 	/*

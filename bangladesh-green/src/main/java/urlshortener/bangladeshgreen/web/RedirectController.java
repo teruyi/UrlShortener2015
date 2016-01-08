@@ -17,6 +17,7 @@ import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
+import urlshortener.bangladeshgreen.secure.Email;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +48,7 @@ public class RedirectController {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
 
     @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|401|expired).*}", method = RequestMethod.GET)
     public Object redirectTo(@PathVariable String id,
@@ -135,7 +137,7 @@ public class RedirectController {
             }
 
 
-            //FORTH CHECK: If the URI is not available (since last check), go to "notAvailable.jsp".
+            //FOURTH CHECK: If the URI is not available (since last check), go to "notAvailable.jsp".
             URIavailability = availableRepository.findByTarget(shortURL.getTarget());
             System.out.print(URIavailability.toString());
              if(!URIavailability.isAvailable()){

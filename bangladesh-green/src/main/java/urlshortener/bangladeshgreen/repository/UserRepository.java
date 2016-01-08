@@ -23,6 +23,8 @@ public interface UserRepository extends MongoRepository<User, String> {
     public List<User> list();
     @Query("{'email' : ?0}")
     public User findByEmail(String mail);
+    @Query("{'validationToken' : ?0}")
+    public User findByValidationToken(String validationToken);
 
 
 }

@@ -56,6 +56,7 @@ public class UserControllerTest{
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        controller.sendEmails(false);
     }
 
     @Test

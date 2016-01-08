@@ -34,8 +34,8 @@ public class UserRepositoryTest {
     public void setUp() throws Exception {
         // Creates new user for testing
 
-        test = new User("test","testEmail","test","testPassword","Test UserRepository");
-        test2 = new User("test2","testEmail2","test2","testPassword2","Test UserRepository2");
+        test = new User("test","testEmail","test","testPassword","Test UserRepository",true,"validToken");
+        test2 = new User("test2","testEmail2","test2","testPassword2","Test UserRepository2",false,"validToken2");
 
     }
 

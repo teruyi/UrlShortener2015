@@ -157,7 +157,7 @@ angular.module('urlshortenerApp')
                 //Success
                 self.alert.type = "success";
                 self.alert.title = "User registered";
-                self.alert.message = "Now you can log-in";
+                self.alert.message = "An email has been sent to you in order to validate your account.";
 
 
 

@@ -10,13 +10,17 @@ import urlshortener.bangladeshgreen.domain.User;
 import urlshortener.bangladeshgreen.domain.messages.*;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.UserRepository;
+import urlshortener.bangladeshgreen.secure.Email;
 import urlshortener.bangladeshgreen.secure.Hash;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Controller used for user management.
@@ -31,6 +35,11 @@ public class UserController {
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
+    @Autowired
+    protected Email email;
+
+    protected boolean send = true;
+
     public UserController() {
 
     }
@@ -43,7 +52,7 @@ public class UserController {
     /**
      * Register a new user
      */
-    public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg)
+    public ResponseEntity<? extends JsonResponse> register(@RequestBody final User reg, HttpServletRequest request)
             throws ServletException {
 
         // Checks for null fields
@@ -71,11 +80,23 @@ public class UserController {
                         ", is already registered.");
                 return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
             } else {
-
+                // Sets all validation params and saves user
+                reg.setValidated(false);
+                Random random = new Random();
+                String token = Hash.makeHash(reg.getEmail() + random.nextLong());
+                reg.setValidationToken(token);
                 userRepository.save(reg);
 
                 // User registered successfully
                 reg.setPassword(null);
+
+                // Sends the validation email (if set)
+                if (send){
+                    URI contextUrl = URI.create(request.getRequestURL().toString()).resolve(request.getContextPath());
+                    email.setDestination(reg.getEmail());
+                    email.sendValidation("Activate your new account on WallaLinks",
+                            "WallaLinks email user validation service", contextUrl + "validation?token=" + token);
+                }
 
                 SuccessResponse<User> successResponse = new SuccessResponse<>(reg);
                 return new ResponseEntity<SuccessResponse>(successResponse, HttpStatus.CREATED);
@@ -323,6 +344,7 @@ public class UserController {
         }
 
     }
+
     /**
      * Checks this object for empty or null fields.
      * @return String with the field empty or null, otherwise null.
@@ -339,5 +361,13 @@ public class UserController {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Sets if the controller sends an email or not.
+     * @param send is the condition named.
+     */
+    public void sendEmails(boolean send){
+        this.send = send;
     }
 }

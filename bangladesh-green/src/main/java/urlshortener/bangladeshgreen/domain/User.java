@@ -13,17 +13,21 @@ public class User {
     private String password;
     private String role;
     private String realName;
+    private boolean validated;
+    private String validationToken;
 
 
     public User(){
 
     }
-    public User(String username, String email, String role, String password, String realName) {
+    public User(String username, String email, String role, String password, String realName, boolean validated, String validationToken) {
         this.username = username;
         this.email = email;
         this.role = role;
         this.password = password;
         this.realName = realName;
+        this.validated = validated;
+        this.validationToken = validationToken;
     }
 
     public String getUsername() {
@@ -66,12 +70,31 @@ public class User {
         this.realName = realName;
     }
 
+    public boolean isValidated() {
+        return validated;
+    }
+
+    public void setValidated(boolean validated) {
+        this.validated = validated;
+    }
+
+    public String getValidationToken() {
+        return validationToken;
+    }
+
+    public void setValidationToken(String validationToken) {
+        this.validationToken = validationToken;
+    }
+
     public String toString() {
         return new String(
-                "User[username='"+username+"', email='"+email+"', password="+password
-                        +"', role="+role+"', realName='\"+realName+\"']\n");
+                "User[username='"+username+"', email='"+email+"', password='"+password
+                        +"', role='"+role+"', realName='\"+realName+\"', "
+                        +"validated='"+validated+"', validationToken='"+validationToken+"']\n");
 
     }
+
+
     public boolean compareTo(User other){
         return this.username.compareTo(other.username) == 0;
     }
