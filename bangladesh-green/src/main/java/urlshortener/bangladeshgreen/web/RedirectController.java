@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.view.RedirectView;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
+import urlshortener.bangladeshgreen.domain.URISafe;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
+import urlshortener.bangladeshgreen.repository.URISafeRepository;
 import urlshortener.bangladeshgreen.secure.Email;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +49,9 @@ public class RedirectController {
     protected URIAvailableRepository availableRepository;
 
     @Autowired
+    protected URISafeRepository safeRepository;
+
+    @Autowired
     private RabbitTemplate rabbitTemplate;
 
 
@@ -69,6 +74,7 @@ public class RedirectController {
 
 
         URIAvailable URIavailability = null;
+        URISafe URIsafe = null;
         ShortURL shortURL = shortURLRepository.findByHash(id);
 
 
@@ -149,7 +155,17 @@ public class RedirectController {
                 return "notAvailable";
              }
 
-
+            //FIVE CHECK: If the URI is not safe (since last check), go to "notsafe.jsp".
+            URIsafe = safeRepository.findByTarget(shortURL.getTarget());
+            System.out.print(URIsafe.toString());
+            if(!URIsafe.isSafe()){
+                // If the target URI is not available
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+                Date date = new Date(URIsafe.getDate());
+                model.put("target", shortURL.getTarget());
+                model.put("date", date.toString());
+                return "notsafe";
+            }
             //ALL RIGHT, proceed to redirect
 
             //Add IP and hash information

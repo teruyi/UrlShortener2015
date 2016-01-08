@@ -36,7 +36,7 @@
 </div>
 
 <div class="container">
-    <img src="images/unsecure.png" class="lockImage">
+    <img src="images/unsecured.png" class="lockImage">
     <p class="lockText">404: URI not safe</p>
     <p class="lockTextSecondary">We are sorry, but the URI requested is not safe.</p>
 </div>
