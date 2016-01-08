@@ -20,76 +20,86 @@ import urlshortener.bangladeshgreen.auth.WebTokenFilter;
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
-    @Value("${token.secret_key}")
-    private String key;
+	@Value("${token.secret_key}")
+	private String key;
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(Application.class, args);
-    }
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(Application.class, args);
+	}
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(Application.class);
-    }
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(Application.class);
+	}
 
-    @Bean
-    public FilterRegistrationBean jwtFilter() {
-        final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-        WebTokenFilter authenticationFilter = new WebTokenFilter(key);
-
-
-        //Protect all methods from "/link"
-        URLProtection linkURL = new URLProtection("/link.*");
-        linkURL.setAllMethods();
-        authenticationFilter.addUrlToProtect(linkURL);
-
-        //Protect GET, DELETE and PUT from "/user"
-        URLProtection userURL = new URLProtection("/user.*");
-        userURL.addMethod("GET");
-        userURL.addMethod("DELETE");
-        userURL.addMethod("PUT");
-
-        //Protect redirection to "user-protected" links
+	@Bean
+	public FilterRegistrationBean jwtFilter() {
+		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+		WebTokenFilter authenticationFilter = new WebTokenFilter(key);
 
 
-        authenticationFilter.addUrlToProtect(userURL);
-        registrationBean.setFilter(authenticationFilter);
-        return registrationBean;
-    }
+		//Protect all methods from "/link"
+		URLProtection linkURL = new URLProtection("/link.*");
+		linkURL.setAllMethods();
+		authenticationFilter.addUrlToProtect(linkURL);
+
+		//Protect GET, DELETE and PUT from "/user"
+		URLProtection userURL = new URLProtection("/user.*");
+		userURL.addMethod("GET");
+		userURL.addMethod("DELETE");
+		userURL.addMethod("PUT");
+		authenticationFilter.addUrlToProtect(userURL);
+
+		//Protect GET from aggregated link information
+		URLProtection aggregatedInfoURL = new URLProtection("/info.*");
+		aggregatedInfoURL.addMethod("GET");
+		authenticationFilter.addUrlToProtect(aggregatedInfoURL);
 
 
-    @Bean
-    /**
-     * This bean is used for redirecting HTTP traffic to HTTPS.
-     */
-    public EmbeddedServletContainerFactory servletContainer() {
-        TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory() {
-            @Override
-            protected void postProcessContext(Context context) {
-                SecurityConstraint securityConstraint = new SecurityConstraint();
-                securityConstraint.setUserConstraint("CONFIDENTIAL");
-                SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/*");
-                securityConstraint.addCollection(collection);
-                context.addConstraint(securityConstraint);
-            }
-        };
+		//Protect GET from simple link information
+		URLProtection infoURL = new URLProtection("/.*\\+");
+		infoURL.addMethod("GET");
+		authenticationFilter.addUrlToProtect(infoURL);
 
-        tomcat.addAdditionalTomcatConnectors(initiateHttpConnector());
-        return tomcat;
-    }
 
-    /*
-    This method inititates an additional Tomcat connector on port 8080 to redirect to HTTPS 8443 port.
-     */
-    private Connector initiateHttpConnector() {
-        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
-        connector.setScheme("http");
-        connector.setPort(8080);
-        connector.setSecure(true);
-        connector.setRedirectPort(8443);
 
-        return connector;
-    }
+		registrationBean.setFilter(authenticationFilter);
+
+		return registrationBean;
+	}
+
+
+	@Bean
+	/**
+	 * This bean is used for redirecting HTTP traffic to HTTPS.
+	 */
+	public EmbeddedServletContainerFactory servletContainer() {
+		TomcatEmbeddedServletContainerFactory tomcat = new TomcatEmbeddedServletContainerFactory() {
+			@Override
+			protected void postProcessContext(Context context) {
+				SecurityConstraint securityConstraint = new SecurityConstraint();
+				securityConstraint.setUserConstraint("CONFIDENTIAL");
+				SecurityCollection collection = new SecurityCollection();
+				collection.addPattern("/*");
+				securityConstraint.addCollection(collection);
+				context.addConstraint(securityConstraint);
+			}
+		};
+
+		tomcat.addAdditionalTomcatConnectors(initiateHttpConnector());
+		return tomcat;
+	}
+
+	/*
+	This method inititates an additional Tomcat connector on port 8080 to redirect to HTTPS 8443 port.
+	 */
+	private Connector initiateHttpConnector() {
+		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+		connector.setScheme("http");
+		connector.setPort(8080);
+		connector.setSecure(true);
+		connector.setRedirectPort(8443);
+		return connector;
+	}
 
 }

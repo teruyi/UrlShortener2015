@@ -1,5 +1,6 @@
 package urlshortener.bangladeshgreen.web;
 
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,24 +46,25 @@ public class UrlInfoController {
 
     @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
     public Object sendHtml(@PathVariable String id,
-                             @RequestParam(value="privateToken", required=false) String privateToken,
                              HttpServletResponse response, HttpServletRequest request,
                              Map<String, Object> model) {
 
-        logger.info("Requested Link Info URL HTML with hash " + id + " - privateToken=" + privateToken);
+        logger.info("Requested Link Info URL HTML with hash ");
         ShortURL l = shortURLRepository.findByHash(id);
         int count = clickRepository.findByHash(id).size();
 
 
+        String userName = null; //Currently logged-in user username
+
+        //Get authentication information
+        final Claims claims = (Claims) request.getAttribute("claims");
+        userName = claims.getSubject();
+
+
+
         if (l != null) {
 
-            if(l.isPrivateURI() && ( privateToken ==null || !l.getPrivateToken().equals(privateToken))){
-                //If private and incorrect token, then unauthorized
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                model.put("hash",id + "+");
-                return "privateURL";
-            }
-            else{
+            if(userName.equalsIgnoreCase(l.getCreator()) || userName.equalsIgnoreCase("admin")){
                 response.setStatus(HttpStatus.SEE_OTHER.value());
                 model.put("url",l.getUri());
                 model.put("target",l.getTarget());
@@ -70,6 +72,13 @@ public class UrlInfoController {
                 model.put("count",count);
                 return "info";
             }
+            else{
+                //Not authorized
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                return "403";
+            }
+
+
         } else {
             logger.info("Empty URL " + id);
             response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -81,26 +90,36 @@ public class UrlInfoController {
 
     @RequestMapping(value = "/{id:(?!link|index).*}+", method = RequestMethod.GET , produces ="application/json")
     public Object sendJson(@PathVariable String id,
-                                      @RequestParam(value="privateToken", required=false) String privateToken,
                                       HttpServletResponse response, HttpServletRequest request,
                                       Map<String, Object> model) {
 
-        logger.info("Requested Link Info URL JSON with hash " + id + " - privateToken=" + privateToken);
+
+        String userName = null; //Currently logged-in user username
+
+        //Get authentication information
+        final Claims claims = (Claims) request.getAttribute("claims");
+        userName = claims.getSubject();
+
+
         ShortURL l = shortURLRepository.findByHash(id);
         int count = clickRepository.findByHash(id).size();
+
+
+
         if (l != null) {
-            if(l.isPrivateURI() && (privateToken == null || !l.getPrivateToken().equals(privateToken))){
-                //If private and incorrect token, then unauthorized
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                ErrorResponse error = new ErrorResponse("This link is private");
-                return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
-            }
-            else{
+
+            if(userName.equalsIgnoreCase(l.getCreator()) || userName.equalsIgnoreCase("admin")) {
                 InfoURL info = new InfoURL(l.getTarget(), l.getCreated().toString(), count);
                 SuccessResponse success = new SuccessResponse(info);
                 response.setStatus(HttpStatus.OK.value());
                 return new ResponseEntity<>(success, HttpStatus.OK);
             }
+            else{
+                //Not authorized
+                ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+                return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+            }
+
         } else {
             logger.info("Empty URL " + id);
             response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -110,24 +129,59 @@ public class UrlInfoController {
     }
 
     /*
-    Returns array of clickAdds. If id = null for all clicks else for id (hash) link
+    Returns array of clickAdds. If id = null for all clicks else for id (hash) link.
+    Requires authentication.
      */
     @RequestMapping(value = "/info", method = RequestMethod.GET , produces ="application/json")
     public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
-                               @RequestParam(value="type", required=false) String type,
+                               @RequestParam(value="type", required=true) String type,
                                @RequestParam(value="start", required=false) Date start,
                                @RequestParam(value="end", required=false) Date end,
                                @RequestParam(value="id", required=false) String id,
                                HttpServletResponse response, HttpServletRequest request,
                                Map<String, Object> model) {
 
+
+
+        String userName = null; //Currently logged-in user username
+
+        //Get authentication information
+        final Claims claims = (Claims) request.getAttribute("claims");
+        userName = claims.getSubject();
+
+
         List <ClickAdds> list;
 
-        if (type.compareTo("city")==0){
 
+        ShortURL l = shortURLRepository.findByHash(id);
+
+        //If not global (link), and link does not exist -> 404
+        if(id!=null && l==null){
+            //Does not exist
+            logger.info("Empty URL " + id);
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            ErrorResponse error = new ErrorResponse("URL not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+        //If global and not admin -> Forbidden
+        if(id ==null &&  !userName.equalsIgnoreCase("admin")){
+            //Not authorized
+            ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
+
+        //If not global and not creator nor admin -> Forbidden
+        if(id !=null && !userName.equalsIgnoreCase(l.getCreator()) && !userName.equalsIgnoreCase("admin")){
+            //Not authorized
+            ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
+
+
+        if (type.compareTo("city")==0){
             list = listByCity(start, end, id);
             logger.info("(/info) - (city) Ok request - list size: " + list.size());
-
         } else if (type.compareTo("region")==0){
 
             list = listByRegion(start, end, id);
@@ -191,6 +245,12 @@ public class UrlInfoController {
                         names.put(a.getRegionName(), 1);
                     }
                 }
+            }else if(desde == null && hasta == null){
+                if (names.containsKey(a.getRegionName())) {
+                    names.replace(a.getRegionName(), names.get(a.getRegionName()) + 1);
+                } else {
+                    names.put(a.getRegionName(), 1);
+                }
             }
             else{return null;}
         }
@@ -242,7 +302,14 @@ public class UrlInfoController {
                         names.put(a.getCity(), 1);
                     }
                 }
-            }else{return null;}
+            }else if(desde == null && hasta == null){
+                if(a.getDate().after(desde) || a.getDate().compareTo(desde) == 0){
+                    names.replace(a.getCity(), names.get(a.getCity()) + 1);
+                } else {
+                    names.put(a.getCity(), 1);
+                }
+            }
+            else{return null;}
         }
         Set keys = names.keySet();
         Iterator iterator=keys.iterator();
@@ -292,7 +359,14 @@ public class UrlInfoController {
                         names.put(a.getCountry(), 1);
                     }
                 }
-            }else{return null;}
+            } else if(desde == null && hasta == null){
+                if (names.containsKey(a.getCountry())) {
+                    names.replace(a.getCountry(), names.get(a.getCountry()) + 1);
+                } else {
+                    names.put(a.getCountry(), 1);
+                }
+            }
+            else{return null;}
         }
         Set keys = names.keySet();
         Iterator iterator=keys.iterator();

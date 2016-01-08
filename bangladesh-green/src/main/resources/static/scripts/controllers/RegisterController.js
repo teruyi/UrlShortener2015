@@ -88,6 +88,11 @@ angular.module('urlshortenerApp')
             self.userErrors.username.message = "Please specify a username";
             hasErrors = true;
         }
+        if(self.newUser && self.newUser.username && self.newUser.username.indexOf('.')>0){
+          self.userErrors.username.error = true;
+          self.userErrors.username.message = "Username can't contain dots";
+          hasErrors = true;
+        }
 
         if(!self.newUser || !self.newUser.email || self.newUser.email.length == 0){
             self.userErrors.email.error = true;

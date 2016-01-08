@@ -24,5 +24,4 @@ public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 
 	@Query("{'creator' : ?0}")
 	public List<ShortURL> findByCreator(String creator);
-
 }
