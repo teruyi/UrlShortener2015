@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,9 @@ import org.springframework.web.servlet.view.RedirectView;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.domain.URISafe;
+import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
+import urlshortener.bangladeshgreen.domain.messages.ErrorUnsafe;
+import urlshortener.bangladeshgreen.domain.messages.URLSafe;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
@@ -53,6 +57,121 @@ public class RedirectController {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+
+    @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|401|expired).*}", method = RequestMethod.GET , produces ="application/json")
+    public Object information2(@PathVariable String id,
+                             @RequestParam(value="privateToken", required=false) String privateToken,
+                             HttpServletResponse response, HttpServletRequest request,
+                             Map<String, Object> model) {
+
+        String userName = null; //Currently logged-in user username
+        boolean authenticated = false;
+        //Get authentication information if present
+        final Claims claims = (Claims) request.getAttribute("claims");
+        if(claims!=null){
+            userName = claims.getSubject();
+            authenticated = true;
+        }
+        URIAvailable URIavailability = null;
+        URISafe URIsafe = null;
+        ShortURL shortURL = shortURLRepository.findByHash(id);
+        if(shortURL == null) {
+
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            ErrorResponse error = new ErrorResponse("URL not found");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+        //Check if link is expired
+        boolean hasExpired = hasExpired(shortURL);
+
+        //Check if private token is required
+        boolean isPrivate = shortURL.isPrivateURI();
+
+        //Check if the link is user-protected
+        boolean isUserProtected = shortURL.getAuthorizedUsers()!=null && shortURL.getAuthorizedUsers().size()>0;
+
+        logger.info("Requested redirection with hash " + id +
+                " (private="+ isPrivate +
+                ", hasExpiration="+ (shortURL.getExpirationSeconds()!=null)+
+                ", isUserProtected=" + isUserProtected + ") - (privateToken=" + privateToken + ", hasExpired=" + hasExpired + " ,currentUser=" + userName + ")");
+
+
+
+        //FIRST CHECK: If expired, redirect to expired.jsp
+        if(hasExpired){
+            //Has expired
+            response.setStatus(HttpStatus.GONE.value());
+            ErrorResponse error = new ErrorResponse("URL expired");
+            return new ResponseEntity<>(error, HttpStatus.GONE);
+
+
+        }
+
+        //SECOND CHECK: If user protected, check if user is authenticated and has permissions.
+        if (isUserProtected) {
+            if(!authenticated){
+                //NOT AUTHENTICATED: Send to AngularJS login bridge
+                return createLoginRedirect(id,request,response);
+            }
+            else{
+                //AUTHENTICATED: Check if it is not authorized
+
+                //todo: Que funcione, ahora esta fijo
+                List<String> authorizedUsers = shortURL.getAuthorizedUsers();
+                //authorizedUsers.add("ismaro3");
+
+                if(userName==null || !authorizedUsers.contains(userName)){
+                    //Not authorized -> send to forbidden page
+                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                    ErrorResponse error = new ErrorResponse("FORBIDDEN");
+                    return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+                }
+
+            }
+        }
+
+
+        //THIRD CHECK: If it requires token and is not proviced, redirect to "privateURL.jsp".
+        if(isPrivate && (privateToken == null || !shortURL.getPrivateToken().equals(privateToken))){
+            //Is private and no correct token has been supplied
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            ErrorResponse error = new ErrorResponse("FORBIDDEN");
+            return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        }
+
+
+        //FOURTH CHECK: If the URI is not available (since last check), go to "notAvailable.jsp".
+        URIavailability = availableRepository.findByTarget(shortURL.getTarget());
+        System.out.print(URIavailability.toString());
+        if(!URIavailability.isAvailable()){
+            // If the target URI is not available
+
+            response.setStatus(HttpStatus.NOT_FOUND.value());
+            ErrorResponse error = new ErrorResponse("NOT_FOUND");
+            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
+
+
+
+        //FIVE CHECK: If the URI is not safe (since last check), go to "notsafe.jsp".
+        URIsafe = safeRepository.findByTarget(shortURL.getTarget());
+        System.out.print(URIsafe.toString());
+        if(!URIsafe.isSafe()){
+            response.setStatus(HttpStatus.BAD_GATEWAY.value());
+            ErrorUnsafe error = new ErrorUnsafe("BAD_GATEWAY",shortURL.getTarget());
+            return new ResponseEntity<>(error, HttpStatus.BAD_GATEWAY);
+            // If the target URI is not available
+        }
+        //ALL RIGHT, proceed to send safe and available url
+
+        response.setStatus(HttpStatus.ACCEPTED.value());
+        URLSafe succes = new URLSafe("ACCEPTED",shortURL.getTarget());
+        return new ResponseEntity<>(succes, HttpStatus.ACCEPTED);
+
+
+    }
+
 
 
     @RequestMapping(value = "/{id:(?!link|index|privateURL|404|info|401|expired).*}", method = RequestMethod.GET)
