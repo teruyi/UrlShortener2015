@@ -9,7 +9,7 @@ import urlshortener.bangladeshgreen.repository.RamRepository;
 
 /**
  * Class for periodic check of the cpu and ram usage
- * It's save the cpu and ram usage every 5 seconds
+ * It's save the cpu and ram usage every 30 seconds
  */
 public class PeriodicCpuRam {
 

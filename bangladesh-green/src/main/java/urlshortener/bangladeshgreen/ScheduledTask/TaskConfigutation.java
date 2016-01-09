@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Created by teruyi on 9/01/16.
+ * configure PeriodicCpuRam
  */
 @Configuration
 @EnableScheduling
