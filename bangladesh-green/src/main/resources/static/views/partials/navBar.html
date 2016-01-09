@@ -1,21 +1,21 @@
 
-    <div class="navbar navbar-default" role="navigation" style="margin:0px; !important" >
+<div class="navbar navbar-default" role="navigation" style="margin:0px; !important" >
 
 
-            <a class="navbar-brand" href="#/">WallaLinks!</a>
+  <a class="navbar-brand" href="#/">WallaLinks!</a>
 
-            <div class="collapse navbar-collapse" id="js-navbar-collapse" ng-if="currentPath()!='/login'">
-                <ul class="nav navbar-nav">
-                    <li ng-class="{'active':currentPath().indexOf('shorten')>0}"><a href="#/"><i class="glyphicon glyphicon-home"></i> Home</a></li>
-                    <li ng-if="isAdmin()" ng-class="{'active':currentPath()==='/admin'}"><a href="#/admin"><i class="glyphicon glyphicon-cog"></i> Admin panel</a></li>
+  <div class="collapse navbar-collapse" id="js-navbar-collapse" ng-if="currentPath()!='/login'">
+    <ul class="nav navbar-nav">
+      <li ng-class="{'active':currentPath().indexOf('shorten')>0}"><a href="#/"><i class="glyphicon glyphicon-home"></i> Home</a></li>
+      <li ng-if="isAdmin()" ng-class="{'active':currentPath()==='/admin'}"><a href="#/admin"><i class="glyphicon glyphicon-cog"></i> Admin panel</a></li>
 
-                </ul>
-                <ul class="nav navbar-nav navbar-right" ng-if="logged()">
-                    <li ng-click="goToProfile()"  ng-class="{'active':currentPath().indexOf('user')>0}"><a href=""><i class="glyphicon glyphicon-user"></i> My profile ({{username()}})</a></li>
-                    <li ng-click="logout()"><a><i class="glyphicon glyphicon-log-out"></i> Logout</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right" ng-if="!logged()">
-                    <li><a href="#/login"><i class="glyphicon glyphicon-log-in"></i> Login</a></li>
-                </ul>
-            </div>
-    </div>
+    </ul>
+    <ul class="nav navbar-nav navbar-right" ng-if="logged()">
+      <li ng-click="goToProfile()"  ng-class="{'active':currentPath().indexOf('user')>0}"><a href=""><i class="glyphicon glyphicon-user"></i> My profile ({{username()}})</a></li>
+      <li ng-click="logout()"><a><i class="glyphicon glyphicon-log-out"></i> Logout</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right" ng-if="!logged()">
+      <li><a href="#/login"><i class="glyphicon glyphicon-log-in"></i> Login</a></li>
+    </ul>
+  </div>
+</div>

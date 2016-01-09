@@ -1,109 +1,110 @@
 <div class="row mainBackground">
-  <div class="col-md-9 columnDecoration" style="height:100%;" >
+  <div class="col-md-9" style="height:100%;" >
     <div class="row">
-        <div class="col-lg-12 text-center">
-          <h1>URL Shortener</h1>
-          <p class="lead">AngularJS frontend</p>
-          <br>
-          <form class="col-lg-12" role="form" id="shortener" >
-            <div class="input-group input-group-lg col-sm-offset-4 col-sm-4">
+      <div class="col-lg-12 text-center">
+        <span style="font-size:5em;">WallaLinks!</span>
+        <p class="lead">Secure links made easy</p>
+        <br>
+        <form class="col-lg-12" role="form" id="shortener" >
+          <div class="input-group input-group-lg col-sm-offset-2 col-sm-8">
 
-              <input type="text" class="center-block form-control input-lg"
-                title="Enter a URL" placeholder="Enter a URL" name="url" ng-model="ctrl.url.target">
+            <input type="text" class="center-block form-control input-lg" style="font-size:30px;"
+            title="Enter a URL" placeholder="Enter a URL" name="url" ng-model="ctrl.url.target">
 
-                 <span class="btn btn-primary input-group-addon " ng-click="ctrl.doShort()">
-                Short me!
-              </span>
+            <span class="btn btn-primary input-group-addon " ng-click="ctrl.doShort()">
+              Short me!
+            </span>
 
-            </div>
+          </div>
 
-          </form>
+        </form>
 
-        </div>
       </div>
-      <div class="row">
-        <div class="col-lg-12 text-center">
-          <div class="col-sm-offset-4 col-sm-4 text-center">
-            <br />
-            <div id="result">
+    </div>
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <div class="col-sm-offset-2 col-sm-8 text-center">
+          <br />
+          <div id="result">
 
 
 
-                <div ng-if="ctrl.result.status=='error'" class='alert alert-danger lead'><b>Error creating link</b>
-                    <br/>{{ctrl.result.message}}</div>
+            <div ng-if="ctrl.result.status=='error'" class='alert alert-danger lead'><b  style="font-size:130%;">Error creating link</b>
+              <br/>{{ctrl.result.message}}</div>
 
-                <div ng-if="ctrl.result.status=='success'" class='alert alert-success lead'><b>Link shorted successfully</b>
-                    <br/><br/>
-                    <table id="table1" style=" text-align: left !important;" >
-                        <tr>
-                            <td><b>Link:</b></b></td><td  style="padding-left:20px;"><a href="{{ctrl.result.data.uri}}">{{ctrl.result.data.uri}}</a></td>
-                        </tr>
-                        <tr ng-if="ctrl.result.data.privateURI">
-                            <td><b>Private token: </b></td><td  style="padding-left:20px;">{{ctrl.result.data.privateToken}}</td>
-                        </tr>
-                        <tr ng-if="ctrl.result.data.expirationSeconds">
-                            <td><b>Expiration: </b></td><td  style="padding-left:20px;">{{ctrl.result.data.expirationSeconds}} seconds</td>
-                        </tr>
-                    </table>
-                    <br/>
-                    <p ng-if="ctrl.result.data.privateURI && !ctrl.result.data.authorizedUsers" style="font-size: 80%;">Please, share the private token only with the persons you want to be able to access the link.</p>
-                    <p ng-if="ctrl.result.data.privateURI && ctrl.result.data.authorizedUsers" style="font-size: 80%;">Users will have to authenticate and provide the token in order to access the link.</p>
-                    <p ng-if="!ctrl.result.data.privateURI && !ctrl.result.data.authorizedUsers" style="font-size: 80%;">Remember: This is a public link. Everyone can access to it.</p>
-                    <p ng-if="!ctrl.result.data.privateURI && ctrl.result.data.authorizedUsers" style="font-size: 80%;">Users will have to authenticate in order to access the link.</p>
+              <div ng-if="ctrl.result.status=='success'" class='alert alert-success lead'><b  style="font-size:130%;">Link shorted successfully</b>
+                <br/><br/>
+                <table id="table1" style=" text-align: left !important;" >
+                  <tr>
+                    <td><b style="font-size:110%;">Link:</b></b></td><td  style="padding-left:20px;"><a style="font-size:150%; color: black;" href="{{ctrl.result.data.uri}}">{{ctrl.result.data.uri}}</a></td>
+                  </tr>
+                  <tr ng-if="ctrl.result.data.privateURI">
+                    <td><b style="font-size:110%;">Private token: </b></td><td  style="padding-left:20px;" ><span style="font-size:130%; color: black;">{{ctrl.result.data.privateToken}}</span></td>
+                  </tr>
+                  <tr ng-if="ctrl.result.data.expirationSeconds">
+                    <td><b style="font-size:110%;">Expiration: </b></td><td  style="padding-left:20px;"><span style="font-size:130%; color: black;">{{ctrl.result.data.expirationSeconds}} seconds</span></td>
+                  </tr>
+                </table>
+                <br/>
+                <p ng-if="ctrl.result.data.privateURI && !ctrl.result.data.authorizedUsers" style="font-size: 100%;">Please, share the private token only with the persons you want to be able to access the link.</p>
+                <p ng-if="ctrl.result.data.privateURI && ctrl.result.data.authorizedUsers" style="font-size: 100%;">Users will have to authenticate and provide the token in order to access the link.</p>
+                <p ng-if="!ctrl.result.data.privateURI && !ctrl.result.data.authorizedUsers" style="font-size: 100%;">Remember: This is a public link. Everyone can access to it.</p>
+                <p ng-if="!ctrl.result.data.privateURI && ctrl.result.data.authorizedUsers" style="font-size: 100%;">Users will have to authenticate in order to access the link.</p>
 
 
 
+              </div>
             </div>
           </div>
         </div>
       </div>
-</div>
-</div>
-  <div class="col-md-3 columnDecoration" style="background-color: #f1f1f1; height:100%;">
-<!-- Link options -->
-<h3 style="text-align: center;">Privacy options</h3>
+    </div>
+    <div class="col-md-3 columnDecoration" style="background-color: #f1f1f1; height:100%;">
+      <!-- Link options -->
+      <h3 style="text-align: center;">Privacy options</h3>
 
-<label  class="optionSet"><checkbox
+      <label  class="optionSet"><checkbox
         ng-model="ctrl.url.privateURI"
-></checkbox><span  class="checkLabel">Make URL private</span></label>
+        ></checkbox><span  class="checkLabel">Make URL private</span></label>
+        <br/>
+        <i class="checkSublabel">A token is generated. That token has to be provided on every URL access.</i>
 <br/>
-<i class="checkSublabel">A token is generated. That token has to be provided on every URL access.</i>
+
+        <label class="optionSet"><checkbox
+          ng-model="ctrl.expirationVisible"
+          ></checkbox><span  class="checkLabel">Set expiration time</span></label>
+          <br/>
+          <select ng-model="ctrl.selectedExpiration"
+          ng-init="ctrl.selectedExpiration = ctrl.items[0]"
+          ng-options="item as item.name for item in ctrl.items" ng-show="ctrl.expirationVisible"></select>
+          <br/>
+          <i class="checkSublabel">When the time passes, the link will be no longer accesible.</i>
+          <br/>
 
 
-<label class="optionSet"><checkbox
-        ng-model="ctrl.expirationVisible"
-></checkbox><span  class="checkLabel">Set expiration time</span></label>
-<br/>
-<select ng-model="ctrl.selectedExpiration"
-        ng-init="ctrl.selectedExpiration = ctrl.items[0]"
-           ng-options="item as item.name for item in ctrl.items" ng-show="ctrl.expirationVisible"></select>
-           <br/>
-<i class="checkSublabel">When the time passes, the link will be no longer accesible.</i>
+          <label class="optionSet"><checkbox
+            ng-model="ctrl.userListVisible"
+            ></checkbox><span  class="checkLabel">Set authorized user list</span></label>
+            <br/>
+            <i class="checkSublabel"  ng-if="!ctrl.userListVisible">Only the provided users can access the link.</i>
+            <br/>
+            <div class="input-group" ng-show="ctrl.userListVisible">
+              <input type="text" class="form-control"
+              title="Enter a username" placeholder="Enter a username" name="url" ng-model="ctrl.newUser">
+              <span class=" btn btn-success input-group-addon" ng-click="ctrl.addAuthorizedUser()">
+                <i class=" glyphicon glyphicon-plus"></i>
+              </span>
+
+            </div>
+            <br/>
+            <i ng-if="ctrl.userListVisible">Authorized users:</i>
+            <ul class="list-group" ng-show="ctrl.userListVisible">
+              <li ng-repeat = "user in ctrl.url.authorizedUsers track by $index" class="list-group-item">{{user}}
+                <button class="btn btn-xs btn-danger pull-right" ng-click="ctrl.deleteAuthorizedUser($index)"><span class="glyphicon glyphicon-remove"></span></button></li>
+              </ul>
 
 
-<label class="optionSet"><checkbox
-        ng-model="ctrl.userListVisible"
-></checkbox><span  class="checkLabel">Set authorized user list</span></label>
-<br/>
-<i class="checkSublabel"  ng-if="!ctrl.userListVisible">Only the provided users can access the link.</i>
-<br/>
-<div class="input-group" ng-show="ctrl.userListVisible">
-  <input type="text" class="form-control"
-    title="Enter a username" placeholder="Enter a username" name="url" ng-model="ctrl.newUser">
-     <span class=" btn btn-success input-group-addon" ng-click="ctrl.addAuthorizedUser()">
-    <i class=" glyphicon glyphicon-plus"></i>
-    </span>
+            </div>
 
-</div>
-<br/>
-<i ng-if="ctrl.userListVisible">Authorized users:</i>
-<ul class="list-group" ng-show="ctrl.userListVisible">
-  <li ng-repeat = "user in ctrl.url.authorizedUsers track by $index" class="list-group-item">{{user}}
-      <button class="btn btn-xs btn-danger pull-right" ng-click="ctrl.deleteAuthorizedUser($index)"><span class="glyphicon glyphicon-remove"></span></button></li>
-</ul>
-
-
-</div>
-
-  </div>
-</div>
+          </div>
+        </div>

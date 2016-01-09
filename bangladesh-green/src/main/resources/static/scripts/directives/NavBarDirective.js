@@ -14,29 +14,29 @@ angular.module('urlshortenerApp')
 
                 scope.logged = function(){
                     return UserService.currentlyLogged;
-                }
+                };
 
                 scope.username = function(){
                     return UserService.username;
-                }
+                };
 
                 scope.isAdmin = function(){
                   return UserService.roles=="admin";
-                }
+                };
 
 
                 scope.goToProfile = function(){
                     $location.url('/user/' + UserService.username);
-                }
+                };
 
                 scope.logout = function(){
                     UserService.deleteCurrentToken();
                     $location.path('/login');
-                }
+                };
 
                 scope.currentPath = function(){
                     return $location.path();
-                }
+                };
 
             }
         }
