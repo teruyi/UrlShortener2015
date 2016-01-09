@@ -86,7 +86,7 @@ public class SystemInfoController {
         //CPU or RAM average in day
         if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("average")==0 && day!=null){
             double average = listCPURamAverage(day,type);
-            logger.info("(/infoday) - ("+ type +") Ok request - average: " + average);
+            logger.info("(/systeminfo) - ("+ type +") Ok request - average: " + average);
             SuccessResponse success = new SuccessResponse(average);
             response.setStatus(HttpStatus.OK.value());
             return new ResponseEntity<>(success, HttpStatus.OK);
@@ -96,7 +96,7 @@ public class SystemInfoController {
         //CPU or RAM series for a day. Interval: 30 seconds
         else if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("series")==0 && day!=null){
             list = listCPURam(day,type);
-            logger.info("(/infoday) - ("+ type +") Ok request - list size: " + list.size());
+            logger.info("(/systeminfo) - ("+ type +") Ok request - list size: " + list.size());
             SuccessResponse success = new SuccessResponse(list);
             response.setStatus(HttpStatus.OK.value());
             return new ResponseEntity<>(success, HttpStatus.OK);
@@ -106,7 +106,7 @@ public class SystemInfoController {
         else if (type.compareTo("clicks")==0){
             //If day is null, return total clicks. Else, return clicks at the given day.
             long total = listclicks(day);
-            logger.info("(/infoday) - (clicks) Ok request - total: " + total);
+            logger.info("(/systeminfo) - (clicks) Ok request - total: " + total);
             SuccessResponse success = new SuccessResponse(total);
             response.setStatus(HttpStatus.OK.value());
             return new ResponseEntity<>(success, HttpStatus.OK);
