@@ -210,7 +210,7 @@ public class UrlInfoController {
 
         }
 
-       
+
         SuccessResponse success = new SuccessResponse(list);
         response.setStatus(HttpStatus.OK.value());
         return new ResponseEntity<>(success, HttpStatus.OK);
