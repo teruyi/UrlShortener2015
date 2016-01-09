@@ -34,8 +34,6 @@ public class PeriodicCpuRam {
 		cpuRepository.save(usageCpuCpu);
 		UsageRam usageCpuRam = new UsageRam(System.currentTimeMillis(),physicalfreeMemorySize2);
 		ramRepository.save(usageCpuRam);
-		System.out.println(physicalfreeMemorySize2);
-		System.out.println(cpu);
 	}
 
 }
