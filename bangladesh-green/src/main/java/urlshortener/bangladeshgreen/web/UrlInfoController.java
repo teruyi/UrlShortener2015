@@ -135,9 +135,8 @@ public class UrlInfoController {
         }
     }
 
-    /*
-   Returns array of clickAdds. If id = null for all clicks else for id (hash) link.
-   Requires authentication.
+    /**
+     * Returns array of cpu or ram series and total clicks by day and total clicks ever if day is null
     */
     @RequestMapping(value = "/infoday", method = RequestMethod.GET , produces ="application/json")
     public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
@@ -196,7 +195,9 @@ public class UrlInfoController {
         List<Click> list = clickRepository.findAll();
         int total = 0;
         for (Click a : list) {
-
+            if (day == null){
+                total++;
+            }
             SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
             boolean sameDay = fmt.format(a.getDate()).equals(fmt.format(day));
             if(sameDay){
