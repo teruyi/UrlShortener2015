@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import urlshortener.bangladeshgreen.domain.Click;
-import urlshortener.bangladeshgreen.domain.ClickAdds;
-import urlshortener.bangladeshgreen.domain.InfoURL;
-import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.*;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
+import urlshortener.bangladeshgreen.repository.CPURepository;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
+import urlshortener.bangladeshgreen.repository.RamRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -42,6 +42,12 @@ public class UrlInfoController {
 
     @Autowired
     protected ClickRepository clickRepository;
+
+    @Autowired
+    protected CPURepository cpuRepository;
+
+    @Autowired
+    protected RamRepository ramRepository;
 
 
     @RequestMapping(value = "/{id:(?!link|index|info).*}+", method = RequestMethod.GET , produces ="text/html")
@@ -128,6 +134,115 @@ public class UrlInfoController {
             return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
     }
+
+    /*
+   Returns array of clickAdds. If id = null for all clicks else for id (hash) link.
+   Requires authentication.
+    */
+    @RequestMapping(value = "/infoday", method = RequestMethod.GET , produces ="application/json")
+    public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
+                               @RequestParam(value="type", required=true) String type,
+                               @RequestParam(value="day", required=false) Date day,
+                               HttpServletResponse response, HttpServletRequest request,
+                               Map<String, Object> model) {
+
+        String userName = null; //Currently logged-in user username
+
+
+        //Get authentication information
+        final Claims claims = (Claims) request.getAttribute("claims");
+        userName = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+
+
+
+        //If global and not admin -> Forbidden
+        if(!loggedRoles.equalsIgnoreCase("admin")){
+            //Not authorized
+            ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
+
+        List <Usage> list;
+
+        if (type.compareTo("cpu")==0){
+            list = listCPURam(day,type);
+            logger.info("(/infoday) - (cpu) Ok request - list size: " + list.size());
+        } else if (type.compareTo("ram")==0){
+            list = listCPURam(day,type);
+            logger.info("(/infoday) - (ram) Ok request - list size: " + list.size());
+        } else if (type.compareTo("clicks")==0){
+            int total = listclicks(day);
+            logger.info("(/infoday) - (clicks) Ok request - total: " + total);
+            SuccessResponse success = new SuccessResponse(total);
+            response.setStatus(HttpStatus.OK.value());
+            return new ResponseEntity<>(success, HttpStatus.OK);
+
+        }
+        else {
+            logger.info("(/info) Bad request");
+            ErrorResponse error = new ErrorResponse("Bad request");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+        }
+        SuccessResponse success = new SuccessResponse(list);
+        response.setStatus(HttpStatus.OK.value());
+        return new ResponseEntity<>(success, HttpStatus.OK);
+
+
+    }
+
+    private int listclicks(Date day) {
+        List<Click> list = clickRepository.findAll();
+        int total = 0;
+        for (Click a : list) {
+
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+            boolean sameDay = fmt.format(a.getDate()).equals(fmt.format(day));
+            if(sameDay){
+                total++;
+            }
+        }
+        return  total;
+    }
+
+    private List<Usage> listCPURam(Date day, String type) {
+        ArrayList<Usage> listt;
+        if (type.compareTo("cpu")==0){
+            List<UsageCpu> list;
+            list = cpuRepository.findAll();
+            listt = new ArrayList<>();
+
+
+            for (UsageCpu a : list) {
+                Date dateUsage = new Date (a.getTime());
+                SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+                boolean sameDay = fmt.format(dateUsage).equals(fmt.format(day));
+                if(sameDay){
+                    listt.add(a);
+                }
+            }
+        } else {
+            List<UsageRam> list;
+            list = ramRepository.findAll();
+            listt = new ArrayList<>();
+
+            for (UsageRam a : list) {
+                Date dateUsage = new Date (a.getTime());
+                SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+                boolean sameDay = fmt.format(dateUsage).equals(fmt.format(day));
+                if(sameDay){
+                    listt.add(a);
+                }
+            }
+        }
+        return listt;
+    }
+
+
+
+
+
 
     /*
     Returns array of clickAdds. If id = null for all clicks else for id (hash) link.
