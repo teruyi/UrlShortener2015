@@ -17,4 +17,5 @@ public interface CPURepository extends MongoRepository<UsageCpu, String> {
 	@Query("{}")
 	public List<UsageCpu> list();
 
+
 }
