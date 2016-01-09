@@ -325,6 +325,7 @@ public class UrlInfoController {
 
     private List<ClickAdds> listByRegion(Date desde, Date hasta, String id) {
         List<Click> list;
+
         if (id != null){
             list = clickRepository.findByHash(id);
         }

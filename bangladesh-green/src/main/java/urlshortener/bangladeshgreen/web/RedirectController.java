@@ -276,14 +276,16 @@ public class RedirectController {
 
             //FIVE CHECK: If the URI is not safe (since last check), go to "notsafe.jsp".
             URIsafe = safeRepository.findByTarget(shortURL.getTarget());
-            System.out.print(URIsafe.toString());
-            if(!URIsafe.isSafe()){
-                // If the target URI is not available
-                response.setStatus(HttpStatus.NOT_FOUND.value());
-                Date date = new Date(URIsafe.getDate());
-                model.put("target", shortURL.getTarget());
-                model.put("date", date.toString());
-                return "notsafe";
+           // System.out.print(URIsafe.toString());
+            if(URIsafe !=null){
+                if(!URIsafe.isSafe()) {
+                    // If the target URI is not available
+                    response.setStatus(HttpStatus.BAD_GATEWAY.value());
+                    Date date = new Date(URIsafe.getDate());
+                    model.put("target", shortURL.getTarget());
+                    model.put("date", date.toString());
+                    return "notsafe";
+                }
             }
             //ALL RIGHT, proceed to redirect
 
