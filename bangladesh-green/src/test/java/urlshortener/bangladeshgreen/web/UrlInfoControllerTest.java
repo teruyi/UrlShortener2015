@@ -13,7 +13,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import urlshortener.bangladeshgreen.repository.CPURepository;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
+import urlshortener.bangladeshgreen.repository.RamRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.web.fixture.URLLocationInfo;
 
@@ -23,7 +25,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.somePrivateUrl;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.someUrlm;
 
 /**
@@ -39,6 +40,12 @@ public class UrlInfoControllerTest {
 
     @Mock
     private ClickRepository clickRepository;
+
+    @Mock
+    private CPURepository cpuRepository;
+
+    @Mock
+    private RamRepository ramRepository;
 
     @InjectMocks
     private UrlInfoController urlInfoController;
@@ -183,7 +190,7 @@ public class UrlInfoControllerTest {
 
     @Test
 	/*
-	Test that returns a Json Success Response with 200 (Ok request).
+	Test that returns a Json Success Response with 200 (Ok request) and return an array.
 	 */
     public void thatReturnsJsonWithLocationInfo() throws Exception {
 

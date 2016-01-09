@@ -2,6 +2,9 @@ package urlshortener.bangladeshgreen.domain;
 
 import org.springframework.data.annotation.Id;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Represents an object for information about URIs availability.
@@ -13,11 +16,71 @@ public class URIAvailable {
     private String target;
     private boolean available;
     private long date;
+    private int notAvailable; // time in minutes wich uri isn't available
+    private List<Integer> service;
+    private List<Long> delays;
+    private int times;
+    private boolean enable;
+    private boolean change;
 
-    public URIAvailable(String target, boolean available, long date) {
+
+    public URIAvailable(String target, boolean available, long date, boolean enable, boolean change) {
         this.target = target;
         this.available = available;
         this.date = date;
+        this.times = 0;
+        this.enable = enable;
+        this.change = change;
+        delays = new <Long> ArrayList();
+        service = new <Integer> ArrayList();
+    }
+
+    public boolean isChange() {
+        return change;
+    }
+
+    public void setChange(boolean change) {
+        this.change = change;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+
+    public int getTimes() {
+        return times;
+    }
+
+    public void setTimes(int times) {
+        this.times = times;
+    }
+
+    public int getNotAvailable() {
+        return notAvailable;
+    }
+
+    public void setNotAvailable(int notAvailable) {
+        this.notAvailable = notAvailable;
+    }
+
+    public List<Integer> getService() {
+        return service;
+    }
+
+    public void setService(List<Integer> service) {
+        this.service = service;
+    }
+
+    public List<Long> getDelays() {
+        return delays;
+    }
+
+    public void setDelays(List<Long> delays) {
+        this.delays = delays;
     }
 
     public URIAvailable(){}
@@ -48,8 +111,11 @@ public class URIAvailable {
     }
 
     public String toString() {
-        return new String("URLAvailable[target='"+ target + "', available='" + available +
-                "', date='\"" + date + "\"']\n");
+        return new String("URLAvailable[target='"+ target + "', available='" + available
+                + "', date='\"" + date + "\"'" +"\n    delay='\"" + delays + "\"'"
+                + "\n    service='\"" + service + "\"'" +"\n    notAvailable='\""
+                + notAvailable + "\"'" +"\n    enable='\"" + enable + "\"'"
+                + "\n    Times='\"" + times + "\"'" +            "]\n");
 
     }
     public boolean compareTo(ShortURL other){

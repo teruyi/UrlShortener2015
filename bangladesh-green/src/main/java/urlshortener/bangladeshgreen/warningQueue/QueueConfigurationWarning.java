@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.safeQueue;
+package urlshortener.bangladeshgreen.warningQueue;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
@@ -8,42 +8,42 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
- * Configures beans for managing the "safeQueue" queue.
+ * Configures beans for managing the "warningQueue" queue.
  * It registers the queue, listener, threads pool and periodic check (thread).
  * Author: bangladesh-green
  */
 @Configuration
 @EnableScheduling
-public class QueueConfigurationsafe {
+public class QueueConfigurationWarning {
 
     @Bean
     // Register the desired queue
-    public Queue safeQueue() {
-        return new Queue("safeQueue");
+    public Queue warningQueue() {
+        return new Queue("warningQueue");
     }
 
     @Bean
     // Register the listener that takes messages from queue
-    public Listenerssafe listener(){
-        return new Listenerssafe();
+    public ListenerWarning listenerWarning(){
+        return new ListenerWarning();
     }
 
     @Bean
-    // Periodic check for safe URIs (in one thread).
-    public PeriodicChecksafe periodicCheck() {
-        return new PeriodicChecksafe();
+    // Periodic check for available URIs (in one thread).
+    public PeriodicCheckWarning periodicCheckWarning() {
+        return new PeriodicCheckWarning();
     }
 
     @Bean
     // Thread pool of the queue. It takes threads (workers) from this pool to do certain tasks.
-    public TaskExecutor safeExecutor() {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+    public TaskExecutor warningExecutor() {
+        ThreadPoolTaskExecutor taskExecutorWarning = new ThreadPoolTaskExecutor();
         // If the queue is full (MAX_INT_VALUE), then it can create this number of threads.
-        taskExecutor.setMaxPoolSize(10);
+        taskExecutorWarning.setMaxPoolSize(10);
         // It can be X process concurrently.
-        taskExecutor.setCorePoolSize(10);
-        taskExecutor.afterPropertiesSet();
-        return taskExecutor;
+        taskExecutorWarning.setCorePoolSize(10);
+        taskExecutorWarning.afterPropertiesSet();
+        return taskExecutorWarning;
     }
 
 }
