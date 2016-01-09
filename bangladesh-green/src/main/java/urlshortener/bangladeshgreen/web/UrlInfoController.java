@@ -140,12 +140,10 @@ public class UrlInfoController {
      * also total clicks by hour at one day
     */
     @RequestMapping(value = "/infoday", method = RequestMethod.GET , produces ="application/json")
-    public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
-                               @RequestParam(value="type", required=true) String type,
+    public Object locationJson(@RequestParam(value="type", required=true) String type,
                                @RequestParam(value="day", required=false) Date day,
                                @RequestParam(value="series", required=false) String series,
-                               HttpServletResponse response, HttpServletRequest request,
-                               Map<String, Object> model) {
+                               HttpServletResponse response, HttpServletRequest request) {
 
 
         //Get authentication information
@@ -163,7 +161,8 @@ public class UrlInfoController {
 
         List <Usage> list = null;
 
-        if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("average")==0){
+        //CPU or RAM average in day
+        if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("average")==0 && day!=null){
             double average = listCPURamAverage(day,type);
             logger.info("(/infoday) - ("+ type +") Ok request - average: " + average);
             SuccessResponse success = new SuccessResponse(average);
@@ -171,29 +170,35 @@ public class UrlInfoController {
             return new ResponseEntity<>(success, HttpStatus.OK);
 
 
-        }else if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("series")==0){
+        }
+        //CPU or RAM series for a day. Interval: 30 seconds
+        else if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("series")==0 && day!=null){
             list = listCPURam(day,type);
             logger.info("(/infoday) - ("+ type +") Ok request - list size: " + list.size());
             SuccessResponse success = new SuccessResponse(list);
             response.setStatus(HttpStatus.OK.value());
             return new ResponseEntity<>(success, HttpStatus.OK);
 
-        }else if (type.compareTo("clicks")==0){
-            // if day null return total clicks ever else total clicks at day
+        }
+        //Clicks aggregation, by day or total
+        else if (type.compareTo("clicks")==0){
+            //If day is null, return total clicks. Else, return clicks at the given day.
             long total = listclicks(day);
             logger.info("(/infoday) - (clicks) Ok request - total: " + total);
             SuccessResponse success = new SuccessResponse(total);
             response.setStatus(HttpStatus.OK.value());
             return new ResponseEntity<>(success, HttpStatus.OK);
 
-        }else if (type.compareTo("clicksadds")==0){
-            // add all clicks at day by hours
+        }
+        //Click list by hour for a given day
+        else if (type.compareTo("clicksadds")==0 && day!=null){
             int hours [] = listclickshourAgregation(day);
             SuccessResponse success = new SuccessResponse(hours);
             response.setStatus(HttpStatus.OK.value());
             return new ResponseEntity<>(success, HttpStatus.OK);
         }
         else {
+            //Bad request
             logger.info("(/info) Bad request");
             ErrorResponse error = new ErrorResponse("Bad request");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -201,7 +206,7 @@ public class UrlInfoController {
     }
 
     /**
-     * return average usage cpu or ram
+     * Returns average usage of CPU or RAM
      */
     private double listCPURamAverage(Date day, String type){
         List <Usage> list = listCPURam(day,type);
@@ -213,7 +218,7 @@ public class UrlInfoController {
     }
 
     /**
-     * return array with clicks by hours [00-24] at day
+     * Returns array with clicks by hours [00-23] at a given day
      */
     private int [] listclickshourAgregation(Date day) {
         Calendar calendar = Calendar.getInstance();
@@ -233,7 +238,7 @@ public class UrlInfoController {
 
 
     /**
-     * return number of clicks at day
+     * Returns total number of clicks one day
      */
     private long listclicks(Date day) {
         List<Click> list = clickRepository.findAll();
@@ -254,7 +259,7 @@ public class UrlInfoController {
     }
 
     /**
-     * return series(time, usage) of cpu or ram at day
+     * Returns series(time, usage) of cpu or ram at day
      */
     private List<Usage> listCPURam(Date day, String type) {
         ArrayList<Usage> listt;
