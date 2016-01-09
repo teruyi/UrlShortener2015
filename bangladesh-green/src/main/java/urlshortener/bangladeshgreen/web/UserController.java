@@ -38,6 +38,7 @@ public class UserController {
     @Autowired
     protected Email email;
 
+
     protected boolean send = true;
 
     public UserController() {

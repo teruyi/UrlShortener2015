@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Component;
 import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.URIDisabled;
 
 import java.net.URI;
 import java.util.List;
@@ -16,9 +17,11 @@ import java.util.List;
 public interface ShortURLRepository extends MongoRepository<ShortURL, String> {
 
 	public ShortURL findByHash(String hash);
-	@Query("{'target' : ?0}")
 
-	public ShortURL findByTarget(String target);
+	@Query("{'target' : ?0}")
+	public List<ShortURL> findByTarget(String target);
+
+
 	@Query("{}")
 	public List<ShortURL> list();
 

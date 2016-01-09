@@ -44,12 +44,17 @@ public class Workersafe implements Runnable {
         String parameter = param;
         lock.release();
         long id =  Thread.currentThread().getId();
-        System.out.println("[URISafe] Worker - " + parameter + " - ID: " + id);
+
         Date now = new Date();
-        System.out.println("[URISafe] Worker - " + parameter + " - ID: " + id + " - "
-               + "Time to check URI: " + parameter);
+        System.out.println("---------------------------------------------------------------------------------------");
+        System.out.println();
+        System.out.println("AVAILABLE URI CHECK QUEUE" );
+        System.out.println(parameter);
         boolean check = checkSafeURI(parameter);
+
         URISafe checked = new URISafe(parameter, check, now.getTime());
+        System.out.println(checked);
+        System.out.println("---------------------------------------------------------------------------------------");
         repository.save(checked);
     }
 

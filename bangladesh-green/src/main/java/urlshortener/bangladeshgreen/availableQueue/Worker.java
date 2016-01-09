@@ -24,7 +24,6 @@ public class Worker implements Runnable {
     private URIAvailableRepository repository;
 
     private Semaphore lock = new Semaphore(1);
-
     private String param;
     public void setParameter(String param){
         try {
@@ -33,6 +32,7 @@ public class Worker implements Runnable {
             this.param = param;
         } catch (InterruptedException e) {
             System.out.println("Worker: failing with locks.");
+
         }
     }
 
@@ -41,39 +41,102 @@ public class Worker implements Runnable {
         String parameter = param;
         lock.release();
         long id =  Thread.currentThread().getId();
-        System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id);
         Date now = new Date();
-        System.out.println("[URIAvailable] Worker - " + parameter + " - ID: " + id + " - "
-               + "Time to check URI: " + parameter);
-        boolean check = checkURI(parameter);
-        URIAvailable checked = new URIAvailable(parameter, check, now.getTime());
+        System.out.println("---------------------------------------------------------------------------------------");
+        System.out.println();
+        System.out.println("AVAILABLE URI CHECK QUEUE" );
+        System.out.println(parameter);
+
+        URIAvailable checked = checkURI(parameter);
+        System.out.println(checked.toString());
+        System.out.println("------------------------------------------------");
         repository.save(checked);
+
     }
 
     /**
      * Checks if an URI is available (returns 2XX or 3XX code).
      * Allows redirections.
      * @param URI is the URI to check
-     * @return boolean True if available, false in other case.
+     * @return actualize URI
      */
-    protected boolean checkURI(String URI){
+    protected URIAvailable checkURI(String URI){
         try {
+
             URL url = new URL(URI);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestMethod("GET");
             // Sets default timeout to 3 seconds
             connection.setConnectTimeout(3000);
             // Connects to the URI to check.
+            long t1 = System.currentTimeMillis();
             connection.connect();
+            long t2 = System.currentTimeMillis();
+            long t3 = t2-t1;
+
             Integer code = new Integer(connection.getResponseCode());
-            // If it returns 2XX or 3XX code, the check it's successful
-            if( code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3'){
-                return true;
-            } else {
-                return false;
+            URIAvailable uri = actualize(URI,t3,code);
+            if(uri != null){
+                return uri;
+            }else{
+                if (code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3') {
+                    URIAvailable newURIAvailable = new URIAvailable(param, true, System.currentTimeMillis(), true, false);
+                    return newURIAvailable;
+                }else{
+                    URIAvailable newURIAvailable = new URIAvailable(param, false, System.currentTimeMillis(), true, false);
+                    return newURIAvailable;
+                }
             }
+
         } catch (IOException e) {
-            return false;
+
+            URIAvailable uri = repository.findByTarget(URI);
+            if(uri != null){
+                uri.getDelays().add(new Long(3000));
+                uri.getService().add(1);
+                uri.setTimes(uri.getTimes()+1);
+                uri.setAvailable(false);
+                // if not available
+                // time down
+                uri.setNotAvailable(uri.getNotAvailable()+1);
+                return uri;
+            }else{
+                return new URIAvailable(param, false, System.currentTimeMillis(), true, false);
+
+            }
+
+        }
+    }
+
+    protected URIAvailable actualize(String URI, long delay,Integer code){
+        URIAvailable uri = repository.findByTarget(URI);
+        if(uri != null) {
+            // Add time-out
+            uri.getDelays().add(delay);
+            // Add count
+            uri.setTimes(uri.getTimes() + 1);
+            // if is available
+            if (code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3') {
+                uri.setAvailable(true);
+                // Time down
+                uri.setNotAvailable(0);
+                //Service time
+                uri.getService().add(0);
+                // if is disabled.
+                if (!uri.isEnable()) {
+                    uri.setChange(true);
+                }
+            } else {
+                uri.setAvailable(false);
+                // if not available
+                // time down
+                uri.setNotAvailable(uri.getNotAvailable() + 1);
+                //Service time
+                uri.getService().add(1);
+            }
+            return uri;
+        }else{
+            return null;
         }
     }
 }
