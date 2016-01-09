@@ -136,7 +136,8 @@ public class UrlInfoController {
     }
 
     /**
-     * Returns array of cpu or ram series and total clicks by day and total clicks ever if day is null
+     * Returns array of cpu or ram series or average and total clicks by day and total clicks ever if day is null
+     * also total clicks by hour at one day
     */
     @RequestMapping(value = "/infoday", method = RequestMethod.GET , produces ="application/json")
     public Object locationJson(@RequestParam(value="privateToken", required=false) String privateToken,
@@ -196,7 +197,6 @@ public class UrlInfoController {
             logger.info("(/info) Bad request");
             ErrorResponse error = new ErrorResponse("Bad request");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-
         }
     }
 
