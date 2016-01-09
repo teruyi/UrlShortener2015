@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.availableQueue;
+package urlshortener.bangladeshgreen.warningQueue;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,24 +14,24 @@ import java.util.List;
  * It's scheduled and when it runs, obtains all the outdated links from the DB, checking all again.
  * It checks the URIs by inserting again the URIs in the queue.
  */
-public class PeriodicCheck {
-	// Interval that sets when a URI has to be checked again
-	private final long interval = 10000;
+public class PeriodicCheckWarning {
+	// Interval that sets when a URI has to be checked again (1/4 h)
+	private final long interval = 250;
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
 	@Autowired
-	private URIAvailableRepository availableRepository;
+	private URIAvailableRepository warningRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 1800000L)
+	@Scheduled(fixedDelay = 4200000L)
 	public void send() {
 		Date now = new Date();
 		now.setTime(now.getTime()-interval);
-		List<URIAvailable> list = availableRepository.findByDateLessThan(now.getTime());
+		List<URIAvailable> list = warningRepository.findByDateLessThan(now.getTime());
 		for(URIAvailable uri : list) {
-			this.rabbitTemplate.convertAndSend("availableQueue",uri.getTarget());
+			this.rabbitTemplate.convertAndSend("warningQueue",uri.getTarget());
 		}
 	}
 
