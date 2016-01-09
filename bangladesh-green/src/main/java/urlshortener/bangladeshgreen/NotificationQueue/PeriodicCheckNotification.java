@@ -31,7 +31,7 @@ public class PeriodicCheckNotification {
 	private UserRepository userRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 15000L)
+	@Scheduled(fixedDelay = 4500000L)
 	public void send() {
 		// All users
 		List<User> users = userRepository.findAll();

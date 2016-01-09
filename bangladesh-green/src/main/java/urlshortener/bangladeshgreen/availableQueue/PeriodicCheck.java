@@ -25,7 +25,7 @@ public class PeriodicCheck {
 	private URIAvailableRepository availableRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 5000L)
+	@Scheduled(fixedDelay = 1800000L)
 	public void send() {
 		Date now = new Date();
 		now.setTime(now.getTime()-interval);

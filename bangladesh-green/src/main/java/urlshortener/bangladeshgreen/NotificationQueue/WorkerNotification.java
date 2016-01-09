@@ -118,21 +118,6 @@ public class WorkerNotification implements Runnable {
 
     }
     private void writeEmail(List<URIDisabled> newEnabled,List<URIDisabled> newDisabled, String destino){
-        System.out.println();
-        System.out.println("-------------------------------------------------");
-        System.out.println("-------------------------------------------------");
-        System.out.println("Enviar correo electronico a "+ destino);
-        System.out.println("Enlaces habilitados: ");
-        for(URIDisabled a : newEnabled){
-            System.out.println(a.toString());
-        }
-        System.out.println("Enlaces Deshabilitados: ");
-        for(URIDisabled a : newDisabled){
-            System.out.println(a.toString());
-        }
-        System.out.println();
-        System.out.println("-------------------------------------------------");
-        System.out.println("-------------------------------------------------");
 
         User userr = repositoryUser.findByUsername(destino);
         email.setDestination(userr.getEmail());
