@@ -84,7 +84,7 @@ public class SystemInfoController {
         List <Usage> list = null;
 
         //CPU or RAM average in day
-        if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("average")==0 && day!=null){
+        if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series!=null && series.compareTo("average")==0 && day!=null){
             double average = listCPURamAverage(day,type);
             logger.info("(/systeminfo) - ("+ type +") Ok request - average: " + average);
             SuccessResponse success = new SuccessResponse(average);
@@ -94,7 +94,7 @@ public class SystemInfoController {
 
         }
         //CPU or RAM series for a day. Interval: 30 seconds
-        else if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0) && series.compareTo("series")==0 && day!=null){
+        else if ((type.compareTo("cpu") == 0 || type.compareTo("ram") == 0)  && series!=null  && series.compareTo("series")==0 && day!=null){
             list = listCPURam(day,type);
             logger.info("(/systeminfo) - ("+ type +") Ok request - list size: " + list.size());
             SuccessResponse success = new SuccessResponse(list);

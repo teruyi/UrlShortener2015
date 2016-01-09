@@ -3,169 +3,169 @@
 <div class="row mainBackground">
   <div class="col-md-7" style="height:100%;">
     <div class="row">
-        <div class="col-lg-12" >
-          <h3 style="text-align: center;">Links</h3>
-          <div ng-if="ctrl.userListAlert.type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.userListAlert.title}}:</b>   {{ctrl.userListAlert.message}}</div>
-          <div ng-if="ctrl.userListAlert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.userListAlert.title}}:</b>   {{ctrl.userListAlert.message}}</div>
-            <div class="main-box no-header clearfix" style=" padding-left:10px;">
-                <div class="main-box-body clearfix">
-                    <div class="table-responsive">
-                        <table class="table user-list">
-                            <thead>
-                                <tr>
-                                <th><span>ID</span></th>
-                                <th><span>Target</span></th>
-                                <th><span>Date</span></th>
-                                <th><span>Token</span></th>
-                                <th><span>Expiration</span></th>
-                                <th><span>Users with access</span></th>
-                                <th><span>Actions</span></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr div ng-repeat="link in ctrl.links | orderBy:'-created'" >
-                                    <td>
-                                      <!--  <img src="http://bootdey.com/img/Content/user_1.jpg" alt="">-->
-                                        <a  href="/{{link.hash}}" class="user-link" target="_blank">{{link.hash}}</a>
-                                    </td>
-                                    <td>
-                                        {{link.target}}
-                                    </td>
-                                    <td>
-                                      {{link.created | date : 'yyyy-MM-dd HH:mm'}}
-                                    </td>
-                                    <td>
-                                        {{link.privateToken || '-'}}
-                                    </td>
-                                    <td>
-                                        {{link.expirationSeconds || '-'}}
-                                        <span ng-if="link.expirationSeconds"> s.</span>
-                                    </td>
-                                    <td>
-                                        <span ng-show="link.authorizedUsers && link.authorizedUsers.length>0">{{link.authorizedUsers.length}} users
-                                          <a ng-if="!link.showAuthorized" ng-click="link.showAuthorized=true;" href="">(Show)</a></span>
-                                          <a  ng-if="link.showAuthorized" ng-click="link.showAuthorized=false;" href="">(Hide)</a></span>
-                                        <span ng-hide="link.authorizedUsers && link.authorizedUsers.length>0">All</span>
-                                        <ul>
-                                        <li ng-if="link.showAuthorized" ng-repeat="user in link.authorizedUsers">
-                                          {{user}}
-                                        </li>
-                                      </ul>
-                                    </td>
-                                    <td>
-                                       <a href="#/stats/{{link.hash}}" class="table-link">
-                                           <span >
-                                               <i class="glyphicon glyphicon-stats" style="font-size:120%;"></i> View stats
+      <div class="col-lg-12" >
+        <h3 style="text-align: center;">Links</h3>
+        <div ng-if="ctrl.userListAlert.type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.userListAlert.title}}:</b>   {{ctrl.userListAlert.message}}</div>
+        <div ng-if="ctrl.userListAlert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.userListAlert.title}}:</b>   {{ctrl.userListAlert.message}}</div>
+        <div class="main-box no-header clearfix" style=" padding-left:10px;">
+          <div class="main-box-body clearfix">
+            <div class="table-responsive">
+              <table class="table user-list">
+                <thead>
+                  <tr>
+                    <th><span>ID</span></th>
+                    <th><span>Target</span></th>
+                    <th><span>Date</span></th>
+                    <th><span>Token</span></th>
+                    <th><span>Expiration</span></th>
+                    <th><span>Users with access</span></th>
+                    <th><span>Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr div ng-repeat="link in ctrl.links | orderBy:'-created'" >
+                    <td>
+                      <!--  <img src="http://bootdey.com/img/Content/user_1.jpg" alt="">-->
+                      <a  href="/{{link.hash}}" class="user-link" target="_blank">{{link.hash}}</a>
+                    </td>
+                    <td>
+                      {{link.target | truncate:24}}
+                    </td>
+                    <td>
+                      {{link.created | date : 'yyyy-MM-dd HH:mm'}}
+                    </td>
+                    <td>
+                      {{link.privateToken || '-'}}
+                    </td>
+                    <td>
+                      {{link.expirationSeconds || '-'}}
+                      <span ng-if="link.expirationSeconds"> s.</span>
+                    </td>
+                    <td>
+                      <span ng-show="link.authorizedUsers && link.authorizedUsers.length>0">{{link.authorizedUsers.length}} users
+                        <a ng-if="!link.showAuthorized" ng-click="link.showAuthorized=true;" href="">(Show)</a></span>
+                        <a  ng-if="link.showAuthorized" ng-click="link.showAuthorized=false;" href="">(Hide)</a></span>
+                        <span ng-hide="link.authorizedUsers && link.authorizedUsers.length>0">All</span>
+                        <ul>
+                          <li ng-if="link.showAuthorized" ng-repeat="user in link.authorizedUsers">
+                            {{user}}
+                          </li>
+                        </ul>
+                      </td>
+                      <td>
+                        <a href="#/stats/{{link.hash}}" class="table-link">
+                          <span >
+                            <i class="glyphicon glyphicon-stats" style="font-size:120%;"></i> View stats
 
-                                           </span>
-                                       </a>
-                                   </td>
-                                    <td><span class="label label-success" ng-if="user.role=='user'">{{user.role}}</span>
-                                    <span class="label label-warning" ng-if="user.role=='admin'">{{user.role}}</span></td>
+                          </span>
+                        </a>
+                      </td>
+                      <td><span class="label label-success" ng-if="user.role=='user'">{{user.role}}</span>
+                        <span class="label label-warning" ng-if="user.role=='admin'">{{user.role}}</span></td>
 
-                                </tr>
+                      </tr>
 
-                            </tbody>
+                    </tbody>
 
-                        </table>
-                         <button type="button" class="btn btn-primary btn-block" ng-click="ctrl.loadLinks()" ng-if="ctrl.hasMoreLinks">Load more...</button>
-                    </div>
+                  </table>
+                  <button type="button" class="btn btn-primary btn-block" ng-click="ctrl.loadLinks()" ng-if="ctrl.hasMoreLinks">Load more...</button>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
-</div>
-  <div class="col-md-5" style="height:100%;" >
-      <h3 style="text-align: center;">Account details<span ng-if="ctrl.currentRoles=='admin'"> (Admin mode)</span></h3>
-    <div class="main-box no-header clearfix" style=" padding:10px; ">
-        <div class="main-box-body clearfix">
+      </div>
+      <div class="col-md-5" style="height:100%;" >
+        <h3 style="text-align: center;">Account details<span ng-if="ctrl.currentRoles=='admin'"> (Admin mode)</span></h3>
+        <div class="main-box no-header clearfix" style=" padding:10px; ">
+          <div class="main-box-body clearfix">
 
-          <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-              <form class="form-horizontal" role="form">
-                <fieldset>
-
+            <div class="row">
+              <div class="col-md-10 col-md-offset-1">
+                <form class="form-horizontal" role="form">
+                  <fieldset>
 
 
 
-      <div ng-if="ctrl.canView">
-                  <div class="form-group"  >
-                    <div class="col-sm-offset-2 col-sm-10">
-                      <div class="pull-right">
-                        <button type="submit" class="btn btn-warning" ng-click="ctrl.startEdit()" ng-if="!ctrl.editing"><i class="glyphicon glyphicon-pencil"></i>Edit profile</button>
-                        <button type="submit" class="btn btn-danger" ng-if="!ctrl.editing" ng-click="ctrl.delete()"><i class="glyphicon glyphicon-trash"></i>Delete profile</button>
-                        <button type="submit" class="btn btn-danger" ng-if="ctrl.editing" ng-click="ctrl.discardEdit()"><i class="glyphicon glyphicon-chevron-left"></i>Discard changes</button>
-                       <button type="submit" class="btn btn-success" ng-if="ctrl.editing" ng-click="ctrl.saveEdit()"><i class="glyphicon glyphicon-floppy-saved"></i>Save profile</button>
+
+                    <div ng-if="ctrl.canView">
+                      <div class="form-group"  >
+                        <div class="col-sm-offset-2 col-sm-10">
+                          <div class="pull-right">
+                            <button type="submit" class="btn btn-warning" ng-click="ctrl.startEdit()" ng-if="!ctrl.editing"><i class="glyphicon glyphicon-pencil"></i>Edit profile</button>
+                            <button type="submit" class="btn btn-danger" ng-if="!ctrl.editing" ng-click="ctrl.delete()"><i class="glyphicon glyphicon-trash"></i>Delete profile</button>
+                            <button type="submit" class="btn btn-danger" ng-if="ctrl.editing" ng-click="ctrl.discardEdit()"><i class="glyphicon glyphicon-chevron-left"></i>Discard changes</button>
+                            <button type="submit" class="btn btn-success" ng-if="ctrl.editing" ng-click="ctrl.saveEdit()"><i class="glyphicon glyphicon-floppy-saved"></i>Save profile</button>
+                          </div>
+                        </div>
                       </div>
+
+
+                      <!-- Text input-->
+                      <div class="form-group">
+                        <label class="col-sm-2 control-label" for="textinput">Username</label>
+                        <div class="col-sm-8">
+                          <input type="text" placeholder="Username" class="form-control" ng-model="ctrl.user.username" readonly>
+                        </div>
+                      </div>
+
+                      <!-- Text input-->
+                      <div class="form-group">
+                        <label class="col-sm-2 control-label" for="textinput">Real name</label>
+                        <div class="col-sm-8">
+                          <input type="text" placeholder="Enter your real name" class="form-control" ng-model="ctrl.user.realName" ng-readonly="!ctrl.editing">
+                        </div>
+                      </div>
+
+                      <!-- Text input-->
+                      <div class="form-group">
+                        <label class="col-sm-2 control-label" for="textinput">Email address</label>
+                        <div class="col-sm-8">
+                          <input type="text" placeholder="Enter your email address" class="form-control" ng-model="ctrl.user.email" ng-readonly="!ctrl.editing || (ctrl.editing && ctrl.currentRoles!='admin') ">
+                        </div>
+                      </div>
+
+                      <!-- Text input-->
+                      <div class="form-group" ng-if="ctrl.editing">
+                        <label class="col-sm-2 control-label" for="textinput">Password</label>
+                        <div class="col-sm-8">
+                          <input type="password" placeholder="Enter your password" class="form-control" ng-model="ctrl.user.password" ng-readonly="!ctrl.editing">
+                          <i style="font-size:90%;">Leave it blank if you don't want to update your password</i>
+                        </div>
+
+                      </div>
+
+                      <div class="form-group" ng-if="ctrl.editing">
+                        <label class="col-sm-2 control-label" for="textinput">Repeat password</label>
+                        <div class="col-sm-8">
+                          <input type="password" placeholder="Repeat your password" class="form-control" ng-model="ctrl.user.repassword" ng-readonly="!ctrl.editing">
+                        </div>
+                      </div>
+
+                      <!-- Text input-->
+                      <div class="form-group">
+                        <label class="col-sm-2 control-label" for="textinput">Role</label>
+                        <div class="col-sm-8">
+                          <input type="text" placeholder="Enter the user role" class="form-control" ng-model="ctrl.user.role"  ng-readonly="!ctrl.editing || (ctrl.editing && ctrl.currentRoles!='admin') ">
+                        </div>
+                      </div>
+
                     </div>
-                  </div>
+                    <div ng-if="ctrl.alert.type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
+                    <div ng-if="ctrl.alert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
 
+                    <br/>
+                    <i ng-if="ctrl.currentRoles=='user' && ctrl.canView">NOTE: You can only update your real name and password.</i>
+                    <i ng-if="ctrl.currentRoles=='admin' && ctrl.canView">NOTE: You can edit all except username.</i>
 
-                  <!-- Text input-->
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="textinput">Username</label>
-                    <div class="col-sm-8">
-                      <input type="text" placeholder="Username" class="form-control" ng-model="ctrl.user.username" readonly>
-                    </div>
-                  </div>
-
-                  <!-- Text input-->
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="textinput">Real name</label>
-                    <div class="col-sm-8">
-                      <input type="text" placeholder="Enter your real name" class="form-control" ng-model="ctrl.user.realName" ng-readonly="!ctrl.editing">
-                    </div>
-                  </div>
-
-                  <!-- Text input-->
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="textinput">Email address</label>
-                    <div class="col-sm-8">
-                      <input type="text" placeholder="Enter your email address" class="form-control" ng-model="ctrl.user.email" ng-readonly="!ctrl.editing || (ctrl.editing && ctrl.currentRoles!='admin') ">
-                    </div>
-                  </div>
-
-                  <!-- Text input-->
-                  <div class="form-group" ng-if="ctrl.editing">
-                    <label class="col-sm-2 control-label" for="textinput">Password</label>
-                    <div class="col-sm-8">
-                      <input type="password" placeholder="Enter your password" class="form-control" ng-model="ctrl.user.password" ng-readonly="!ctrl.editing">
-                      <i style="font-size:90%;">Leave it blank if you don't want to update your password</i>
-                    </div>
-
-                  </div>
-
-                  <div class="form-group" ng-if="ctrl.editing">
-                    <label class="col-sm-2 control-label" for="textinput">Repeat password</label>
-                    <div class="col-sm-8">
-                      <input type="password" placeholder="Repeat your password" class="form-control" ng-model="ctrl.user.repassword" ng-readonly="!ctrl.editing">
-                    </div>
-                  </div>
-
-                  <!-- Text input-->
-                  <div class="form-group">
-                    <label class="col-sm-2 control-label" for="textinput">Role</label>
-                    <div class="col-sm-8">
-                      <input type="text" placeholder="Enter the user role" class="form-control" ng-model="ctrl.user.role"  ng-readonly="!ctrl.editing || (ctrl.editing && ctrl.currentRoles!='admin') ">
-                    </div>
-                  </div>
-
-      </div>
-                  <div ng-if="ctrl.alert.type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
-                  <div ng-if="ctrl.alert.type=='success'" class="alert alert-success" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
-
-                  <br/>
-                  <i ng-if="ctrl.currentRoles=='user' && ctrl.canView">NOTE: You can only update your real name and password.</i>
-                  <i ng-if="ctrl.currentRoles=='admin' && ctrl.canView">NOTE: You can edit all except username.</i>
-
-                </fieldset>
-              </form>
-            </div><!-- /.col-lg-12 -->
-          </div><!-- /.row -->
+                  </fieldset>
+                </form>
+              </div><!-- /.col-lg-12 -->
+            </div><!-- /.row -->
+          </div>
         </div>
       </div>
-</div>
 
 
 
-</div>
+    </div>

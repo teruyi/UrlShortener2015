@@ -1,45 +1,46 @@
-
-<div class="row" style="margin-top:20px; ">
+<div class="mainBackground">
+<div class="row" >
   <div class="col-md-12 columnDecoration">
     <div style="text-align:center;">
-  <span  ng-if="ctrl.hash" style="font-size:150%;"> Viewing stats for link <b> '{{ctrl.hash}}' </b></span>
-    <span  ng-if="!ctrl.hash" style="font-size:150%;"> Viewing global stats </b></span>
-</div>
-  <br/>
-  <div class="col-md-4">
-    <label  class="optionSet"><checkbox
-            ng-model="ctrl.startDateActivated"
-    ></checkbox><span  class="checkLabel">Start date</span>   <input type="date" ng-model="ctrl.startDate" ng-disabled="!ctrl.startDateActivated"></label>
+      <span  ng-if="ctrl.hash" style="font-size:150%;"> Viewing stats for link <b> '{{ctrl.hash}}' </b></span>
+      <span  ng-if="!ctrl.hash" style="font-size:150%;"> Viewing global stats </b></span>
+    </div>
     <br/>
-    <label  class="optionSet"><checkbox
-            ng-model="ctrl.endDateActivated"
-    ></checkbox><span  class="checkLabel">End date  </span><input type="date" ng-model="ctrl.endDate" ng-disabled="!ctrl.endDateActivated"></label>
-    <div><button class="btn btn-block" ng-click="ctrl.loadAllData()">Refresh</button></div>
-  </div>
-  </div>
+    <div class="col-md-4">
+      <label  class="optionSet"><checkbox
+        ng-model="ctrl.startDateActivated"
+        ></checkbox><span  class="checkLabel">Start date</span>   <input type="date" ng-model="ctrl.startDate" ng-disabled="!ctrl.startDateActivated"></label>
+        <br/>
+        <label  class="optionSet"><checkbox
+          ng-model="ctrl.endDateActivated"
+          ></checkbox><span  class="checkLabel">End date  </span><input type="date" ng-model="ctrl.endDate" ng-disabled="!ctrl.endDateActivated"></label>
+          <div><button class="btn btn-block" ng-click="ctrl.loadAllData()">Refresh</button></div>
+        </div>
+      </div>
 
-</div>
-  <div ng-if="ctrl.alert['general'].type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.alert['general'].title}}:</b>   {{ctrl.alert['general'].message}}</div>
-<div class="row" style="margin-top:20px; " ng-if="ctrl.alert['general'].type!='error'">
-  <div class="col-md-4" >
-    <h2 style="text-align:center;">By country</h2>
-    <canvas ng-if="ctrl.alert['country'].type!='error'" id="pie" class="chart chart-pie"
-      chart-data="ctrl.stats['country'].data" chart-labels="ctrl.stats['country'].labels" chart-legend="true">
-    </canvas>
+    </div>
+    <div ng-if="ctrl.alert['general'].type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.alert['general'].title}}:</b>   {{ctrl.alert['general'].message}}</div>
+    <div class="row" style="margin-top:20px; " ng-if="ctrl.alert['general'].type!='error'">
+      <div class="col-md-4" >
+        <h2 style="text-align:center;">By country</h2>
+        <canvas ng-if="ctrl.alert['country'].type!='error'" id="pie" class="chart chart-pie"
+        chart-data="ctrl.stats['country'].data" chart-labels="ctrl.stats['country'].labels" chart-legend="true">
+      </canvas>
       <div ng-if="ctrl.alert['country'].type=='error'"  role="alert" style="text-align:center; color: red;"><b>{{ctrl.alert['country'].title}}</b></div>
-  </div>
-  <div class="col-md-4" >
-    <h2 style="text-align:center;">By region</h2>
-    <canvas  ng-if="ctrl.alert['region'].type!='error'" id="pie" class="chart chart-pie"
+    </div>
+    <div class="col-md-4" >
+      <h2 style="text-align:center;">By region</h2>
+      <canvas  ng-if="ctrl.alert['region'].type!='error'" id="pie" class="chart chart-pie"
       chart-data="ctrl.stats['region'].data" chart-labels="ctrl.stats['region'].labels" chart-legend="true">
     </canvas>
-      <div ng-if="ctrl.alert['country'].type=='error'"  role="alert" style="text-align:center; color: red;"><b>{{ctrl.alert['country'].title}}</b></div>
+    <div ng-if="ctrl.alert['country'].type=='error'"  role="alert" style="text-align:center; color: red;"><b>{{ctrl.alert['country'].title}}</b></div>
   </div>
   <div class="col-md-4" >
     <h2 style="text-align:center;">By city</h2>
     <canvas ng-if="ctrl.alert['city'].type!='error'"  id="pie" class="chart chart-pie"
-        chart-data="ctrl.stats['city'].data" chart-labels="ctrl.stats['city'].labels" chart-legend="true">
-    </canvas>
-      <div ng-if="ctrl.alert['country'].type=='error'"  role="alert" style="text-align:center; color: red;"><b>{{ctrl.alert['country'].title}}</b></div>
-  </div>
+    chart-data="ctrl.stats['city'].data" chart-labels="ctrl.stats['city'].labels" chart-legend="true">
+  </canvas>
+  <div ng-if="ctrl.alert['country'].type=='error'"  role="alert" style="text-align:center; color: red;"><b>{{ctrl.alert['country'].title}}</b></div>
+</div>
+</div>
 </div>

@@ -3,7 +3,7 @@
 
 angular.module('urlshortenerApp')
 
-  .controller('RegisterController', function ($http,UserService,$location,$cookies) {
+  .controller('RegisterController', ['$http','UserService','$location','$cookies',function ($http,UserService,$location,$cookies) {
 
 
 
@@ -24,12 +24,12 @@ angular.module('urlshortenerApp')
       self.setLoginMode = function(){
           self.mode="login";
           self.loginUser={};
-      }
+      };
 
       self.setRegisterMode = function(){
           self.mode="register";
           self.registerUser={};
-      }
+      };
         //Resets user errors
         self.resetUserErrors = function(){
             self.userErrors = {
@@ -142,7 +142,7 @@ angular.module('urlshortenerApp')
           }
 
           return !hasErrors;
-      }
+      };
 
 
     //Do the register process
@@ -227,7 +227,7 @@ angular.module('urlshortenerApp')
                     });
 
             }
-      }
+      };
 
 
     //Do every initialization
@@ -235,4 +235,4 @@ angular.module('urlshortenerApp')
 
 
 
-  });
+  }]);
