@@ -60,7 +60,10 @@ public class Application extends SpringBootServletInitializer {
 		userURL.addMethod("PUT");
 		authenticationFilter.addUrlToProtect(userURL);
 
-
+		//Protect GET from aggregated link information
+		URLProtection aggregatedInfoURL = new URLProtection("/info.*");
+		aggregatedInfoURL.addMethod("GET");
+		authenticationFilter.addUrlToProtect(aggregatedInfoURL);
 
 
 		//Protect GET from simple link information
@@ -112,7 +115,7 @@ public class Application extends SpringBootServletInitializer {
 		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 		connector.setScheme("http");
 		connector.setPort(http_port);
-		connector.setSecure(true);
+		connector.setSecure(false);
 		connector.setRedirectPort(https_port);
 		return connector;
 	}

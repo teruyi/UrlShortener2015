@@ -145,7 +145,22 @@ public class UrlInfoController {
                                HttpServletResponse response, HttpServletRequest request,
                                Map<String, Object> model) {
 
+        String userName = null; //Currently logged-in user username
 
+
+        //Get authentication information
+        final Claims claims = (Claims) request.getAttribute("claims");
+        userName = claims.getSubject();
+        String loggedRoles = (String) claims.get("roles");
+
+
+
+        //If global and not admin -> Forbidden
+        if(!loggedRoles.equalsIgnoreCase("admin")){
+            //Not authorized
+            ErrorResponse errorResponse = new ErrorResponse("Permission denied");
+            return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+        }
 
         List <Usage> list;
 
