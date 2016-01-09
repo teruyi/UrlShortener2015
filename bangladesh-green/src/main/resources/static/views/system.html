@@ -1,0 +1,69 @@
+<div class="mainBackground">
+<div class="row" >
+  <div class="col-md-12 columnDecoration">
+    <div style="text-align:center;">
+      <span  style="font-size:150%;"> Viewing system stats</span>
+    </div>
+    <br/>
+    <div class="col-lg-3">
+      <div class="input-group">
+        <span class="input-group-addon" id="sizing-addon3">Date to visualize:</span>
+        <input type="date" class="form-control"  ng-model="ctrl.day" placeholder="Enter a date (YYYY/MM/DD)">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="ctrl.loadData()">Load</button>
+        </span>
+      </div><!-- /input-group -->
+    </div><!-- /.col-lg-6 -->
+  </div>
+
+</div>
+<div ng-if="ctrl.alert.type=='error'" class="alert alert-danger" role="alert"><b>{{ctrl.alert.title}}:</b>   {{ctrl.alert.message}}</div>
+<div ng-if="ctrl.alert['general'].type=='error'"   class="alert alert-danger" role="alert"><b>{{ctrl.alert['general'].title}}:</b>   {{ctrl.alert['general'].message}}</div>
+<div class="row" style="margin-top:20px; " ng-if="ctrl.alert['general'].type!='error'">
+
+  <!--CPU Usage BOX -->
+  <div class="col-lg-4 col-md-4" ng-if="ctrl.canView">
+    <h3 style="text-align: center;">CPU usage</h3>
+    <div class="main-box no-header clearfix" style="padding:5px; text-align:center;">
+      <div class="main-box-body clearfix" style="padding:5px; text-align:center;" ng-if="ctrl.cpu.average!='NaN'">
+        <b style="font-size:130%;">Average usage this day:</b> {{ctrl.cpu.average | number:3}} %
+        <canvas id="line" class="chart chart-line" chart-data="ctrl.cpu.data"
+        chart-labels="ctrl.cpu.labels"   chart-options="ctrl.chartOptions"
+        chart-click="onClick" >
+      </canvas>
+    </div>
+    <b ng-if="ctrl.cpu.average=='NaN'">No data available</b>
+  </div>
+</div>
+<!--RAM  Usage BOX -->
+<div class="col-lg-4 col-md-4" ng-if="ctrl.canView">
+  <h3 style="text-align: center;">RAM usage</h3>
+  <div class="main-box no-header clearfix" style="padding:5px; text-align:center;">
+    <div class="main-box-body clearfix" style="padding:5px; text-align:center;" ng-if="ctrl.ram.average!='NaN'">
+      <b style="font-size:130%;">Average usage this day:</b> {{ctrl.ram.average | number:3}} %
+      <canvas id="line" class="chart chart-line" chart-data="ctrl.ram.data"
+      chart-labels="ctrl.ram.labels"   chart-options="ctrl.chartOptions"
+      chart-click="onClick" >
+    </canvas>
+  </div>
+  <b ng-if="ctrl.cpu.average=='NaN'">No data available</b>
+</div>
+</div>
+<!-- Clicks BOX -->
+<div class="col-lg-4 col-md-4" ng-if="ctrl.canView">
+  <h3 style="text-align: center;">Clicks</h3>
+  <div class="main-box no-header clearfix" style="padding:5px; text-align:center;">
+    <div class="main-box-body clearfix" style="padding:5px; text-align:center;">
+      <b style="font-size:130%;">All time:</b> {{ctrl.clicks.all}}
+      <span> - </span>
+      <b style="font-size:130%;">This day:</b> {{ctrl.clicks.today}}
+      <canvas id="line" class="chart chart-line" chart-data="ctrl.clicks.data"
+      chart-labels="ctrl.clicks.labels"  chart-series="ctrl.series"
+      chart-click="onClick" >
+    </canvas>
+  </div>
+</div>
+</div>
+
+</div>
+</div>

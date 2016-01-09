@@ -73,13 +73,16 @@ public class LoginController {
 
                 //Expiration time of token
                 Date expirationDate = new Date();
-                long expirationTimeInSeconds = 36000000;
+                int expirationTimeInSeconds = 86400; //1 day of expiration
                 expirationDate.setTime(System.currentTimeMillis() + expirationTimeInSeconds *1000);
 
                 //All right, generate Token
                 Cookie cookie = new Cookie("wallaclaim",Jwts.builder().setSubject(login.getUsername())
                         .claim("roles", requestedUser.getRole()).setIssuedAt(new Date()).setExpiration(expirationDate)
                         .signWith(SignatureAlgorithm.HS256, key).compact());
+
+
+                cookie.setMaxAge(expirationTimeInSeconds); //Set expiration time of cookie
 
                 response.addCookie(cookie);
                 return new ResponseEntity<>(

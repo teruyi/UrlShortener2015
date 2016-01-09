@@ -8,7 +8,7 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="https://bootswatch.com/cosmo/bootstrap.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
@@ -21,27 +21,30 @@
 <![endif]-->
 
 <!-- Add your site or application content here -->
-<div class="header">
-    <div class="navbar navbar-default" role="navigation">
+
+    <navigation-bar>
+        <div class="navbar navbar-default" role="navigation" style="margin:0px; !important">
 
 
-        <a class="navbar-brand" href="index.html">WallaLinks!</a>
+            <a class="navbar-brand" href="/">WallaLinks!</a>
 
-        <div class="collapse navbar-collapse" id="js-navbar-collapse">
+            <!-- ngIf: currentPath()!='/login' --><div class="collapse navbar-collapse ng-scope" id="js-navbar-collapse" ng-if="currentPath()!='/login'">
             <ul class="nav navbar-nav">
-                <li ><a href="index.html">Home</a></li>
-            </ul>
+                <li ng-class="{'active':currentPath().indexOf('shorten')>0}" class=""><a href="/"><i class="glyphicon glyphicon-home"></i> Home</a></li>
+            </ul><!-- end ngIf: logged() -->
+            <!-- ngIf: !logged() -->
+        </div><!-- end ngIf: currentPath()!='/login' -->
         </div>
-    </div>
-</div>
+    </navigation-bar>
 
-<div class="container">
+
+<div class=" mainBackground" style="padding:20px;">
     <img src="images/success.png" class="lockImage">
     <p class="lockText">Congratulations!</p>
     <p class="lockTextSecondary">Your account has been verified successfully.</p>
     <p class="lockTextSecondary">Now you can <a href="${url}">login</a> and use the service.</p>
 </div>
-<div class="container">
+<div class=" mainBackground" style="padding:20px;">
     <p class="lockTextSecondary"><strong>The following user has been activated:</strong></p>
     <p class="lockTextSecondary"><strong>Username:</strong> ${user}</p>
     <p class="lockTextSecondary"><strong>Email: </strong>${email}</p>

@@ -209,6 +209,8 @@ public class UrlInfoController {
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 
         }
+
+
         SuccessResponse success = new SuccessResponse(list);
         response.setStatus(HttpStatus.OK.value());
         return new ResponseEntity<>(success, HttpStatus.OK);
