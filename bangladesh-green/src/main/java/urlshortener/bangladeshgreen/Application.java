@@ -115,7 +115,7 @@ public class Application extends SpringBootServletInitializer {
 		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
 		connector.setScheme("http");
 		connector.setPort(http_port);
-		connector.setSecure(true);
+		connector.setSecure(false);
 		connector.setRedirectPort(https_port);
 		return connector;
 	}
