@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.warningQueue;
+package urlshortener.bangladeshgreen.availableQueue;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
@@ -8,42 +8,42 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
- * Configures beans for managing the "warningQueue" queue.
+ * Configures beans for managing the "availableQueue" queue.
  * It registers the queue, listener, threads pool and periodic check (thread).
  * Author: bangladesh-green
  */
 @Configuration
 @EnableScheduling
-public class QueueConfigurationWarning {
+public class AvailableQueueConfiguration {
 
     @Bean
     // Register the desired queue
-    public Queue warningQueue() {
-        return new Queue("warningQueue");
+    public Queue availableQueue() {
+        return new Queue("availableQueue");
     }
 
     @Bean
     // Register the listener that takes messages from queue
-    public ListenerWarning listenerWarning(){
-        return new ListenerWarning();
+    public AvailableListener listener(){
+        return new AvailableListener();
     }
 
     @Bean
     // Periodic check for available URIs (in one thread).
-    public PeriodicCheckWarning periodicCheckWarning() {
-        return new PeriodicCheckWarning();
+    public AvailablePeriodicCheck periodicCheck() {
+        return new AvailablePeriodicCheck();
     }
 
     @Bean
     // Thread pool of the queue. It takes threads (workers) from this pool to do certain tasks.
-    public TaskExecutor warningExecutor() {
-        ThreadPoolTaskExecutor taskExecutorWarning = new ThreadPoolTaskExecutor();
+    public TaskExecutor availableExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         // If the queue is full (MAX_INT_VALUE), then it can create this number of threads.
-        taskExecutorWarning.setMaxPoolSize(10);
+        taskExecutor.setMaxPoolSize(10);
         // It can be X process concurrently.
-        taskExecutorWarning.setCorePoolSize(10);
-        taskExecutorWarning.afterPropertiesSet();
-        return taskExecutorWarning;
+        taskExecutor.setCorePoolSize(10);
+        taskExecutor.afterPropertiesSet();
+        return taskExecutor;
     }
 
 }

@@ -25,7 +25,7 @@ import java.util.concurrent.Semaphore;
  * If the URI has been checked before (before an hour ago), it doesn't make the request.
  */
 @Component
-public class WorkerNotification implements Runnable {
+public class NotificationWorker implements Runnable {
 
     @Autowired
     private URIDisabledRepository repositoryURIDisabled;

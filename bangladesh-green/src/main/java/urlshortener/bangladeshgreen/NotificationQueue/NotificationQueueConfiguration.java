@@ -14,7 +14,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @EnableScheduling
-public class QueueConfigurationNotification {
+public class NotificationQueueConfiguration {
 
     @Bean
     // Register the desired queue
@@ -24,14 +24,14 @@ public class QueueConfigurationNotification {
 
     @Bean
     // Register the listener that takes messages from queue
-    public ListenerNotification listenerNotification(){
-        return new ListenerNotification();
+    public NotificationListener listenerNotification(){
+        return new NotificationListener();
     }
 
     @Bean
     // Periodic check for available URIs (in one thread).
-    public PeriodicCheckNotification periodicCheckNotification() {
-        return new PeriodicCheckNotification();
+    public NotificationPeriodicCheck periodicCheckNotification() {
+        return new NotificationPeriodicCheck();
     }
 
     @Bean

@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.NotificationQueue;
+package urlshortener.bangladeshgreen.availableQueue;
 
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -9,23 +9,23 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
- * Listener of the "notificationQueue" queue.
+ * Listener of the "availableQueue" queue.
  * It's the class called when a new message is ready in the queue.
  * When there is a new message in the queue, it creates a worker with the message and executes it.
  */
 @Component
-public class ListenerNotification {
+public class AvailableListener {
 
     @Autowired
-    @Qualifier("notificationExecutor")
-    TaskExecutor executorNotification;
+    @Qualifier("availableExecutor")
+    TaskExecutor executor;
 
     @Autowired
-    WorkerNotification worker;
+    AvailableWorker worker;
 
-    @RabbitListener(queues="notificationQueue")
+    @RabbitListener(queues="availableQueue")
     public void process(@Payload String URI) {
         //Cuando hay mensaje en la cola, se lanza worker a traves del pool
-        worker.setParameter(URI); executorNotification.execute(worker);
+        worker.setParameter(URI); executor.execute(worker);
     }
 }

@@ -21,10 +21,10 @@ import java.util.concurrent.Semaphore;
  * If the URI has been checked before (before an hour ago), it doesn't make the request.
  */
 @Component
-public class WorkerSafe implements Runnable {
+public class SafeWorker implements Runnable {
 
 
-    private static final Logger logger = LoggerFactory.getLogger(WorkerSafe.class);
+    private static final Logger logger = LoggerFactory.getLogger(SafeWorker.class);
 
     @Autowired
     private URISafeRepository repository;

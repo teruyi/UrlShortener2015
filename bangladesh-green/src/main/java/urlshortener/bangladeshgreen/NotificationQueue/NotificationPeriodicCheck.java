@@ -18,7 +18,7 @@ import java.util.List;
  * It's scheduled and when it runs, obtains all the outdated links from the DB, checking all again.
  * It checks the URIs by inserting again the URIs in the queue.
  */
-public class PeriodicCheckNotification {
+public class NotificationPeriodicCheck {
 	// Interval that sets when a URI has to be checked again (1/4 h)
 
 	@Autowired
