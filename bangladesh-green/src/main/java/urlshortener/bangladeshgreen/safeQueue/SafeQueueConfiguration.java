@@ -1,4 +1,4 @@
-package urlshortener.bangladeshgreen.availableQueue;
+package urlshortener.bangladeshgreen.safeQueue;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
@@ -8,35 +8,35 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
- * Configures beans for managing the "availableQueue" queue.
+ * Configures beans for managing the "safeQueue" queue.
  * It registers the queue, listener, threads pool and periodic check (thread).
  * Author: bangladesh-green
  */
 @Configuration
 @EnableScheduling
-public class QueueConfiguration {
+public class SafeQueueConfiguration {
 
     @Bean
     // Register the desired queue
-    public Queue availableQueue() {
-        return new Queue("availableQueue");
+    public Queue safeQueue() {
+        return new Queue("safeQueue");
     }
 
     @Bean
     // Register the listener that takes messages from queue
-    public Listener listener(){
-        return new Listener();
+    public SafeListener listenerSafe(){
+        return new SafeListener();
     }
 
     @Bean
-    // Periodic check for available URIs (in one thread).
-    public PeriodicCheck periodicCheck() {
-        return new PeriodicCheck();
+    // Periodic check for safe URIs (in one thread).
+    public SafePeriodicCheck periodicCheckSafe() {
+        return new SafePeriodicCheck();
     }
 
     @Bean
     // Thread pool of the queue. It takes threads (workers) from this pool to do certain tasks.
-    public TaskExecutor availableExecutor() {
+    public TaskExecutor safeExecutor() {
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         // If the queue is full (MAX_INT_VALUE), then it can create this number of threads.
         taskExecutor.setMaxPoolSize(10);

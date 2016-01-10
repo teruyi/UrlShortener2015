@@ -25,7 +25,7 @@ import java.util.concurrent.Semaphore;
  * If the URI has been checked before (before an hour ago), it doesn't make the request.
  */
 @Component
-public class WorkerWarning implements Runnable {
+public class WarningWorker implements Runnable {
 
     @Autowired
     private URIAvailableRepository repository;
@@ -35,14 +35,15 @@ public class WorkerWarning implements Runnable {
 
     @Autowired
     private ShortURLRepository repositorySHORT;
+
     private int periodCheck= 2; //HOW MANY INTERVALS OF TIME ARE NECESARY TO ANALIZE THE TIMES
     private Semaphore lock = new Semaphore(1);
-    private int timesService = 8; // Two Hours. Times for make time service average.
-    private int timeDelay = 4; // One Hour. Times for make delay average.
-    private double limitDelay = 1000.0; // 0,1 seconds of response's delay
+
+    private double limitDelay = 2000.0; // 2 seconds of response's delay
     private int limitNotAvailable = 2; // If receive 404 during 1/2 hour disable uri.
     private double limitTimeServiceAverage = 0.75; // The service must be active 75 % of time.
     private String param;
+
     public void setParameter(String param){
         try {
             // Sets a lock around the parameter (can be overwritten).
@@ -69,7 +70,7 @@ public class WorkerWarning implements Runnable {
      * Checks if an URI is warning (returns 2XX or 3XX code).
      * Allows redirections.
      * @param URI is the URI to check
-     * @return actualize URI
+     * @return update URI
      */
     protected void checkURI(String URI){
 

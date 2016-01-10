@@ -36,8 +36,7 @@ import java.util.*;
 public class RedirectController {
 
 
-    private static final Logger log = LoggerFactory
-            .getLogger(RedirectController.class);
+
 
     private static final Logger logger = LoggerFactory.getLogger(RedirectController.class);
 
@@ -143,7 +142,6 @@ public class RedirectController {
 
         //FOURTH CHECK: If the URI is not available (since last check), go to "notAvailable.jsp".
         URIavailability = availableRepository.findByTarget(shortURL.getTarget());
-        System.out.print(URIavailability.toString());
         if(URIavailability!=null && !URIavailability.isAvailable()){
             // If the target URI is not available
 
@@ -156,15 +154,14 @@ public class RedirectController {
 
         //FIVE CHECK: If the URI is not safe (since last check), go to "notsafe.jsp".
         URIsafe = safeRepository.findByTarget(shortURL.getTarget());
-        System.out.print(URIsafe.toString());
         if(URIsafe!=null && !URIsafe.isSafe()){
             response.setStatus(HttpStatus.BAD_GATEWAY.value());
             ErrorUnsafe error = new ErrorUnsafe("BAD_GATEWAY",shortURL.getTarget());
             return new ResponseEntity<>(error, HttpStatus.BAD_GATEWAY);
             // If the target URI is not available
         }
-        //ALL RIGHT, proceed to send safe and available url
 
+        //ALL RIGHT, proceed to send safe and available url
         response.setStatus(HttpStatus.ACCEPTED.value());
         URLSafe succes = new URLSafe("ACCEPTED",shortURL.getTarget());
         return new ResponseEntity<>(succes, HttpStatus.ACCEPTED);

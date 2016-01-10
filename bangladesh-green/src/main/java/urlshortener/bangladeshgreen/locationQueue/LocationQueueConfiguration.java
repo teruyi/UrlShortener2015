@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @EnableScheduling
-public class LocationQueueConfig {
+public class LocationQueueConfiguration {
 
     @Bean
     // Register the desired queue
