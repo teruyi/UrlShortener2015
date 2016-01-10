@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @EnableScheduling
-public class QueueConfig2 {
+public class LocationQueueConfig {
 
     @Bean
     // Register the desired queue
@@ -22,8 +22,8 @@ public class QueueConfig2 {
 
     @Bean
     // Register the listener that takes messages from queue
-    public Listener3 listener(){
-        return new Listener3();
+    public LocationListener listener(){
+        return new LocationListener();
     }
 
     @Bean
