@@ -29,6 +29,13 @@ public class ShortURLFixture {
 		return new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(System.currentTimeMillis() - 10000),"0.0.0.0",false,null,(long) 1,null);
 	}
 
+	public static ShortURL someUrlWithAuthorizedUserList(String authorizedUser){
+		List<String> authorizedList = new ArrayList<>();
+		authorizedList.add(authorizedUser);
+		return new ShortURL("someKey","http://www.google.es",null,"randomUser",new Date(),"0.0.0.0",false,null,null,authorizedList);
+
+	}
+
 	public static List<ShortURL> someUrlList(int size){
 		List<ShortURL> list = new ArrayList<ShortURL>();
 		for(int i = 0; i < size; i++){
