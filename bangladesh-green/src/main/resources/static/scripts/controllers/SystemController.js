@@ -17,7 +17,8 @@ Controller used for system stats viewing
   self.cpu = {};
   self.ram = {};
   self.clicks = {};
-  self.chartOptions = {pointDot: false, showTooltips: false};
+  self.chartOptions = {pointDot: false, showTooltips: false, animation: false};
+  self.clickChartOptions = {animation:false,pointDot:false};
 
 
   /* Loads CPU data */
@@ -39,17 +40,21 @@ Controller used for system stats viewing
       var list = data.data.data;
       self.cpu.labels = [];
       self.cpu.data = [[]];
+      var pointNumber = 0;
       for(var i = 0; i < list.length; i++){
 
-        self.cpu.data[0].push(list[i].usage);
-      if(i%10==0){
-        if(i%20==0){ //Legend only every 10 seconds
-          self.cpu.labels.push("" +  $filter('date')( list[i].time, "HH:mm"));
+        if(i%10==0){
+          pointNumber++;
+          self.cpu.data[0].push(list[i].usage);
+
+          if(pointNumber%(Math.floor(list.length/100))==0){ //Legend only every 10 seconds
+
+            self.cpu.labels.push("" +  $filter('date')( list[i].time, "HH:mm"));
+          }
+          else{
+            self.cpu.labels.push("");
+          }
         }
-        else{
-          self.cpu.labels.push("");
-        }
-      }
       }
     })
 
@@ -86,20 +91,21 @@ Controller used for system stats viewing
       var list = data.data.data;
       self.ram.labels = [];
       self.ram.data = [[]];
+      var pointNumber = 0;
       for(var i = 0; i < list.length; i++){
 
+        if(i%10==0){
+          pointNumber++;
+          self.ram.data[0].push(list[i].usage);
 
-        self.ram.data[0].push(list[i].usage);
+          if(pointNumber%(Math.floor(list.length/100))==0){ //Legend only every 10 seconds
 
-      if(i%10==0){
-        if(i%20==0){ //Every 10 minutes, legend
-          self.ram.labels.push("" +  $filter('date')( list[i].time, "HH:mm"));
+            self.ram.labels.push("" +  $filter('date')( list[i].time, "HH:mm"));
+          }
+          else{
+            self.ram.labels.push("");
+          }
         }
-        else{
-          self.ram.labels.push("");
-        }
-      }
-
       }
 
     })
