@@ -1,5 +1,7 @@
 package urlshortener.bangladeshgreen.availableQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
@@ -8,7 +10,6 @@ import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Date;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -20,95 +21,111 @@ import java.util.concurrent.Semaphore;
 @Component
 public class Worker implements Runnable {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(Worker.class);
+
     @Autowired
     private URIAvailableRepository repository;
 
     private Semaphore lock = new Semaphore(1);
-    private String param;
+    private String workerParameter;
     public void setParameter(String param){
         try {
             // Sets a lock around the parameter (can be overwritten).
             lock.acquire();
-            this.param = param;
+            this.workerParameter = param;
         } catch (InterruptedException e) {
-            System.out.println("Worker: failing with locks.");
+            logger.error("Available worker: Failing with locks");
 
         }
     }
 
     @Override
     public void run() {
-        String parameter = param;
+
+        String parameter = workerParameter;
         lock.release();
-        long id =  Thread.currentThread().getId();
-        Date now = new Date();
-        System.out.println("---------------------------------------------------------------------------------------");
-        System.out.println();
-        System.out.println("AVAILABLE URI CHECK QUEUE" );
-        System.out.println(parameter);
 
         URIAvailable checked = checkURI(parameter);
-        System.out.println(checked.toString());
-        System.out.println("------------------------------------------------");
         repository.save(checked);
+
+        logger.info("Available Worker: " + checked.toString());
 
     }
 
     /**
      * Checks if an URI is available (returns 2XX or 3XX code).
      * Allows redirections.
-     * @param URI is the URI to check
-     * @return actualize URI
+     * @param uriToCheck is the URI to check
+     * @return update URI
      */
-    protected URIAvailable checkURI(String URI){
+    protected URIAvailable checkURI(String uriToCheck){
         try {
 
-            URL url = new URL(URI);
+            URL url = new URL(uriToCheck);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestMethod("GET");
+
             // Sets default timeout to 3 seconds
             connection.setConnectTimeout(3000);
-            // Connects to the URI to check.
-            long t1 = System.currentTimeMillis();
-            connection.connect();
-            long t2 = System.currentTimeMillis();
-            long t3 = t2-t1;
 
-            Integer code = new Integer(connection.getResponseCode());
-            URIAvailable uri = actualize(URI,t3,code);
-            if(uri != null){
-                return uri;
+            //Used to bypass "only browsers" protection
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
+
+            // Connects to the URI to check.
+            long connectionStartTime = System.currentTimeMillis();
+            connection.connect();
+            long connectionEndTime = System.currentTimeMillis();
+            long connectionTotalTime = connectionEndTime-connectionStartTime;
+
+            Integer responseCode = new Integer(connection.getResponseCode());
+
+            //Check if uriAvailable is already on repository and updates stats if so
+            URIAvailable uriAvailable = update(uriToCheck,connectionTotalTime,responseCode);
+
+            if(uriAvailable != null){
+                //Found in repository
+                return uriAvailable;
             }else{
-                if (code.toString().charAt(0) == '2' || code.toString().charAt(0) == '3') {
-                    URIAvailable newURIAvailable = new URIAvailable(param, true, System.currentTimeMillis(), true, false);
-                    return newURIAvailable;
+                //Not found in repository
+                if (responseCode.toString().charAt(0) == '2' || responseCode.toString().charAt(0) == '3') {
+                    return new URIAvailable(workerParameter, true, System.currentTimeMillis(), true, false);
+
                 }else{
-                    URIAvailable newURIAvailable = new URIAvailable(param, false, System.currentTimeMillis(), true, false);
-                    return newURIAvailable;
+                    return new URIAvailable(workerParameter, false, System.currentTimeMillis(), true, false);
+
                 }
             }
 
         } catch (IOException e) {
 
-            URIAvailable uri = repository.findByTarget(URI);
-            if(uri != null){
-                uri.getDelays().add(new Long(3000));
-                uri.getService().add(1);
-                uri.setTimes(uri.getTimes()+1);
-                uri.setAvailable(false);
+            //Timeout has been reached
+
+            URIAvailable uriAvailable = repository.findByTarget(uriToCheck);
+            if(uriAvailable != null){
+
+                uriAvailable.getDelays().add(new Long(3000)); //Total delays
+                uriAvailable.getService().add(1);
+                uriAvailable.setTimes(uriAvailable.getTimes()+1);
+                uriAvailable.setAvailable(false);
                 // if not available
                 // time down
-                uri.setNotAvailable(uri.getNotAvailable()+1);
-                return uri;
+                uriAvailable.setNotAvailable(uriAvailable.getNotAvailable()+1);
+                return uriAvailable;
             }else{
-                return new URIAvailable(param, false, System.currentTimeMillis(), true, false);
+                return new URIAvailable(workerParameter, false, System.currentTimeMillis(), true, false);
 
             }
 
         }
     }
 
-    protected URIAvailable actualize(String URI, long delay,Integer code){
+    /**
+     * Checks if URI is already on repository.
+     * If it is, it update its stats.
+     * Else, returns null.
+     */
+    protected URIAvailable update(String URI, long delay, Integer code){
         URIAvailable uri = repository.findByTarget(URI);
         if(uri != null) {
             // Add time-out

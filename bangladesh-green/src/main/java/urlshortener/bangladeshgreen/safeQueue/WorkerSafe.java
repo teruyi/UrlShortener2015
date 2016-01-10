@@ -1,5 +1,7 @@
 package urlshortener.bangladeshgreen.safeQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,6 +23,9 @@ import java.util.concurrent.Semaphore;
 @Component
 public class WorkerSafe implements Runnable {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(WorkerSafe.class);
+
     @Autowired
     private URISafeRepository repository;
 
@@ -35,7 +40,7 @@ public class WorkerSafe implements Runnable {
             lock.acquire();
             this.param = param;
         } catch (InterruptedException e) {
-            System.out.println("Worker: failing with locks.");
+            logger.error("Safe Worker: failing with locks");
         }
     }
 
@@ -43,19 +48,14 @@ public class WorkerSafe implements Runnable {
     public void run() {
         String parameter = param;
         lock.release();
-        long id =  Thread.currentThread().getId();
 
         Date now = new Date();
-        System.out.println("---------------------------------------------------------------------------------------");
-        System.out.println();
-        System.out.println("AVAILABLE URI CHECK QUEUE" );
-        System.out.println(parameter);
-        boolean check = checkSafeURI(parameter);
 
+        boolean check = checkSafeURI(parameter);
         URISafe checked = new URISafe(parameter, check, now.getTime());
-        System.out.println(checked);
-        System.out.println("---------------------------------------------------------------------------------------");
         repository.save(checked);
+
+        logger.info("Safe Worker: " + checked);
     }
 
     /**
