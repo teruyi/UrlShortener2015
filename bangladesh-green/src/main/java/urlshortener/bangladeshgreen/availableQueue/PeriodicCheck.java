@@ -15,8 +15,8 @@ import java.util.List;
  * It checks the URIs by inserting again the URIs in the queue.
  */
 public class PeriodicCheck {
-	// Interval that sets when a URI has to be checked again
-	private final long interval = 10000;
+	// Interval that sets when a URI has to be checked again (1h)
+	private final long interval = 3600*1000;
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;

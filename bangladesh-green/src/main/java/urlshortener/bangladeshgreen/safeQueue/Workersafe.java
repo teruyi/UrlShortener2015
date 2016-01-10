@@ -19,7 +19,7 @@ import java.util.concurrent.Semaphore;
  * If the URI has been checked before (before an hour ago), it doesn't make the request.
  */
 @Component
-public class Workersafe implements Runnable {
+public class WorkerSafe implements Runnable {
 
     @Autowired
     private URISafeRepository repository;
