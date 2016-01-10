@@ -1,15 +1,20 @@
 package urlshortener.bangladeshgreen.web;
 
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import static org.junit.Assert.*;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import urlshortener.bangladeshgreen.domain.URISafe;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
@@ -17,12 +22,12 @@ import urlshortener.bangladeshgreen.repository.ShortURLRepository;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 import urlshortener.bangladeshgreen.repository.URISafeRepository;
 
+import java.util.Date;
+
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static urlshortener.bangladeshgreen.web.fixture.ShortURLFixture.*;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someAvailable;
 import static urlshortener.bangladeshgreen.web.fixture.URIAvailableFixture.someNotAvailable;
@@ -110,12 +115,93 @@ public class RedirectControllerTest {
 				.andExpect(redirectedUrl("http://www.google.es"));
 	}
 
+
+	@Test
+	/**
+	 * Test that REDIRECT over a NON-PRIVATE but USER-PROTECTED redirects
+	 * if user is authenticated and allowed.
+	 */
+	public void thatRedirectToUserProtectedRedirectsIfUserAllowed() throws Exception{
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlWithAuthorizedUserList("user"));
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
+
+		//Test redirection
+		mockMvc.perform(get("/{id}", "someKey").with(request -> {
+			request.setAttribute("claims",createTestUserClaims("user"));
+			return request;
+		})).andDo(print())
+				.andExpect(status().isTemporaryRedirect())
+				.andExpect(redirectedUrl("http://www.google.es"));
+
+
+	}
+
+
+	@Test
+	/**
+	 * Test that REDIRECT over a NON-PRIVATE but USER-PROTECTED does not redirect (error 403)
+	 * if user is authenticated and NOT allowed
+	 */
+	public void thatRedirectToUserProtectedReturns403IfUserNotAllowed() throws Exception{
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlWithAuthorizedUserList("user"));
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
+
+		//Test redirection
+		mockMvc.perform(get("/{id}", "someKey").with(request -> {
+			request.setAttribute("claims",createTestUserClaims("anotherUser"));
+			return request;
+		})).andDo(print())
+				.andExpect(status().isForbidden());
+
+
+	}
+
+
+	@Test
+	/**
+	 * Test that REDIRECT over a NON-PRIVATE but USER-PROTECTED redirects to BRIDGE page
+	 * if user is NOT authenticated
+	 */
+	public void thatRedirectToUserProtectedRedirectsToBridgeIfUserNotAuthenticated() throws Exception{
+		// Mock URLrepository response to someUrl.
+		when(shortURLRepository.findByHash("someKey")).thenReturn(someUrlWithAuthorizedUserList("user"));
+
+		// Mock URLAvailableRepository to checked URI.
+		when(availableRepository.findByTarget(someUrl().getTarget())).thenReturn(someAvailable());
+
+		// Mock URLSafeRepository to checked URI.
+		when(safeRepository.findByTarget(someUrl().getTarget())).thenReturn(someSafe());
+
+		//Test redirection
+		MvcResult result = mockMvc.perform(get("/{id}", "someKey")).andDo(print())
+				.andExpect(status().isUnauthorized())
+				.andReturn();
+
+		assertTrue(result.getResponse().getRedirectedUrl().contains("/bridge/someKey"));
+
+
+	}
+
+
+
 	@Test
 	/*
 	Test that REDIRECT over a NON-PRIVATE link DOES NOT redirect if KEY EXISTS,
 	but the link IS EXPIRED.
 	 */
-	public void thatRedirectToReturnsTemporaryRedirectIfKeyExistsAndExpired()
+	public void thatRedirectToDoesntReturnTemporaryRedirectIfKeyExistsAndExpired()
 			throws Exception {
 
 		// Mock URLrepository response to someUrl.
@@ -161,7 +247,7 @@ public class RedirectControllerTest {
 	Test that REDIRECT over a PRIVATE link gives error 401 if key exists
 	and Private Token IS NOT CORRECT.
 	 */
-	public void thatRedirectToPrivateReturnsTemporaryRedirectIfKeyExistsAndPrivateTokenIncorrect()
+	public void thatRedirectToPrivateReturns401IfKeyExistsAndPrivateTokenIncorrect()
 			throws Exception {
 
 		//Mock URLrepository response to a private URL.
@@ -184,7 +270,7 @@ public class RedirectControllerTest {
 	Test that REDIRECT over a PRIVATE link gives error 401 if key exists
 	and Private Token IS NOT SUPPLIED.
 	 */
-	public void thatRedirectToPrivateReturnsTemporaryRedirectIfKeyExistsAndPrivateTokenNotSupplied()
+	public void thatRedirectToPrivateReturns401IfKeyExistsAndPrivateTokenNotSupplied()
 			throws Exception {
 
 		//Mock URLrepository response to a private URL.
@@ -292,5 +378,18 @@ public class RedirectControllerTest {
 		mockMvc.perform(get("/{id}", "someKey")).andDo(print())
 				.andExpect(status().isTemporaryRedirect())
 				.andExpect(redirectedUrl("http://www.google.es"));
+	}
+
+	/*Returns a valid Claim of user testUser and roles: user with key "secretKey".
+	Used for mocking it into the controller and simulate a logged-in user.
+			*/
+	private Claims createTestUserClaims(String username){
+
+		String claims =  Jwts.builder().setSubject(username)
+				.claim("roles", "user").setIssuedAt(new Date())
+				.signWith(SignatureAlgorithm.HS256, "secretkey").compact();
+
+		return Jwts.parser().setSigningKey("secretkey")
+				.parseClaimsJws(claims).getBody();
 	}
 }
