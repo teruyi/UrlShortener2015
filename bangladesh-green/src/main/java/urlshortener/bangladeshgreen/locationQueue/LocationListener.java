@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
  * Created by teruyi on 27/12/15.
  */
 @Component
-public class Listener3 {
+public class LocationListener {
 
     @Autowired
     @Qualifier("locaExecutor1")
     TaskExecutor executor;
 
     @Autowired
-    Worker3 worker;
+    LocationWorker worker;
 
     @RabbitListener(queues="locaQueue1")
     public void process(@Payload String IP) {

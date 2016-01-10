@@ -144,7 +144,7 @@ public class RedirectController {
         //FOURTH CHECK: If the URI is not available (since last check), go to "notAvailable.jsp".
         URIavailability = availableRepository.findByTarget(shortURL.getTarget());
         System.out.print(URIavailability.toString());
-        if(!URIavailability.isAvailable()){
+        if(URIavailability!=null && !URIavailability.isAvailable()){
             // If the target URI is not available
 
             response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -157,7 +157,7 @@ public class RedirectController {
         //FIVE CHECK: If the URI is not safe (since last check), go to "notsafe.jsp".
         URIsafe = safeRepository.findByTarget(shortURL.getTarget());
         System.out.print(URIsafe.toString());
-        if(!URIsafe.isSafe()){
+        if(URIsafe!=null && !URIsafe.isSafe()){
             response.setStatus(HttpStatus.BAD_GATEWAY.value());
             ErrorUnsafe error = new ErrorUnsafe("BAD_GATEWAY",shortURL.getTarget());
             return new ResponseEntity<>(error, HttpStatus.BAD_GATEWAY);

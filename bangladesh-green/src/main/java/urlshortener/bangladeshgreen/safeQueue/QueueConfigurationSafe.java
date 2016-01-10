@@ -24,8 +24,8 @@ public class QueueConfigurationSafe {
 
     @Bean
     // Register the listener that takes messages from queue
-    public Listenerssafe listenerSafe(){
-        return new Listenerssafe();
+    public ListenerSafe listenerSafe(){
+        return new ListenerSafe();
     }
 
     @Bean

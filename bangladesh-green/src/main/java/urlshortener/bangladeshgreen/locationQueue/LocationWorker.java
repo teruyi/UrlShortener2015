@@ -21,12 +21,12 @@ import java.util.Scanner;
  * Created by teruyi on 27/12/15.
  */
 @Component
-public class Worker3  implements Runnable{
+public class LocationWorker implements Runnable{
 
     @Autowired
     protected ClickRepository clickRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(Worker3.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocationWorker.class);
     private String p1;
     private String hash;
     private String ip;

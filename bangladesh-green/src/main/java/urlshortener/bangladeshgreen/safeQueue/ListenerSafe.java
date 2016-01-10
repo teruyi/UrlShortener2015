@@ -14,14 +14,14 @@ import org.springframework.stereotype.Component;
  * When there is a new message in the queue, it creates a worker with the message and executes it.
  */
 @Component
-public class Listenerssafe {
+public class ListenerSafe {
 
     @Autowired
     @Qualifier("safeExecutor")
     TaskExecutor executor;
 
     @Autowired
-    Workersafe worker;
+    WorkerSafe worker;
 
     @RabbitListener(queues="safeQueue")
     public void process(@Payload String URI) {
