@@ -40,7 +40,7 @@ angular.module('urlshortenerApp')
         self.userListAlert.message = "User '" + self.username + "' does not exist";
         self.canView = false;
       }
-      console.log(data);
+    
     });
   };
 

@@ -73,7 +73,7 @@ angular.module('urlshortenerApp')
         self.alert[type].title = "No data available";
       }
 
-      console.log(self.stats[type]);
+
 
     }).
     error(function(data, status, headers, config) {
@@ -92,7 +92,7 @@ angular.module('urlshortenerApp')
         self.alert['general'].message = "Link '" + self.hash + "' does not exist";
 
       }
-      console.log(data);
+    
     });
 
 

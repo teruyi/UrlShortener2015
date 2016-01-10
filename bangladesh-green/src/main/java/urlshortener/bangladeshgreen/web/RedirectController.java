@@ -340,7 +340,7 @@ public class RedirectController {
 
     protected RedirectView createLoginRedirect(String id, HttpServletRequest request,HttpServletResponse response) {
 
-        RedirectView redirView = new RedirectView("http://" + request.getServerName() + ":" + request.getServerPort() + "/#/bridge/" + id);
+        RedirectView redirView = new RedirectView("https://" + request.getServerName() + ":" + request.getServerPort() + "/#/bridge/" + id);
         redirView.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
         return redirView;
 

@@ -56,7 +56,7 @@ Controller used for viewing user information and editing it
         self.alert.message = "User '" + self.username + "' does not exist";
         self.canView = false;
       }
-      console.log(data);
+
     });
   };
 
@@ -100,7 +100,7 @@ Controller used for viewing user information and editing it
         self.alert.message = "User '" + self.username + "' does not exist";
         self.canView = false;
       }
-      console.log(data);
+    
     });
 
 

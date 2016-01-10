@@ -90,7 +90,7 @@ angular.module('urlshortenerApp')
         self.mode='login';          //Go to login mode
 
         self.token = $cookies.get("wallaclaim");
-        console.log(self.token);
+      
         //Set received token
         UserService.setNewToken($cookies.get("wallaclaim"),self.rememberLogin);
 
@@ -112,7 +112,7 @@ angular.module('urlshortenerApp')
           self.alert.message = "Error " + message.status;
         }
 
-        console.log(self.result);
+
       });
 
     }
@@ -126,7 +126,7 @@ angular.module('urlshortenerApp')
   //First, logout if requested
   if(self.logout){
     UserService.deleteCurrentToken();
-    console.log("Logged out!");
+
   };
 
 

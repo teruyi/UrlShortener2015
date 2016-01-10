@@ -111,7 +111,7 @@ Controller used for system stats viewing
         self.canView = false;
       }
 
-      console.log(data);
+
     });
 
   };
@@ -167,7 +167,7 @@ Controller used for system stats viewing
       }
 
 
-      console.log(data);
+    
     });
 
   };
