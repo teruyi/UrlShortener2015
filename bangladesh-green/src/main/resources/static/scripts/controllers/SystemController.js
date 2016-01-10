@@ -42,13 +42,14 @@ Controller used for system stats viewing
       for(var i = 0; i < list.length; i++){
 
         self.cpu.data[0].push(list[i].usage);
-
+      if(i%4==0){
         if(i%20==0){ //Legend only every 10 seconds
           self.cpu.labels.push("" +  $filter('date')( list[i].time, "HH:mm"));
         }
         else{
           self.cpu.labels.push("");
         }
+      }
       }
     })
 
@@ -90,12 +91,14 @@ Controller used for system stats viewing
 
         self.ram.data[0].push(list[i].usage);
 
+      if(i%4==0){
         if(i%20==0){ //Every 10 minutes, legend
           self.ram.labels.push("" +  $filter('date')( list[i].time, "HH:mm"));
         }
         else{
           self.ram.labels.push("");
         }
+      }
 
       }
 
@@ -167,7 +170,7 @@ Controller used for system stats viewing
       }
 
 
-    
+
     });
 
   };
