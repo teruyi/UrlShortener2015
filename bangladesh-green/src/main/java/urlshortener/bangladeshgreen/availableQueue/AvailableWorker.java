@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -63,7 +64,18 @@ public class AvailableWorker implements Runnable {
         try {
 
             URL url = new URL(uriToCheck);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+
+            HttpURLConnection connection = null;
+            if(uriToCheck.contains("https://")){
+                connection  = (HttpsURLConnection)url.openConnection();
+            }
+            else{
+                connection  = (HttpURLConnection)url.openConnection();
+            }
+
+
+
+
             connection.setRequestMethod("GET");
 
             // Sets default timeout to 3 seconds

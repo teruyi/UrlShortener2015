@@ -41,8 +41,6 @@
     <img src="images/404.png" class="lockImage">
     <p class="lockText">404: URI not available</p>
     <p class="lockTextSecondary">We are sorry, but the URI requested is not available right now.</p>
-</div>
-<div class=" mainBackground" style="padding:20px;">
     <p class="lockTextSecondary"><strong>Last information about the requested URI:</strong></p>
     <p class="lockTextSecondary"><strong>URI: </strong><a href="${target}">${target}</a></p>
     <p class="lockTextSecondary"><strong>Not available since (last check): </strong>${date}</p>
