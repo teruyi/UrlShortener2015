@@ -100,7 +100,7 @@ public class AvailableWorker implements Runnable {
             Integer responseCode = new Integer(connection.getResponseCode());
 
             //Follow 5 redirects as maximum
-            while(doneRedirects < 5 && (responseCode == 301 || responseCode == 302)){
+            while(doneRedirects < 5 && (responseCode == 301 || responseCode == 302 || responseCode == 307)){
 
                 //Follow redirect
                 String location = connection.getHeaderField("Location");
