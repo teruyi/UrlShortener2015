@@ -63,10 +63,14 @@ public class AvailableWorker implements Runnable {
     protected URIAvailable checkURI(String uriToCheck){
         try {
 
+
+            boolean isHttps =  false;
+            boolean tooManyRedirects = false;
             URL url = new URL(uriToCheck);
 
             HttpURLConnection connection = null;
             if(uriToCheck.contains("https://")){
+                isHttps = true;
                 connection  = (HttpsURLConnection)url.openConnection();
             }
             else{
@@ -84,13 +88,51 @@ public class AvailableWorker implements Runnable {
             //Used to bypass "only browsers" protection
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
 
+
             // Connects to the URI to check.
             long connectionStartTime = System.currentTimeMillis();
             connection.connect();
             long connectionEndTime = System.currentTimeMillis();
             long connectionTotalTime = connectionEndTime-connectionStartTime;
 
+
+            int doneRedirects = 0;
             Integer responseCode = new Integer(connection.getResponseCode());
+
+            //Follow 5 redirects as maximum
+            while(doneRedirects < 5 && (responseCode == 301 || responseCode == 302)){
+
+                //Follow redirect
+                String location = connection.getHeaderField("Location");
+                URL redirectURL = new URL(location);
+
+                if(location.contains("http://") && isHttps){
+                    //Change from https to http
+
+                    connection = (HttpURLConnection)redirectURL.openConnection();
+                    isHttps = false;
+                }
+                else if(location.contains("https://") && !isHttps){
+                    //Change from http to https
+                    connection = (HttpsURLConnection)redirectURL.openConnection();
+                    isHttps = true;
+
+                }
+                //Try connection again
+                connectionStartTime = System.currentTimeMillis();
+                connection.connect();
+                connectionEndTime = System.currentTimeMillis();
+                connectionTotalTime = connectionEndTime-connectionStartTime;
+
+                doneRedirects++;
+
+
+            }
+
+            if(doneRedirects>=5){
+                //More than 5 redirects -> crazy
+                tooManyRedirects = true;
+            }
 
             //Check if uriAvailable is already on repository and updates stats if so
             URIAvailable uriAvailable = update(uriToCheck,connectionTotalTime,responseCode);
@@ -100,7 +142,7 @@ public class AvailableWorker implements Runnable {
                 return uriAvailable;
             }else{
                 //Not found in repository
-                if (responseCode.toString().charAt(0) == '2' || responseCode.toString().charAt(0) == '3') {
+                if ((responseCode.toString().charAt(0) == '2' || responseCode.toString().charAt(0) == '3')&&!tooManyRedirects) {
                     return new URIAvailable(workerParameter, true, System.currentTimeMillis(), true, false);
 
                 }else{
