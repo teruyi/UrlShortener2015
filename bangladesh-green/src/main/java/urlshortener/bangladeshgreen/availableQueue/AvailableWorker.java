@@ -119,12 +119,15 @@ public class AvailableWorker implements Runnable {
 
                 }
                 //Try connection again
+
+
                 connectionStartTime = System.currentTimeMillis();
                 connection.connect();
                 connectionEndTime = System.currentTimeMillis();
                 connectionTotalTime = connectionEndTime-connectionStartTime;
 
                 doneRedirects++;
+                responseCode = new Integer(connection.getResponseCode());
 
 
             }
