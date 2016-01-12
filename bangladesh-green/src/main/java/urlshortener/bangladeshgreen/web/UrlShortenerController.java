@@ -13,10 +13,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import urlshortener.bangladeshgreen.domain.ShortURL;
+import urlshortener.bangladeshgreen.domain.URIAvailable;
+import urlshortener.bangladeshgreen.domain.URIDisabled;
 import urlshortener.bangladeshgreen.domain.messages.ErrorResponse;
 import urlshortener.bangladeshgreen.domain.messages.JsonResponse;
 import urlshortener.bangladeshgreen.domain.messages.SuccessResponse;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
+import urlshortener.bangladeshgreen.repository.URIDisabledRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -44,9 +48,14 @@ public class UrlShortenerController {
 	private static final String safeQueue = "safeQueue";
 	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
 
+	@Autowired
+	protected URIDisabledRepository disabledRepository;
 
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
+
+	@Autowired
+	protected URIAvailableRepository availableRepository;
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
@@ -105,7 +114,7 @@ public class UrlShortenerController {
 
 
 	protected ShortURL createAndSaveIfValid(String url,
-			 String creator, String ip, boolean isPrivate, Long expirationSeconds, List<String> authorizedUsers) {
+											String creator, String ip, boolean isPrivate, Long expirationSeconds, List<String> authorizedUsers) {
 
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
@@ -139,17 +148,30 @@ public class UrlShortenerController {
 				privateToken = Hashing.murmur3_32()
 						.hashString(UUID.randomUUID().toString(), StandardCharsets.UTF_8).toString();
 			}
-
-
-			ShortURL su = new ShortURL(id,url,	linkTo(
-					methodOn(RedirectController.class).redirectTo(
-							id, null,null,null,null)).toUri(),creator, new Date(),ip, isPrivate, privateToken,expirationSeconds,authorizedUsers);
-
-
-
-			// If it's available, save the shortUrl and return it
-
+			URIAvailable a = availableRepository.findByTarget(url);
+			if(a!= null) {
+				if (a.isEnable()) {
+					ShortURL su = new ShortURL(id, url, linkTo(
+							methodOn(RedirectController.class).redirectTo(
+									id, null, null, null, null)).toUri(), creator, new Date(), ip, isPrivate, privateToken, expirationSeconds, authorizedUsers);
+					return shortURLRepository.save(su);
+				} else {
+					URIDisabled e = disabledRepository.findByTarget(url).get(0);
+					URIDisabled su = new URIDisabled(id, url, linkTo(
+							methodOn(RedirectController.class).redirectTo(
+									id, null, null, null, null)).toUri(), creator, new Date(), ip, isPrivate, privateToken, expirationSeconds, authorizedUsers);
+					disabledRepository.save(su);
+					return new ShortURL(id, url, linkTo(
+							methodOn(RedirectController.class).redirectTo(
+									id, null, null, null, null)).toUri(), creator, new Date(), ip, isPrivate, privateToken, expirationSeconds, authorizedUsers);
+				}
+			}else{
+				ShortURL su = new ShortURL(id, url, linkTo(
+						methodOn(RedirectController.class).redirectTo(
+								id, null, null, null, null)).toUri(), creator, new Date(), ip, isPrivate, privateToken, expirationSeconds, authorizedUsers);
 				return shortURLRepository.save(su);
+
+			}
 
 		} else {
 			return null;

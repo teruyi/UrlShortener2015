@@ -1,15 +1,12 @@
 package urlshortener.bangladeshgreen.NotificationQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import urlshortener.bangladeshgreen.domain.ShortURL;
-import urlshortener.bangladeshgreen.domain.URIAvailable;
-import urlshortener.bangladeshgreen.domain.URIDisabled;
-import urlshortener.bangladeshgreen.domain.User;
-import urlshortener.bangladeshgreen.repository.ShortURLRepository;
-import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
-import urlshortener.bangladeshgreen.repository.URIDisabledRepository;
-import urlshortener.bangladeshgreen.repository.UserRepository;
+import urlshortener.bangladeshgreen.availableQueue.AvailableWorker;
+import urlshortener.bangladeshgreen.domain.*;
+import urlshortener.bangladeshgreen.repository.*;
 import urlshortener.bangladeshgreen.secure.Email;
 
 import java.net.URI;
@@ -19,14 +16,12 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 /**
- * Worker that is executed by the listener of the queue ("warningQueue").
- * It checks the URI set in the Worker parameter, and inserts the result in the DB (for caching).
- * The check consists in one GET request to the target URI.
- * If the URI has been checked before (before an hour ago), it doesn't make the request.
+ * Worker that is executed by the listener of the queue ("notificationQueue").
+ * It report to users the information of their links by email and refresh the state of links.
  */
 @Component
 public class NotificationWorker implements Runnable {
-
+    private static final Logger logger = LoggerFactory.getLogger(AvailableWorker.class);
     @Autowired
     private URIDisabledRepository repositoryURIDisabled;
 
@@ -38,6 +33,9 @@ public class NotificationWorker implements Runnable {
 
     @Autowired
     private UserRepository repositoryUser;
+
+    @Autowired
+    private NotifyRepository notifyRepository;
 
     @Autowired
     protected Email email;
@@ -60,13 +58,8 @@ public class NotificationWorker implements Runnable {
         lock.release();
         long id =  Thread.currentThread().getId();
        Date now = new Date();
-        System.out.println("---------------------------------------------------------------------------------------");
-        System.out.println();
-        System.out.println("USERS NOTIFICATION QUEUE" );
-        System.out.println(parameter);
         checkUser(parameter);
-
-        System.out.println("---------------------------------------------------------------------------------------");
+        logger.info("\nNotification Worker: \n----------------\n" + parameter);
 
     }
 
@@ -76,53 +69,61 @@ public class NotificationWorker implements Runnable {
      */
     protected void checkUser(String user){
 
-        List<URIDisabled> uri = repositoryURIDisabled.findByCreator(user);
-        List<String> newEnabled = new ArrayList<String>();
-        List<String> newDisabled = new ArrayList<String>();
+        List<URIAvailable> stateOne = new ArrayList<URIAvailable>(); // for  enable urls again
+        List<URIAvailable> stateTwo = new ArrayList<URIAvailable>(); // for warning urls
+        List<URIAvailable> stateThree = new ArrayList<URIAvailable>(); // for disable urls
+        List<URIAvailable> stateFour = new ArrayList<URIAvailable>(); // for delete urls
+        User user2 = repositoryUser.findByUsername(user);
+        // All urls of user
+        List<ShortURL> uris = repositorySHORT.findByCreator(user);
 
-        List<URIDisabled> enab = new ArrayList<URIDisabled>();
-        List<URIDisabled> disa = new ArrayList<URIDisabled>();
-            // Separe new disabled, new enabled
-        for(URIDisabled a : uri){
-            //Has changes
-            if(a.isChange()){
-                //new Enabled
-                URIAvailable availables = repositoryAvailable.findByTarget(a.getTarget());
-                if(availables.isEnable()) {
-                    //delete from Disabled
-                    repositoryURIDisabled.delete(a);
-                    ShortURL enabled = new ShortURL(a.getHash(), a.getTarget(), a.getUri(),
-                            a.getCreator(), a.getCreated(), a.getIp(), a.isPrivateURI(),
-                            a.getPrivateToken(), a.getExpirationSeconds(), a.getAuthorizedUsers());
-                    if(!newEnabled.contains(enabled.getTarget())){
-                        newEnabled.add(enabled.getTarget());
-                        enab.add(a);
-                    }
-                    a.setChange(false);
-                    repositoryURIDisabled.save(a);
-                    repositorySHORT.save(enabled);
+        // Four all urls of user, check changes
+        for(ShortURL a: uris){
+            URIAvailable available = repositoryAvailable.findByTarget(a.getTarget());
+            if(available.isChange()){
+
+                //  Check what change has each url.
+                if(available.getState() == 1){
+                    stateOne.add(available);
+                }else if(available.getState() == 2) {
+                    stateTwo.add(available);
+                }else if(available.getState() == 3){
+                    stateThree.add(available);
+                }else if(available.getState() == 4){
+                    stateFour.add(available);
                 }else{
-                    //new Disabled
-                    if(!newDisabled.contains(a.getTarget())){
-                        newDisabled.add(a.getTarget());
-                        disa.add(a);
-                    }
-                    a.setChange(false);
-                    repositoryURIDisabled.save(a);
+                    logger.info("\nNotification Worker:  ERROR," +
+                            " bad state in URIAvailable: \n" + available.toString());
                 }
             }
         }
-        if(newDisabled.size()>0 ||newEnabled.size()>0) {
-            writeEmail(enab, disa, user);
+
+        // First, send a e-mail.
+        email.setDestination(user2.getEmail());
+        email.sendNotification("Information Links",
+                "Information Links",stateOne,stateTwo,stateThree,stateFour);
+        if(stateThree.size() > 0){
+            checkState3(stateThree,user2);
         }
+        if(stateFour.size() > 0){
+            checkState4(stateFour,user2);
+        }
+        if(stateOne.size() > 0){
+            checkState1(stateOne,user2);
+        }
+        for(URIAvailable a: stateTwo){
+                Notify ab = notifyRepository.find(a.getTarget(),user2.getUsername());
+                notifyRepository.delete(ab.getId());
+                 ab = notifyRepository.find(a.getTarget(),user2.getUsername());
+                List<Notify> as = notifyRepository.findByTarget(a.getTarget());
+            if(as.size() == 0) {
+                a.setChange(false);
+                repositoryAvailable.save(a);
+            }
 
+        }
     }
-    private void writeEmail(List<URIDisabled> newEnabled,List<URIDisabled> newDisabled, String destino){
 
-        User userr = repositoryUser.findByUsername(destino);
-        email.setDestination(userr.getEmail());
-        email.sendNotification("Information Links","Information Links",newEnabled,newDisabled);
-    }
     private double serviceAverage(List<Integer> service) {
         double average = 0.0;
         for (Integer a: service){
@@ -141,4 +142,87 @@ public class NotificationWorker implements Runnable {
         average = average/delays.size();
         return average;
     }
+    // Create DisableURI, delete ShortURL && URIAvailabe.enable = false
+    private void checkState3(List<URIAvailable> stateThree, User user){
+
+        /* Four each URLAvailable wich has a change in state 3,
+         * search all ShortURL with the same target.
+         */
+        for(URIAvailable c : stateThree){
+            List<ShortURL> uris = repositorySHORT.find(c.getTarget(),
+                    user.getUsername());
+            /*
+             * For each ShortURL, create one URIDisable with same attributes and
+             *  delete ShortURL and c.enable = false
+             */
+            for(ShortURL a: uris) {
+                URIDisabled b = new URIDisabled(a.getHash(), a.getTarget(),
+                        a.getUri(),a.getCreator(), a.getCreated(),
+                        a.getIp(), a.isPrivateURI(),
+                        a.getPrivateToken(), a.getExpirationSeconds(),
+                        a.getAuthorizedUsers());
+                repositoryURIDisabled.save(b);
+                logger.info("\nNotification Worker: \n----------------\n" + b);
+                // Delete ShortURL
+                repositorySHORT.delete(a);
+                Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
+                notifyRepository.delete(ab);
+                List<Notify> as = notifyRepository.findByTarget(c.getTarget());
+                if(as.size() == 0) {
+
+                    // Set enable = false
+                    c.setEnable(false);
+                    c.setChange(false);
+                    repositoryAvailable.save(c);
+
+                }
+            }
+        }
+    }
+    private void checkState4(List<URIAvailable> stateFour, User user){
+        /* Delete DisableURI  && IF NOT EXIST MORE DisableURI
+         * with uri.target -> delete uri
+         */
+
+        for(URIAvailable a: stateFour){
+            List<URIDisabled> disableds =
+                    repositoryURIDisabled.find(a.getTarget(),user.getUsername());
+            for(URIDisabled b: disableds){
+                repositoryURIDisabled.delete(b.getHash());
+            }
+            List<URIDisabled> disableds2 =
+                    repositoryURIDisabled.findByTarget(a.getTarget());
+            if(disableds2 !=null){
+                if (disableds2.size() == 0){
+                    repositoryAvailable.delete(a.getTarget());
+                }
+            }
+        }
+    }
+    private void checkState1(List<URIAvailable> stateOne, User user){
+        for(URIAvailable a:stateOne){
+            List<URIDisabled> disableds =
+                    repositoryURIDisabled.find(a.getTarget(),user.getUsername());
+            for(URIDisabled b:disableds){
+                ShortURL c = new ShortURL(b.getHash(),b.getTarget(),b.getUri(),
+                        b.getCreator(),b.getCreated(),b.getIp(),b.isPrivateURI(),
+                        b.getPrivateToken(),b.getExpirationSeconds(),
+                        b.getAuthorizedUsers());
+                repositorySHORT.save(c);
+                repositoryURIDisabled.delete(b.getHash());
+            }
+
+            Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
+            notifyRepository.delete(ab);
+            List<Notify> as = notifyRepository.findByTarget(a.getTarget());
+            if(as.size() == 0) {
+                a.setEnable(true);
+                a.setChange(false);
+                repositoryAvailable.save(a);
+            }
+
+        }
+
+    }
+
 }

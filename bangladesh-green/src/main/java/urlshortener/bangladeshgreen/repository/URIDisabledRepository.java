@@ -24,4 +24,7 @@ public interface URIDisabledRepository extends MongoRepository<URIDisabled, Stri
 
     @Query("{'creator' : ?0}")
     public List<URIDisabled> findByCreator(String creator);
+
+    @Query("{'target' : ?0, 'creator' : ?1}")
+    public List<URIDisabled> find(String target, String creator);
 }

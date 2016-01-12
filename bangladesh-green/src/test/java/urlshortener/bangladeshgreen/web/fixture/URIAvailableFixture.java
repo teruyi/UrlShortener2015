@@ -9,14 +9,14 @@ import java.util.Date;
  */
 public class URIAvailableFixture {
     public static URIAvailable someAvailable() {
-        return new URIAvailable("http://www.google.es",true,new Date().getTime(),true,false);
+        return new URIAvailable("http://www.google.es",true,new Date().getTime(),1,false,true,"none");
     }
 
 
         public static URIAvailable someNotAvailable(){
-        return new URIAvailable("http://www.google.es",false,new Date().getTime(),true,false);
+        return new URIAvailable("http://www.google.es",false,new Date().getTime(),1,false,true,"delay");
     }
 
     public static URIAvailable someOutdated() {
-        return new URIAvailable("http://www.google.es",true,new Date(1).getTime(),true,false);    }
+        return new URIAvailable("http://www.google.es",true,new Date(1).getTime(),1,false,true,"none");    }
 }

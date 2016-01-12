@@ -20,19 +20,37 @@ public class URIAvailable {
     private List<Integer> service;
     private List<Long> delays;
     private int times;
-    private boolean enable;
     private boolean change;
-
-
-    public URIAvailable(String target, boolean available, long date, boolean enable, boolean change) {
+    private int state;
+    private boolean enable;
+    private String problem; // "none", "service", "delay", "down"
+    public URIAvailable(String target, boolean available, long date,int state, boolean change,boolean enable, String problem) {
         this.target = target;
         this.available = available;
         this.date = date;
         this.times = 0;
-        this.enable = enable;
         this.change = change;
+        this.state = state;
         delays = new <Long> ArrayList();
         service = new <Integer> ArrayList();
+        this.enable = enable;
+        this.problem = problem;
+    }
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
     public boolean isChange() {
@@ -43,12 +61,12 @@ public class URIAvailable {
         this.change = change;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public int getState() {
+        return state;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setState(int state) {
+        this.state = state;
     }
 
     public int getTimes() {
@@ -111,11 +129,12 @@ public class URIAvailable {
     }
 
     public String toString() {
-        return new String("URLAvailable[target='"+ target + "', available='" + available
-                + "', date='\"" + date + "\"'" +"\n    delay='\"" + delays + "\"'"
+        return new String("\nURLAvailable \n    target='"+ target + "' \n    available='" + available
+                + "'\n    date='\"" + date + "\"'" +"\n    delay='\"" + delays + "\"'"
                 + "\n    service='\"" + service + "\"'" +"\n    notAvailable='\""
-                + notAvailable + "\"'" +"\n    enable='\"" + enable + "\"'"
-                + "\n    Times='\"" + times + "\"'" +            "]\n");
+                + notAvailable + "\"'" +"\n    state='\"" + state + "\"'"
+                + "\n    enable='\"" + enable + "\n    Times='\"" + times + "\"'"
+                + "\n    problem='\"" + problem + "\"'" + "\n    change='\"" + change + "\"'" + "\n");
 
     }
     public boolean compareTo(ShortURL other){

@@ -23,6 +23,7 @@ import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import javax.servlet.http.Cookie;
 
@@ -58,7 +59,8 @@ public class WebTokenFilterTest {
 
     @InjectMocks
     private UrlShortenerController urlShortener;
-
+    @Mock
+    private URIAvailableRepository uriAvailableRepository;
     @Autowired
     private ConfigurableApplicationContext c;
 

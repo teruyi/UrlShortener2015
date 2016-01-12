@@ -3,13 +3,10 @@ package urlshortener.bangladeshgreen.NotificationQueue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import urlshortener.bangladeshgreen.domain.URIAvailable;
-import urlshortener.bangladeshgreen.domain.URIDisabled;
-import urlshortener.bangladeshgreen.domain.User;
-import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
-import urlshortener.bangladeshgreen.repository.URIDisabledRepository;
-import urlshortener.bangladeshgreen.repository.UserRepository;
+import urlshortener.bangladeshgreen.domain.*;
+import urlshortener.bangladeshgreen.repository.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,26 +22,71 @@ public class NotificationPeriodicCheck {
 	private RabbitTemplate rabbitTemplate;
 
 	@Autowired
-	private URIDisabledRepository warningRepository;
-
+	private URIAvailableRepository availableRepository;
+	@Autowired
+	private ShortURLRepository shortURLRepository;
+	@Autowired
+	private NotifyRepository notifyRepository;
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private URIDisabledRepository disabledRepository;
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 4500000L)
+	@Scheduled(fixedDelay = 520000L)
 	public void send() {
 		// All users
-		List<User> users = userRepository.findAll();
-		if(users != null)
-		for(User user: users){
-			List<URIDisabled> list = warningRepository.findByCreator(user.getUsername());
-			if(list !=null ){
-				if(list.size()>0){
-						this.rabbitTemplate.convertAndSend("notificationQueue",user.getUsername());
+		List<String> users = new ArrayList<String>();
+		List<URIAvailable> changes= availableRepository.findByChange(true);
+		List<ShortURL> urls = new ArrayList<ShortURL>();
+		List<URIDisabled> disableds = new ArrayList<URIDisabled>();
+		// For all AvailableURI wich have a change, save all URLShort with the same target
+		List<String> usersSend = new ArrayList<String>();
+		for(URIAvailable a:changes){
+			if(a.getState() < 4 ) {
+				List<ShortURL> b = shortURLRepository.findByTarget(a.getTarget());
+				for (ShortURL c : b) {
+					if (!users.contains(c.getCreator())) {
+						users.add(c.getCreator());
 
+					}
+				}
+			}else{
+				List<URIDisabled> b = disabledRepository.findByTarget(a.getTarget());
+				for (URIDisabled c : b) {
+					if (!users.contains(c.getCreator())) {
+						users.add(c.getCreator());
+
+					}
 				}
 			}
 		}
+
+
+		for(String user: users){
+			urls = shortURLRepository.findByCreator(user);
+			disableds = disabledRepository.findByCreator(user);
+			for(ShortURL x: urls){
+				if(urls.contains(x)){
+					usersSend.add(user);
+					Notify ab = new Notify(x.getTarget(),user);
+
+					notifyRepository.save(ab);
+					this.rabbitTemplate.convertAndSend("notificationQueue",user);
+				}
+			}
+			for(URIDisabled x: disableds){
+				if(!usersSend.contains(user)){
+					usersSend.add(user);
+					Notify ab = new Notify(x.getTarget(),user);
+
+					notifyRepository.save(ab);
+					this.rabbitTemplate.convertAndSend("notificationQueue",user);
+				}
+			}
+
+		}
+
 	}
 
 }
