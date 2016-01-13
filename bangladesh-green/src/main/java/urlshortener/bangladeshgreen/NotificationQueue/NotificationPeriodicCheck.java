@@ -20,7 +20,8 @@ public class NotificationPeriodicCheck {
 
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
-
+	@Autowired
+	private NotifyDisableRepository notifyDisableRepository;
 	@Autowired
 	private URIAvailableRepository availableRepository;
 	@Autowired
@@ -33,56 +34,73 @@ public class NotificationPeriodicCheck {
 	@Autowired
 	private URIDisabledRepository disabledRepository;
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 150000L)
+	@Scheduled(fixedDelay = 2100000L)
 	public void send() {
 		// All users
 		List<String> users = new ArrayList<String>();
-		List<URIAvailable> changes= availableRepository.findByChange(true);
+		List<URIAvailable> changes = availableRepository.findByChange(true);
 		List<ShortURL> urls = new ArrayList<ShortURL>();
 		List<URIDisabled> disableds = new ArrayList<URIDisabled>();
 		// For all AvailableURI wich have a change, save all URLShort with the same target
 		List<String> usersSend = new ArrayList<String>();
-		for(URIAvailable a:changes){
-			if(a.getState() < 4 ) {
-				List<ShortURL> b = shortURLRepository.findByTarget(a.getTarget());
-				for (ShortURL c : b) {
-					if (!users.contains(c.getCreator())) {
-						users.add(c.getCreator());
+		List<Notify> not = notifyRepository.findAll();
+		List<NotifyDisable> notd = notifyDisableRepository.findAll();
+		if (not.size() == 0 && changes.size() >0 && notd.size() == 0) {
+
+			for (URIAvailable a : changes) {
+				if (a.getState() < 4) {
+					List<ShortURL> b = shortURLRepository.findByTarget(a.getTarget());
+					for (ShortURL c : b) {
+						if (!users.contains(c.getCreator())) {
+							users.add(c.getCreator());
+
+						}
+					}
+				} else {
+					List<URIDisabled> b = disabledRepository.findByTarget(a.getTarget());
+					for (URIDisabled c : b) {
+						if (!users.contains(c.getCreator())) {
+							users.add(c.getCreator());
+
+						}
+					}
+				}
+			}
+
+			for (String user : users) {
+				urls = shortURLRepository.findByCreator(user);
+				disableds = disabledRepository.findByCreator(user);
+				for (ShortURL x : urls) {
+					if (urls.contains(x)) {
+						usersSend.add(user);
+						Notify ab = new Notify(x.getTarget(), user);
+
+						notifyRepository.save(ab);
 
 					}
 				}
-			}else{
-				List<URIDisabled> b = disabledRepository.findByTarget(a.getTarget());
-				for (URIDisabled c : b) {
-					if (!users.contains(c.getCreator())) {
-						users.add(c.getCreator());
+				for(String user2 : usersSend){
+					this.rabbitTemplate.convertAndSend("notificationQueue", user2);
+				}
+				for (URIDisabled x : disableds) {
+					if (!usersSend.contains(user)) {
+
+						NotifyDisable ab = new NotifyDisable(x.getHash(), x.getTarget());
+
+						notifyDisableRepository.save(ab);
 
 					}
 				}
+				for (URIDisabled x : disableds) {
+					if (!usersSend.contains(user)) {
+						usersSend.add(user);
+
+						this.rabbitTemplate.convertAndSend("notificationQueue", user);
+					}
+				}
+
 			}
 		}
-
-
-		for(String user: users){
-			urls = shortURLRepository.findByCreator(user);
-			disableds = disabledRepository.findByCreator(user);
-			for(ShortURL x: urls){
-				if(urls.contains(x)){
-					usersSend.add(user);
-					Notify ab = new Notify(x.getTarget(),user);
-
-					notifyRepository.save(ab);
-					this.rabbitTemplate.convertAndSend("notificationQueue",user);
-				}
-			}
-			for(URIDisabled x: disableds){
-				if(!usersSend.contains(user)){
-					this.rabbitTemplate.convertAndSend("notificationQueue",user);
-				}
-			}
-
-		}
-
 	}
 
 }

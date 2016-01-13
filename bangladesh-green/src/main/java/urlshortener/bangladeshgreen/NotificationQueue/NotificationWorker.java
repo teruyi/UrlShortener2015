@@ -40,6 +40,9 @@ public class NotificationWorker implements Runnable {
     @Autowired
     protected Email email;
 
+    @Autowired
+    private NotifyDisableRepository notifyDisableRepository;
+
     private Semaphore lock = new Semaphore(1);
     private String param;
     public void setParameter(String param){
@@ -129,10 +132,12 @@ public class NotificationWorker implements Runnable {
             checkState1(stateOne,user2);
         }
         for(URIAvailable a: stateTwo){
-                Notify ab = notifyRepository.find(a.getTarget(),user2.getUsername());
-                notifyRepository.delete(ab.getId());
-                 ab = notifyRepository.find(a.getTarget(),user2.getUsername());
-                List<Notify> as = notifyRepository.findByTarget(a.getTarget());
+            Notify ab = notifyRepository.findById(a.getTarget()+user2.getUsername());
+            logger.info("\nNotification Worker: \n----------------\n" + ab);
+            notifyRepository.delete(ab.getId());
+            ab = notifyRepository.findById(a.getTarget()+user2.getUsername());
+            List<Notify> as = notifyRepository.findByTarget(a.getTarget());
+
             if(as.size() == 0) {
                 a.setChange(false);
                 repositoryAvailable.save(a);
@@ -179,10 +184,10 @@ public class NotificationWorker implements Runnable {
                         a.getPrivateToken(), a.getExpirationSeconds(),
                         a.getAuthorizedUsers());
                 repositoryURIDisabled.save(b);
-                logger.info("\nNotification Worker: \n----------------\n" + b);
+
                 // Delete ShortURL
                 repositorySHORT.delete(a);
-                Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
+                Notify ab = notifyRepository.findById(a.getTarget()+user.getUsername());
                 notifyRepository.delete(ab.getId());
                 List<Notify> as = notifyRepository.findByTarget(c.getTarget());
                 if(as.size() == 0) {
@@ -206,6 +211,9 @@ public class NotificationWorker implements Runnable {
                     repositoryURIDisabled.find(a.getTarget(),user.getUsername());
             for(URIDisabled b: disableds){
                 repositoryURIDisabled.delete(b.getHash());
+                NotifyDisable ab = notifyDisableRepository.findByHash(b.getHash());
+                notifyRepository.delete(ab.getHash());
+
             }
             List<URIDisabled> disableds2 =
                     repositoryURIDisabled.findByTarget(a.getTarget());
@@ -231,7 +239,7 @@ public class NotificationWorker implements Runnable {
                 repositoryURIDisabled.delete(b.getHash());
             }
 
-            Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
+            Notify ab = notifyRepository.findById(a.getTarget()+user.getUsername());
             notifyRepository.delete(ab);
             List<Notify> as = notifyRepository.findByTarget(a.getTarget());
             if(as.size() == 0) {
