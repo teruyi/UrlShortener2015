@@ -119,9 +119,6 @@ public class WarningWorker implements Runnable {
             uri.setTimes(0);
             uri.setNotAvailable(0);
             uri.getDelays().clear();
-            if(uri.getState() == 3){
-                System.out.println("");
-            }
             uri.setState(uri.getState() + 1); // state notify
             uri.setChange(true);
             uri.setProblem(cause);
@@ -134,6 +131,7 @@ public class WarningWorker implements Runnable {
             uri.getService().clear();
             uri.getService().clear();
             uri.setTimes(0);
+            uri.setAvailable(true);
             uri.setNotAvailable(0);
             uri.getDelays().clear();
 

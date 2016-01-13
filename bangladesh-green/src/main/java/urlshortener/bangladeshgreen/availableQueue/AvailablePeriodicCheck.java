@@ -27,13 +27,13 @@ public class AvailablePeriodicCheck {
 	private URIAvailableRepository availableRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 180000L)
+	@Scheduled(fixedDelay = 60000L)
 	public void send() {
 		Date now = new Date();
 		now.setTime(now.getTime()-interval);
 		List<URIAvailable> list = availableRepository.findByDateLessThan(now.getTime());
 		for(URIAvailable uri : list) {
-			if(uri.getState()<4 && !uri.isChange()) {
+			if(uri.getState()<4) {
 				this.rabbitTemplate.convertAndSend("availableQueue", uri.getTarget());
 			}
 		}

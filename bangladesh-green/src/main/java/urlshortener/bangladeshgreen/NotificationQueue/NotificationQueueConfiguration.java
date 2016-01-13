@@ -39,9 +39,9 @@ public class NotificationQueueConfiguration {
     public TaskExecutor notificationExecutor() {
         ThreadPoolTaskExecutor taskExecutorNotification = new ThreadPoolTaskExecutor();
         // If the queue is full (MAX_INT_VALUE), then it can create this number of threads.
-        taskExecutorNotification.setMaxPoolSize(10);
+        taskExecutorNotification.setMaxPoolSize(1);
         // It can be X process concurrently.
-        taskExecutorNotification.setCorePoolSize(10);
+        taskExecutorNotification.setCorePoolSize(1);
         taskExecutorNotification.afterPropertiesSet();
         return taskExecutorNotification;
     }
