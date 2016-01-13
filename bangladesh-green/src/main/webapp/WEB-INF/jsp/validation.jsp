@@ -43,8 +43,7 @@
     <p class="lockText">Congratulations!</p>
     <p class="lockTextSecondary">Your account has been verified successfully.</p>
     <p class="lockTextSecondary">Now you can <a href="${url}">login</a> and use the service.</p>
-</div>
-<div class=" mainBackground" style="padding:20px;">
+
     <p class="lockTextSecondary"><strong>The following user has been activated:</strong></p>
     <p class="lockTextSecondary"><strong>Username:</strong> ${user}</p>
     <p class="lockTextSecondary"><strong>Email: </strong>${email}</p>
