@@ -25,6 +25,7 @@ import urlshortener.bangladeshgreen.domain.Click;
 import urlshortener.bangladeshgreen.domain.ShortURL;
 import urlshortener.bangladeshgreen.repository.ClickRepository;
 import urlshortener.bangladeshgreen.repository.ShortURLRepository;
+import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -68,6 +69,8 @@ public class UrlShortenerControllerTest {
 	@Autowired
 	private ConfigurableApplicationContext c;
 
+	@Mock
+	private URIAvailableRepository uriAvailableRepository;
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);

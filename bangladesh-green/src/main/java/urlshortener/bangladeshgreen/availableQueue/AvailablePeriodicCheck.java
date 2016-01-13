@@ -2,6 +2,7 @@ package urlshortener.bangladeshgreen.availableQueue;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import urlshortener.bangladeshgreen.domain.URIAvailable;
 import urlshortener.bangladeshgreen.repository.URIAvailableRepository;
@@ -16,8 +17,9 @@ import java.util.List;
  */
 public class AvailablePeriodicCheck {
 	// Interval that sets when a URI has to be checked again (1h)
-	private final long interval = 3600*1000;
-
+	private final long interval = 1;
+	@Value("${db.periodCheck}")
+	private int PERIOD_CHECK;
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
@@ -25,13 +27,15 @@ public class AvailablePeriodicCheck {
 	private URIAvailableRepository availableRepository;
 
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 1800000L)
+	@Scheduled(fixedDelay = 180000L)
 	public void send() {
 		Date now = new Date();
 		now.setTime(now.getTime()-interval);
 		List<URIAvailable> list = availableRepository.findByDateLessThan(now.getTime());
 		for(URIAvailable uri : list) {
-			this.rabbitTemplate.convertAndSend("availableQueue",uri.getTarget());
+			if(uri.getState()<4 && !uri.isChange()) {
+				this.rabbitTemplate.convertAndSend("availableQueue", uri.getTarget());
+			}
 		}
 	}
 

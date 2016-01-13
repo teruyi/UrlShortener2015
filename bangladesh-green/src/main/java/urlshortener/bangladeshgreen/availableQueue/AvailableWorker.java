@@ -50,7 +50,7 @@ public class AvailableWorker implements Runnable {
         URIAvailable checked = checkURI(parameter);
         repository.save(checked);
 
-        logger.info("Available Worker: " + checked.toString());
+        logger.info("\nAvailable Worker: \n------------------\n" + checked.toString());
 
     }
 
@@ -146,10 +146,10 @@ public class AvailableWorker implements Runnable {
             }else{
                 //Not found in repository
                 if ((responseCode.toString().charAt(0) == '2' || responseCode.toString().charAt(0) == '3')&&!tooManyRedirects) {
-                    return new URIAvailable(workerParameter, true, System.currentTimeMillis(), true, false);
+                    return new URIAvailable(workerParameter, true, System.currentTimeMillis(),1, false, true,"none");
 
                 }else{
-                    return new URIAvailable(workerParameter, false, System.currentTimeMillis(), true, false);
+                    return new URIAvailable(workerParameter, false, System.currentTimeMillis(),1, false, true,"none");
 
                 }
             }
@@ -170,7 +170,7 @@ public class AvailableWorker implements Runnable {
                 uriAvailable.setNotAvailable(uriAvailable.getNotAvailable()+1);
                 return uriAvailable;
             }else{
-                return new URIAvailable(workerParameter, false, System.currentTimeMillis(), true, false);
+                return new URIAvailable(workerParameter, false, System.currentTimeMillis(),1, false, true,"none");
 
             }
 

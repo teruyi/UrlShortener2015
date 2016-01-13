@@ -21,5 +21,6 @@ public interface URIAvailableRepository extends MongoRepository<URIAvailable, St
     @Query("{}")
     public List<URIAvailable> list();
 
-
+    @Query("{'change' : ?0}")
+    public List<URIAvailable> findByChange(boolean change);
 }

@@ -33,8 +33,8 @@ public class URIAvailableRepositoryTest {
     @Before
     //Executed before every test
     public void setUp() throws Exception {
-        test = new URIAvailable("http://www.google.es", true, new Date().getTime(),true,false);
-        test2 = new URIAvailable("http://www.unizar.es", false, new Date().getTime(),true,false);
+        test = new URIAvailable("http://www.google.es", true, new Date().getTime(),1,false,true,"none");
+        test2 = new URIAvailable("http://www.unizar.es", false, new Date().getTime(),1,false,true,"none");
 
     }
 

@@ -12,7 +12,6 @@ import java.util.List;
 public class URIDisabled {
     @Id
     private String hash;
-    private boolean change;
     private String target;
     private URI uri;
     private Date created;
@@ -22,11 +21,10 @@ public class URIDisabled {
     private boolean privateURI;
     private Long expirationSeconds;
     private List<String> authorizedUsers;
-    private String cause; // service, delay, down
 
-    public URIDisabled(String hash, String target, URI uri, Date created, String creator, String ip,
-                       String privateToken, boolean privateURI, Long expirationSeconds,
-                       List<String> authorizedUsers,boolean change, String cause) {
+    public URIDisabled(String hash, String target, URI uri, String creator, Date created,   String ip,
+                       boolean privateURI,  String privateToken,   Long expirationSeconds,
+                       List<String> authorizedUsers) {
         this.hash = hash;
         this.target = target;
         this.uri = uri;
@@ -37,24 +35,22 @@ public class URIDisabled {
         this.privateURI = privateURI;
         this.expirationSeconds = expirationSeconds;
         this.authorizedUsers = authorizedUsers;
-        this.change = change;
-        this.cause = cause;
     }
 
-    public String getCause() {
-        return cause;
-    }
-
-    public void setCause(String cause) {
-        this.cause = cause;
-    }
-
-    public boolean isChange() {
-        return change;
-    }
-
-    public void setChange(boolean change) {
-        this.change = change;
+    @Override
+    public String toString() {
+        return "URIDisabled{\n" +
+                "\n   hash='" + hash + '\'' +
+                "\n   target='" + target + '\'' +
+                "\n   uri=" + uri +
+                "\n   created=" + created +
+                "\n   creator='" + creator + '\'' +
+                "\n   ip='" + ip + '\'' +
+                "\n   privateToken='" + privateToken + '\'' +
+                "\n   privateURI=" + privateURI +
+                "\n   expirationSeconds=" + expirationSeconds +
+                "\n   authorizedUsers=" + authorizedUsers +
+                '}';
     }
 
     public String getHash() {
