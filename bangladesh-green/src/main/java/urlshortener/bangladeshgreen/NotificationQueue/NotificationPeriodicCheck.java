@@ -33,7 +33,7 @@ public class NotificationPeriodicCheck {
 	@Autowired
 	private URIDisabledRepository disabledRepository;
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 520000L)
+	@Scheduled(fixedDelay = 150000L)
 	public void send() {
 		// All users
 		List<String> users = new ArrayList<String>();
@@ -77,10 +77,6 @@ public class NotificationPeriodicCheck {
 			}
 			for(URIDisabled x: disableds){
 				if(!usersSend.contains(user)){
-					usersSend.add(user);
-					Notify ab = new Notify(x.getTarget(),user);
-
-					notifyRepository.save(ab);
 					this.rabbitTemplate.convertAndSend("notificationQueue",user);
 				}
 			}

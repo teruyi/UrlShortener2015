@@ -157,13 +157,13 @@ public class Email{
                 for(URIAvailable a : stateTwo){
                     String problem = a.getProblem();
                     if(problem.compareTo("down") == 0){
-                        uris = uris + a.getTarget() + "\n" + SERVER_DOWN;
+                        uris = uris + a.getTarget()  + SERVER_DOWN + "\n";
                     }
                     if(problem.compareTo("delay") == 0){
-                        uris = uris + a.getTarget() + "\n" + DELAY;
+                        uris = uris + a.getTarget() +  DELAY+ "\n";
                     }
                     if(problem.compareTo("service") == 0){
-                        uris = uris + a.getTarget() + "\n" + SERVICE;
+                        uris = uris + a.getTarget() +  SERVICE+ "\n";
                     }
                 }
             }
@@ -173,28 +173,28 @@ public class Email{
                 for(URIAvailable a : stateThree){
                     String problem = a.getProblem();
                     if(problem.compareTo("down") == 0){
-                        uris = uris + a.getTarget() + "\n" + SERVER_DOWN;
+                        uris = uris + a.getTarget() +  SERVER_DOWN+ "\n";
                     }
                     if(problem.compareTo("delay") == 0){
-                        uris = uris + a.getTarget() + "\n" + DELAY;
+                        uris = uris + a.getTarget() + DELAY+ "\n";
                     }
                     if(problem.compareTo("service") == 0){
-                        uris = uris + a.getTarget() + "\n" + SERVICE;
+                        uris = uris + a.getTarget() + SERVICE+ "\n";
                     }
                 }
             }
             if(stateFour.size() > 0){
                 uris = uris + DELETE;
-                for(URIAvailable a : stateThree){
+                for(URIAvailable a : stateFour){
                     String problem = a.getProblem();
                     if(problem.compareTo("down") == 0){
-                        uris = uris + a.getTarget() + "\n" + SERVER_DOWN;
+                        uris = uris + a.getTarget()  + SERVER_DOWN+ "\n";
                     }
                     if(problem.compareTo("delay") == 0){
-                        uris = uris + a.getTarget() + "\n" + DELAY;
+                        uris = uris + a.getTarget() + DELAY+ "\n";
                     }
                     if(problem.compareTo("service") == 0){
-                        uris = uris + a.getTarget() + "\n" + SERVICE;
+                        uris = uris + a.getTarget() +  SERVICE+ "\n";
                     }
                 }
 
