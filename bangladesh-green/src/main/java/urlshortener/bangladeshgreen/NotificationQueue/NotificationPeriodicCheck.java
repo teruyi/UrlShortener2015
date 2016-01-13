@@ -48,7 +48,7 @@ public class NotificationPeriodicCheck {
 		if (not.size() == 0 && changes.size() >0 && notd.size() == 0) {
 
 			for (URIAvailable a : changes) {
-				if (a.getState() < 4) {
+				if (a.getState() == 2 || a.getState() == 3) {
 					List<ShortURL> b = shortURLRepository.findByTarget(a.getTarget());
 					for (ShortURL c : b) {
 						if (!users.contains(c.getCreator())) {
