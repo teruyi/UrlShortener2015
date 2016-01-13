@@ -1,10 +1,8 @@
 language: java
 jdk:
 - oraclejdk8
-
 services:
-  - rabbitmq
-
+- rabbitmq
 before_install:
 - openssl aes-256-cbc -K $encrypted_ab15aaaef74e_key -iv $encrypted_ab15aaaef74e_iv
   -in bangladesh-green/src/main/resources/application.properties.enc -out bangladesh-green/src/main/resources/application.properties
