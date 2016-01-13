@@ -40,6 +40,9 @@ public class NotificationWorker implements Runnable {
     @Autowired
     protected Email email;
 
+    @Autowired
+    private NotifyDisableRepository notifyDisableRepository;
+
     private Semaphore lock = new Semaphore(1);
     private String param;
     public void setParameter(String param){
@@ -58,8 +61,8 @@ public class NotificationWorker implements Runnable {
         lock.release();
         long id =  Thread.currentThread().getId();
        Date now = new Date();
-        checkUser(parameter);
         logger.info("\nNotification Worker: \n----------------\n" + parameter);
+        checkUser(parameter);
 
     }
 
@@ -68,77 +71,84 @@ public class NotificationWorker implements Runnable {
      * @param user is the user to check
      */
     protected void checkUser(String user){
+      try {
+          List<URIAvailable> stateOne = new ArrayList<URIAvailable>(); // for  enable urls again
+          List<URIAvailable> stateTwo = new ArrayList<URIAvailable>(); // for warning urls
+          List<URIAvailable> stateThree = new ArrayList<URIAvailable>(); // for disable urls
+          List<URIAvailable> stateFour = new ArrayList<URIAvailable>(); // for delete urls
+          User user2 = repositoryUser.findByUsername(user);
+          // All urls of user
+          List<ShortURL> uris = repositorySHORT.findByCreator(user);
 
-        List<URIAvailable> stateOne = new ArrayList<URIAvailable>(); // for  enable urls again
-        List<URIAvailable> stateTwo = new ArrayList<URIAvailable>(); // for warning urls
-        List<URIAvailable> stateThree = new ArrayList<URIAvailable>(); // for disable urls
-        List<URIAvailable> stateFour = new ArrayList<URIAvailable>(); // for delete urls
-        User user2 = repositoryUser.findByUsername(user);
-        // All urls of user
-        List<ShortURL> uris = repositorySHORT.findByCreator(user);
+          // Four all urls of user, check changes
+          for (ShortURL a : uris) {
+              URIAvailable available = repositoryAvailable.findByTarget(a.getTarget());
+              if (available.isChange()) {
+                  logger.info("\nNotification Worker:" + available.toString());
+                  //  Check what change has each url.
+                  if (available.getState() == 2) {
+                      if (!stateTwo.contains(available)) {
+                          stateTwo.add(available);
+                      }
+                  } else if (available.getState() == 3) {
+                      if (!stateThree.contains(available)) {
+                          stateThree.add(available);
+                      }
 
-        // Four all urls of user, check changes
-        for(ShortURL a: uris){
-            URIAvailable available = repositoryAvailable.findByTarget(a.getTarget());
-            if(available.isChange()){
-                logger.info("\nNotification Worker:"+ available.toString());
-                //  Check what change has each url.
-                if(available.getState() == 2) {
-                    if(!stateTwo.contains(available)) {
-                        stateTwo.add(available);
-                    }
-                }else if(available.getState() == 3){
-                    if(!stateThree.contains(available)) {
-                        stateThree.add(available);
-                    }
+                  } else {
+                      logger.info("\nNotification Worker:  ERROR," +
+                              " bad state in URIAvailable: \n" + available.toString());
+                  }
+              }
+          }
 
-                }else{
-                    logger.info("\nNotification Worker:  ERROR," +
-                            " bad state in URIAvailable: \n" + available.toString());
-                }
-            }
-        }
+          List<URIDisabled> disab = repositoryURIDisabled.findByCreator(user);
+          for (URIDisabled ax : disab) {
+              URIAvailable available = repositoryAvailable.findByTarget(ax.getTarget());
+              if (available.getState() == 1) {
+                  if (!stateOne.contains(available)) {
+                      stateOne.add(available);
+                  }
+              } else if (available.getState() == 4) {
+                  if (!stateFour.contains(available)) {
+                      stateFour.add(available);
 
-        List<URIDisabled> disab = repositoryURIDisabled.findByCreator(user);
-        for(URIDisabled ax: disab){
-            URIAvailable available = repositoryAvailable.findByTarget(ax.getTarget());
-            if(available.getState() == 1){
-                if(!stateOne.contains(available)) {
-                    stateOne.add(available);
-                }
-            }else if(available.getState() == 4){
-                if(!stateFour.contains(available)){
-                    stateFour.add(available);
+                  }
+              }
 
-                }
-            }
+          }
+          if (stateOne.size() > 0 || stateTwo.size() > 0 || stateThree.size() > 0 || stateFour.size() > 0) {
+              logger.info("" + stateFour.size());
+              // First, send a e-mail.
+              email.setDestination(user2.getEmail());
+              email.sendNotification("Information Links",
+                      "Information Links", stateOne, stateTwo, stateThree, stateFour);
+              if (stateThree.size() > 0) {
+                  checkState3(stateThree, user2);
+              }
+              if (stateFour.size() > 0) {
+                  checkState4(stateFour, user2);
+              }
+              if (stateOne.size() > 0) {
+                  checkState1(stateOne, user2);
+              }
+              for (URIAvailable a : stateTwo) {
+                  Notify ab = notifyRepository.findById(a.getTarget() + user2.getUsername());
+                  logger.info("\nNotification Worker: \n----------------\n" + ab);
+                  notifyRepository.delete(ab.getId());
+                  ab = notifyRepository.findById(a.getTarget() + user2.getUsername());
+                  List<Notify> as = notifyRepository.findByTarget(a.getTarget());
 
-        }
-        logger.info(""+stateFour.size());
-        // First, send a e-mail.
-        email.setDestination(user2.getEmail());
-        email.sendNotification("Information Links",
-                "Information Links",stateOne,stateTwo,stateThree,stateFour);
-        if(stateThree.size() > 0){
-            checkState3(stateThree,user2);
-        }
-        if(stateFour.size() > 0){
-            checkState4(stateFour,user2);
-        }
-        if(stateOne.size() > 0){
-            checkState1(stateOne,user2);
-        }
-        for(URIAvailable a: stateTwo){
-                Notify ab = notifyRepository.find(a.getTarget(),user2.getUsername());
-                notifyRepository.delete(ab.getId());
-                 ab = notifyRepository.find(a.getTarget(),user2.getUsername());
-                List<Notify> as = notifyRepository.findByTarget(a.getTarget());
-            if(as.size() == 0) {
-                a.setChange(false);
-                repositoryAvailable.save(a);
-            }
+                  if (as.size() == 0) {
+                      a.setChange(false);
+                      repositoryAvailable.save(a);
+                  }
 
-        }
+              }
+          }
+      }catch(Exception e){
+
+      }
     }
 
     private double serviceAverage(List<Integer> service) {
@@ -179,10 +189,10 @@ public class NotificationWorker implements Runnable {
                         a.getPrivateToken(), a.getExpirationSeconds(),
                         a.getAuthorizedUsers());
                 repositoryURIDisabled.save(b);
-                logger.info("\nNotification Worker: \n----------------\n" + b);
+
                 // Delete ShortURL
                 repositorySHORT.delete(a);
-                Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
+                Notify ab = notifyRepository.findById(a.getTarget()+user.getUsername());
                 notifyRepository.delete(ab.getId());
                 List<Notify> as = notifyRepository.findByTarget(c.getTarget());
                 if(as.size() == 0) {
@@ -206,6 +216,9 @@ public class NotificationWorker implements Runnable {
                     repositoryURIDisabled.find(a.getTarget(),user.getUsername());
             for(URIDisabled b: disableds){
                 repositoryURIDisabled.delete(b.getHash());
+                NotifyDisable ab = notifyDisableRepository.findByHash(b.getHash());
+                notifyDisableRepository.delete(ab.getHash());
+
             }
             List<URIDisabled> disableds2 =
                     repositoryURIDisabled.findByTarget(a.getTarget());
@@ -229,15 +242,19 @@ public class NotificationWorker implements Runnable {
                         b.getAuthorizedUsers());
                 repositorySHORT.save(c);
                 repositoryURIDisabled.delete(b.getHash());
-            }
+                NotifyDisable ab = notifyDisableRepository.findByHash(b.getHash());
+                notifyDisableRepository.delete(ab.getHash());
 
-            Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
-            notifyRepository.delete(ab);
-            List<Notify> as = notifyRepository.findByTarget(a.getTarget());
-            if(as.size() == 0) {
-                a.setEnable(true);
-                a.setChange(false);
-                repositoryAvailable.save(a);
+
+            }
+            List<URIDisabled> disableds2 =
+                    repositoryURIDisabled.findByTarget(a.getTarget());
+            if(disableds2 !=null){
+                if (disableds2.size() == 0){
+                    repositoryAvailable.delete(a.getTarget());
+                }
+            }else{
+                repositoryAvailable.delete(a.getTarget());
             }
 
         }

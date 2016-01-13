@@ -29,6 +29,7 @@ public class Notify {
     }
 
     public Notify(String target, String userName) {
+        this.id = target+userName;
         this.target = target;
         this.userName = userName;
     }
@@ -39,5 +40,14 @@ public class Notify {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Notify{" +
+                "id='" + id + '\'' +
+                ", target='" + target + '\'' +
+                ", userName='" + userName + '\'' +
+                '}';
     }
 }
