@@ -81,16 +81,17 @@ public class NotificationWorker implements Runnable {
         for(ShortURL a: uris){
             URIAvailable available = repositoryAvailable.findByTarget(a.getTarget());
             if(available.isChange()){
-
+                logger.info("\nNotification Worker:"+ available.toString());
                 //  Check what change has each url.
-                if(available.getState() == 1){
-                    stateOne.add(available);
-                }else if(available.getState() == 2) {
-                    stateTwo.add(available);
+                if(available.getState() == 2) {
+                    if(!stateTwo.contains(available)) {
+                        stateTwo.add(available);
+                    }
                 }else if(available.getState() == 3){
-                    stateThree.add(available);
-                }else if(available.getState() == 4){
-                    stateFour.add(available);
+                    if(!stateThree.contains(available)) {
+                        stateThree.add(available);
+                    }
+
                 }else{
                     logger.info("\nNotification Worker:  ERROR," +
                             " bad state in URIAvailable: \n" + available.toString());
@@ -98,6 +99,22 @@ public class NotificationWorker implements Runnable {
             }
         }
 
+        List<URIDisabled> disab = repositoryURIDisabled.findByCreator(user);
+        for(URIDisabled ax: disab){
+            URIAvailable available = repositoryAvailable.findByTarget(ax.getTarget());
+            if(available.getState() == 1){
+                if(!stateOne.contains(available)) {
+                    stateOne.add(available);
+                }
+            }else if(available.getState() == 4){
+                if(!stateFour.contains(available)){
+                    stateFour.add(available);
+
+                }
+            }
+
+        }
+        logger.info(""+stateFour.size());
         // First, send a e-mail.
         email.setDestination(user2.getEmail());
         email.sendNotification("Information Links",
@@ -166,7 +183,7 @@ public class NotificationWorker implements Runnable {
                 // Delete ShortURL
                 repositorySHORT.delete(a);
                 Notify ab = notifyRepository.find(a.getTarget(),user.getUsername());
-                notifyRepository.delete(ab);
+                notifyRepository.delete(ab.getId());
                 List<Notify> as = notifyRepository.findByTarget(c.getTarget());
                 if(as.size() == 0) {
 
@@ -183,7 +200,7 @@ public class NotificationWorker implements Runnable {
         /* Delete DisableURI  && IF NOT EXIST MORE DisableURI
          * with uri.target -> delete uri
          */
-
+        logger.info("\n ----------------CHECK 4-------------");
         for(URIAvailable a: stateFour){
             List<URIDisabled> disableds =
                     repositoryURIDisabled.find(a.getTarget(),user.getUsername());
@@ -196,6 +213,8 @@ public class NotificationWorker implements Runnable {
                 if (disableds2.size() == 0){
                     repositoryAvailable.delete(a.getTarget());
                 }
+            }else{
+                repositoryAvailable.delete(a.getTarget());
             }
         }
     }
