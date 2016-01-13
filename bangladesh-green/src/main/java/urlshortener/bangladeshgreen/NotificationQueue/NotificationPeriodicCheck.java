@@ -34,7 +34,7 @@ public class NotificationPeriodicCheck {
 	@Autowired
 	private URIDisabledRepository disabledRepository;
 	// One hour of delay (for checking "all" URIs)
-	@Scheduled(fixedDelay = 900000L)
+	@Scheduled(fixedDelay = 180000L)
 	public void send() {
 		// All users
 		List<String> users = new ArrayList<String>();
@@ -67,8 +67,9 @@ public class NotificationPeriodicCheck {
 					for(URIDisabled n: disableds){
 						if(n.getTarget().compareTo(z.getTarget())==0){
 							NotifyDisable ab = new NotifyDisable(n.getHash(), z.getTarget());
-							if(((notifyDisableRepository.findByHash(n.getHash()).getHash())!=null)
-									&& (notifyDisableRepository.findByHash(n.getHash()).getHash()) == ab.getHash()){
+							NotifyDisable abc = notifyDisableRepository.findByHash(n.getHash());
+							if(abc == null){
+
 								notifyDisableRepository.save(ab);
 							}
 

@@ -23,4 +23,7 @@ public interface NotifyRepository extends MongoRepository<Notify, String> {
 
     @Query("{'id' : ?0}")
     public Notify findById(String id);
+
+    @Query("{'target' : ?0, 'userName' : ?1}")
+    public Notify find(String target, String userName);
 }
