@@ -111,7 +111,7 @@ public class WarningWorker implements Runnable {
 
         if (uri.getNotAvailable() > LIMIT_NOT_AVAILABLE
                 || delayAverage > LIMIT_DELAY
-                || serviceAverage < LIMIT_TIME_SERVICE_AVERAGE) {
+                || (serviceAverage *100) < LIMIT_TIME_SERVICE_AVERAGE) {
             // if times are bad -> change state to notify and reset times
 
             uri.setChange(true);
@@ -136,6 +136,13 @@ public class WarningWorker implements Runnable {
             uri.setTimes(0);
             uri.setNotAvailable(0);
             uri.getDelays().clear();
+
+            if(uri.getState() == 3){
+                uri.setState(1);
+                uri.setChange(true);
+
+
+            }
             repository.save(uri);
             logger.info("\nWarning Worker: \n----------------\n" + uri.toString());
         }
